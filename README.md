@@ -63,7 +63,9 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 3. Choisir l'orchestrateur : garder `Taskfile.yml` (défaut), le remplacer par
    la variante justfile de `templates/orchestrators/`, ou n'en garder aucun —
    les portes de `tools/` s'appellent aussi directement.
-4. `task hooks` puis `task ci` — tout doit être vert avant la première ligne.
+4. `task setup` — accueil du poste : bootstrap, hooks, portes ; tout doit
+   être vert avant la première ligne. (Chaque contributeur suivant fait de
+   même après son clone.)
 5. Écrire votre premier besoin (`templates/fr/need.md`) et l'ADR-0001 de votre
    projet (`task adr-new -- …`).
 6. Étendre `tools/oft.sh` (périmètre scanné) et la CI aux répertoires de votre
@@ -74,6 +76,7 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 
 | Commande | Effet |
 | --- | --- |
+| `task setup` | Accueil après clone : bootstrap + hooks + portes |
 | `task trace` | Traçabilité complète (échoue si un maillon manque) |
 | `task report` | Rapport HTML navigable dans `build/` |
 | `task check` | Cohérence : ADR acceptés, parité des templates, version |

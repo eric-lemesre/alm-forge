@@ -85,6 +85,7 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
          tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
          tools/hooks/commit-msg.sh tools/init.sh tools/init-test.sh \
+         tools/bootstrap.sh tools/setup.sh tools/setup-test.sh \
          .github/workflows/ci.yml; do
     [ -f "${f}" ] || continue
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \
@@ -200,7 +201,7 @@ sh tools/checks.sh
 cat <<EOF
 
 Instanciation de ${NOM} terminée. Prochaines étapes :
-  1. task hooks               — installer les garde-fous locaux
+  1. task setup               — accueil du poste (bootstrap, hooks, portes)
   2. Écrire le premier besoin — spec/01-besoins/ (modèle templates/fr/need.md)
   3. Écrire votre ADR-0001    — task adr-new -- votre-premiere-decision
   4. Choisir la façade        — garder Taskfile.yml, ou templates/orchestrators/

@@ -30,6 +30,9 @@ jobs:
       - name: Test du script d'instanciation
         run: tools/init-test.sh
 
+      - name: Test du parcours d'accueil
+        run: tools/setup-test.sh
+
       - name: Rapport HTML de traçabilité
         if: always()
         run: tools/oft.sh report

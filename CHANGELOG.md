@@ -20,6 +20,11 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   test mécanisé `tools/init-test.sh` câblé en CI : personnalise l'identité du
   projet, retire la spécification et les ADR du gabarit, laisse les portes
   vertes.
+- Onboarding « Scripts to Rule Them All » (req~onboarding-outille~1) :
+  `tools/setup.sh` (accueil après clone : bootstrap, hooks, portes,
+  orientation) et `tools/bootstrap.sh` (socle + point d'extension où chaque
+  projet installe son outillage en vérification de ses ADR), testés par
+  `tools/setup-test.sh` câblé en CI.
 
 ## [0.1.0] - 2026-08-08
 

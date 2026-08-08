@@ -7,9 +7,12 @@ opérationnel :
 ## Mise en place
 
 ```bash
-task hooks   # installe pre-commit et commit-msg (indispensable)
-task ci      # vérifie que le dépôt est sain avant de commencer
+task setup   # accueil complet : dépendances, hooks, portes, orientation
 ```
+
+(ou `sh tools/setup.sh` sans façade). Le script est idempotent ; il enchaîne
+`bootstrap` (prérequis du socle + outillage propre au projet), l'installation
+des hooks et les portes. Détail des cibles : AGENTS.md §3.
 
 Prérequis : git, un shell `sh` POSIX (fourni par Git sous Windows), curl,
 Java 17+ (pour OpenFastTrace, téléchargé automatiquement et vérifié par

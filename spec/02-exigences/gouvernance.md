@@ -66,6 +66,36 @@ Covers:
 
 Needs: impl, utest
 
+## Onboarding outillé des contributeurs
+
+`req~onboarding-outille~1`
+
+Quand un contributeur clone un projet issu du gabarit, le dépôt DOIT fournir
+un script d'accueil idempotent qui vérifie les prérequis du socle, exécute le
+point d'extension bootstrap (où chaque projet instancié installe son propre
+outillage technologique, en vérification de ses ADR), installe les garde-fous
+locaux, rejoue les portes et oriente vers le contrat et la méthode.
+
+Rationale:
+Pattern « Scripts to Rule Them All » : des points d'entrée normalisés rendent
+un contributeur productif sans connaissance préalable du projet. Le gabarit
+étant agnostique du langage, il ne fournit que le socle et la convention ; les
+technologies s'installent dans le point d'extension, jamais dans le gabarit.
+
+Critères d'acceptation :
+
+- Étant donné un clone frais, quand le script d'accueil est exécuté, alors les
+  hooks git sont installés, les portes passent et le script sort en succès.
+- Étant donné un prérequis du socle manquant, quand le bootstrap s'exécute,
+  alors il échoue en nommant l'outil absent.
+- Étant donné un poste déjà configuré, quand le script est relancé, alors le
+  résultat est identique (idempotence).
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

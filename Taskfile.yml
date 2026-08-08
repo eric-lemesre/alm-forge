@@ -42,6 +42,16 @@ tasks:
       - git config core.hooksPath .githooks
       - echo "Hooks installés (core.hooksPath = .githooks)."
 
+  bootstrap:
+    desc: Vérifie/installe les dépendances (socle + point d'extension projet)
+    cmds:
+      - sh tools/bootstrap.sh
+
+  setup:
+    desc: Accueil d'un contributeur qui vient de cloner (bootstrap + hooks + portes)
+    cmds:
+      - sh tools/setup.sh
+
   init:
     desc: "Instancie le gabarit (une fois) : task init -- --nom projet --porteur \"Prénom Nom\""
     cmds:

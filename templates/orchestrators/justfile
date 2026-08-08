@@ -30,6 +30,14 @@ hooks:
     git config core.hooksPath .githooks
     @echo "Hooks installés (core.hooksPath = .githooks)."
 
+# Vérifie/installe les dépendances (socle + point d'extension projet)
+bootstrap:
+    sh tools/bootstrap.sh
+
+# Accueil d'un contributeur qui vient de cloner (bootstrap + hooks + portes)
+setup:
+    sh tools/setup.sh
+
 # Instancie le gabarit (une fois) : just init --nom projet --porteur "Prénom Nom"
 init *args:
     sh tools/init.sh {{args}}
