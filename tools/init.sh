@@ -1,12 +1,15 @@
 #!/bin/sh
 # [impl->req~instanciation-outillee~1]
-# Script d'instanciation du gabarit : personnalise l'identité du projet et
-# retire tout ce qui n'appartient qu'à alm-forge, en laissant la traçabilité
-# verte. À lancer UNE FOIS, juste après « Use this template ».
-#   sh tools/init.sh --nom mon-projet --porteur "Prénom Nom" [--force]
+# Script d'instanciation du gabarit : personnalise l'identité du projet,
+# applique les arbitrages de l'instanciateur (attribution des agents,
+# ADR-0008 ; langue, ADR-0009) et retire tout ce qui n'appartient qu'à
+# alm-forge, en laissant la traçabilité verte. À lancer UNE FOIS, juste après
+# la création du dépôt (« Use this template » sur GitHub, ou simple clone +
+# nouveau remote sur GitLab et toute autre forge, ADR-0010).
+#   sh tools/init.sh --nom mon-projet --porteur "Prénom Nom" \
+#       [--attribution-agents autorisee|interdite] [--langue fr|en|fr-en] [--force]
 # POSIX sh strict. GitHub ne substituant aucune variable à la création depuis
-# un template, ce script est le mécanisme de personnalisation (ADR du projet
-# à écrire ensuite : voir les étapes finales affichées).
+# un template, ce script est le mécanisme de personnalisation.
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -14,16 +17,33 @@ cd "${ROOT}"
 
 NOM=""
 PORTEUR=""
+ATTRIBUTION=""
+LANGUE=""
 FORCE=0
+
+usage() {
+    echo "Usage : sh tools/init.sh --nom mon-projet --porteur \"Prénom Nom\" [--attribution-agents autorisee|interdite] [--langue fr|en|fr-en] [--force]" >&2
+    exit 2
+}
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --nom) NOM="${2:-}"; shift 2 ;;
         --porteur) PORTEUR="${2:-}"; shift 2 ;;
+        --attribution-agents)
+            case "${2:-}" in
+                autorisee|interdite) ATTRIBUTION="$2" ;;
+                *) echo "ERREUR : --attribution-agents attend « autorisee » ou « interdite »." >&2 ; exit 2 ;;
+            esac
+            shift 2 ;;
+        --langue)
+            case "${2:-}" in
+                fr|en|fr-en) LANGUE="$2" ;;
+                *) echo "ERREUR : --langue attend « fr », « en » ou « fr-en »." >&2 ; exit 2 ;;
+            esac
+            shift 2 ;;
         --force) FORCE=1; shift ;;
-        *) echo "Option inconnue : $1" >&2
-           echo "Usage : sh tools/init.sh --nom mon-projet --porteur \"Prénom Nom\" [--force]" >&2
-           exit 2 ;;
+        *) echo "Option inconnue : $1" >&2 ; usage ;;
     esac
 done
 
@@ -36,6 +56,25 @@ if [ -z "${PORTEUR}" ] && [ -t 0 ]; then
     printf 'Porteur du projet (Prénom Nom) : '
     read -r PORTEUR
 fi
+if [ -z "${ATTRIBUTION}" ] && [ -t 0 ]; then
+    printf 'Autoriser les mentions d'"'"'agents IA dans les commits ? [o/N] '
+    read -r reponse_attr
+    case "${reponse_attr}" in
+        o|O|oui) ATTRIBUTION="autorisee" ;;
+        *) ATTRIBUTION="interdite" ;;
+    esac
+fi
+if [ -z "${LANGUE}" ] && [ -t 0 ]; then
+    printf 'Langue du dépôt — fr, en ou fr-en ? [fr-en] '
+    read -r reponse_langue
+    case "${reponse_langue}" in
+        fr|en|fr-en) LANGUE="${reponse_langue}" ;;
+        *) LANGUE="fr-en" ;;
+    esac
+fi
+# Défauts en l'absence de choix : interdiction (ADR-0008), bilingue (ADR-0009).
+[ -n "${ATTRIBUTION}" ] || ATTRIBUTION="interdite"
+[ -n "${LANGUE}" ] || LANGUE="fr-en"
 if [ -z "${NOM}" ] || [ -z "${PORTEUR}" ]; then
     echo "ERREUR : --nom et --porteur sont requis." >&2
     exit 2
@@ -80,13 +119,13 @@ sed_inplace() {
 
 annee="$(date +%Y)"
 
-echo "1/8 — Retrait des tags de couverture du gabarit dans les documents conservés"
+echo "1/10 — Retrait des tags de couverture du gabarit dans les documents conservés"
 for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
          tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
          tools/hooks/commit-msg.sh tools/init.sh tools/init-test.sh \
          tools/bootstrap.sh tools/setup.sh tools/setup-test.sh \
-         .github/workflows/ci.yml; do
+         .github/workflows/ci.yml .gitlab-ci.yml; do
     [ -f "${f}" ] || continue
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \
         -e '/^# \[impl->/d' -e '/^# \[utest->/d' \
@@ -94,25 +133,80 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
     mv "${f}.tmp" "${f}"
 done
 
-echo "2/8 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
+echo "2/10 — Politique d'attribution des agents : ${ATTRIBUTION}"
+# [impl->req~politique-attribution-agents~1]
+if [ "${ATTRIBUTION}" = "autorisee" ]; then
+    sed '/politique-attribution:debut/,/politique-attribution:fin/d' \
+        tools/hooks/commit-msg.sh > tools/hooks/commit-msg.sh.tmp
+    mv tools/hooks/commit-msg.sh.tmp tools/hooks/commit-msg.sh
+    chmod +x tools/hooks/commit-msg.sh
+    sed_inplace "s/^| R0 |.*/| R0 | Mentions d'agents dans les commits : autorisées (choix d'instanciation, cf. ADR-0008 du gabarit) — les autres règles restent entières | — |/" AGENTS.md
+fi
+
+echo "3/10 — Langue du dépôt : ${LANGUE}"
+# [impl->req~politique-langue~1]
+if [ "${LANGUE}" != "fr-en" ]; then
+    # Une seule langue : un seul jeu de modèles, plus de porte de parité.
+    sed '/parite-templates:debut/,/parite-templates:fin/d' \
+        tools/checks.sh > tools/checks.sh.tmp
+    mv tools/checks.sh.tmp tools/checks.sh
+    chmod +x tools/checks.sh
+fi
+case "${LANGUE}" in
+    fr) rm -rf templates/en ; rm -f README.en.md ;;
+    en) rm -rf templates/fr ; rm -f README.en.md ;;
+esac
+
+if [ "${LANGUE}" = "fr" ]; then
+    modeles="templates/fr/"
+else
+    modeles="templates/fr/ (et templates/en/)"
+fi
+
+echo "4/10 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
 rm -f spec/01-besoins/besoins.md
 rm -f spec/02-exigences/*.md
-cat > spec/README.md <<EOF
+if [ "${LANGUE}" = "en" ]; then
+    cat > spec/README.md <<EOF
+# ${NOM} specification
+
+This directory follows the alm-forge template method (docs/methode/, in
+French): needs (feat items) in 01-besoins/, EARS requirements (req items) in
+02-exigences/, blockers in open-questions.md. Templates: templates/en/.
+EOF
+    cat > spec/02-exigences/README.md <<EOF
+# ${NOM} requirements
+
+One Markdown file per functional domain, requirements following
+templates/en/requirement.md (EARS, SHALL/SHOULD/MAY, acceptance criteria,
+Covers towards the need, Needs towards the expected coverage).
+EOF
+    cat > spec/open-questions.md <<'EOF'
+# Open questions
+
+Register of blockers awaiting human arbitration. Protocol:
+docs/methode/06-questions-ouvertes.md — template: templates/en/open-question.md.
+
+---
+
+No open question to date.
+EOF
+else
+    cat > spec/README.md <<EOF
 # Spécification de ${NOM}
 
 Ce répertoire suit la méthode du gabarit alm-forge (voir docs/methode/) :
 besoins (items feat) dans 01-besoins/, exigences EARS (items req) dans
-02-exigences/, blocages dans open-questions.md. Modèles : templates/fr/ et
-templates/en/.
+02-exigences/, blocages dans open-questions.md. Modèles : ${modeles}.
 EOF
-cat > spec/02-exigences/README.md <<EOF
+    cat > spec/02-exigences/README.md <<EOF
 # Exigences de ${NOM}
 
 Un fichier Markdown par domaine fonctionnel, exigences au format du modèle
 templates/fr/requirement.md (EARS, DOIT/DEVRAIT/PEUT, critères d'acceptation,
 Covers vers le besoin, Needs vers la couverture attendue).
 EOF
-cat > spec/open-questions.md <<'EOF'
+    cat > spec/open-questions.md <<'EOF'
 # Questions ouvertes
 
 Registre des blocages en attente d'arbitrage humain. Protocole :
@@ -122,8 +216,9 @@ docs/methode/06-questions-ouvertes.md — modèle : templates/fr/open-question.m
 
 Aucune question ouverte à ce jour.
 EOF
+fi
 
-echo "3/8 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
+echo "5/10 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
 rm -f docs/adr/0*.md
 sed -n '1,/^## Index/p' docs/adr/README.md > docs/adr/README.md.tmp
 cat >> docs/adr/README.md.tmp <<EOF
@@ -136,8 +231,23 @@ consultables dans son dépôt d'origine.
 EOF
 mv docs/adr/README.md.tmp docs/adr/README.md
 
-echo "4/8 — Registre des décisions réinitialisé"
-cat > docs/decisions/registre.md <<'EOF'
+echo "6/10 — Registre des décisions réinitialisé"
+if [ "${LANGUE}" = "en" ]; then
+    cat > docs/decisions/registre.md <<'EOF'
+# Decision register
+
+Chronological register of durable decisions enacted outside pull requests.
+Identifier: D-YYYY-MM-NN; each entry links to the ADR or meeting record that
+elaborates it (template: templates/en/decision-record.md, records archived
+here).
+
+| ID | Date | Decision | Elaborated in |
+| --- | --- | --- | --- |
+
+No decision recorded to date.
+EOF
+else
+    cat > docs/decisions/registre.md <<'EOF'
 # Registre des décisions
 
 Registre chronologique des décisions durables actées hors pull request.
@@ -149,9 +259,26 @@ la développe (modèle : templates/fr/decision-record.md, relevés archivés ici
 
 Aucune décision enregistrée à ce jour.
 EOF
+fi
 
-echo "5/8 — CHANGELOG et VERSION réinitialisés"
-cat > CHANGELOG.md <<EOF
+echo "7/10 — CHANGELOG et VERSION réinitialisés"
+if [ "${LANGUE}" = "en" ]; then
+    cat > CHANGELOG.md <<EOF
+# Changelog
+
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) —
+versioning: [SemVer](https://semver.org/).
+
+## [Unreleased]
+
+## [0.1.0] - $(date +%Y-%m-%d)
+
+### Added
+
+- Instantiation of ${NOM} from the alm-forge template.
+EOF
+else
+    cat > CHANGELOG.md <<EOF
 # Journal des changements
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) —
@@ -165,13 +292,31 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 - Instanciation de ${NOM} depuis le gabarit alm-forge.
 EOF
+fi
 printf '0.1.0\n' > VERSION
 
-echo "6/8 — LICENSE au nom du porteur"
+echo "8/10 — LICENSE au nom du porteur"
 sed_inplace "s/^Copyright (c) .*/Copyright (c) ${annee} ${PORTEUR}/" LICENSE
 
-echo "7/8 — README réécrits pour ${NOM}"
-cat > README.md <<EOF
+echo "9/10 — README réécrits pour ${NOM}"
+if [ "${LANGUE}" = "en" ]; then
+    cat > README.md <<EOF
+# ${NOM}
+
+Project instantiated from the [alm-forge](https://github.com/eric-lemesre/alm-forge)
+ALM template: traced requirements from need to mechanized tests, decisions as
+ADRs, quality gates enforced locally and in CI. Note: the template's
+normative method documentation (docs/methode/) is currently in French.
+
+- Method: docs/methode/ — working contract: AGENTS.md
+- Commands: \`task ci\` (or \`sh tools/oft.sh trace && sh tools/checks.sh\`)
+- Getting started: \`task setup\`, then write the first need
+  (spec/01-besoins/, template templates/en/need.md) and your ADR-0001
+
+Owner: ${PORTEUR}. Licence: [MIT](LICENSE).
+EOF
+else
+    cat > README.md <<EOF
 # ${NOM}
 
 Projet instancié depuis le gabarit [alm-forge](https://github.com/eric-lemesre/alm-forge) :
@@ -180,12 +325,13 @@ local et en CI.
 
 - Méthode : docs/methode/ — contrat de travail : AGENTS.md
 - Commandes : \`task ci\` (ou \`sh tools/oft.sh trace && sh tools/checks.sh\`)
-- Démarrage : \`task hooks\` puis écrire le premier besoin (spec/01-besoins/)
+- Démarrage : \`task setup\` puis écrire le premier besoin (spec/01-besoins/)
   et l'ADR-0001 (templates/fr/adr.md)
 
 Porteur : ${PORTEUR}. Licence : [MIT](LICENSE).
 EOF
-cat > README.en.md <<EOF
+    if [ "${LANGUE}" = "fr-en" ]; then
+        cat > README.en.md <<EOF
 # ${NOM}
 
 Project instantiated from the [alm-forge](https://github.com/eric-lemesre/alm-forge)
@@ -193,19 +339,23 @@ ALM template: traced requirements from need to mechanized tests, ADRs,
 quality gates enforced locally and in CI. See README.md (French) and
 docs/methode/.
 EOF
+    fi
+fi
 
-echo "8/8 — Vérification finale (traçabilité + cohérence)"
+echo "10/10 — Vérification finale (traçabilité + cohérence)"
 sh tools/oft.sh trace
 sh tools/checks.sh
 
 cat <<EOF
 
-Instanciation de ${NOM} terminée. Prochaines étapes :
+Instanciation de ${NOM} terminée (langue : ${LANGUE}, attribution d'agents :
+${ATTRIBUTION}). Prochaines étapes :
   1. task setup               — accueil du poste (bootstrap, hooks, portes)
-  2. Écrire le premier besoin — spec/01-besoins/ (modèle templates/fr/need.md)
+  2. Écrire le premier besoin — spec/01-besoins/ (modèle need.md)
   3. Écrire votre ADR-0001    — task adr-new -- votre-premiere-decision
   4. Choisir la façade        — garder Taskfile.yml, ou templates/orchestrators/
-  5. Premier commit           — les hooks vérifient tout
+  5. Choisir la ou les forges — supprimer .github/ ou .gitlab*/ selon l'hébergeur
+  6. Premier commit           — les hooks vérifient tout
 Optionnel : supprimer tools/init.sh, tools/init-test.sh et l'étape
-« instanciation » de .github/workflows/ci.yml, devenus inutiles.
+« instanciation » des façades CI, devenus inutiles.
 EOF

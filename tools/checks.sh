@@ -10,8 +10,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 FAILURES=0
 
+# --- parite-templates:debut ---
 # [impl->req~bilinguisme-templates~1]
 # Parité des templates fr/en : mêmes noms de fichiers des deux côtés.
+# Bloc retiré par tools/init.sh quand une seule langue est conservée
+# (ADR-0009) ; ne pas déplacer les marqueurs.
 parity_fail=0
 for f in templates/fr/*.md; do
     if [ ! -f "templates/en/${f##*/}" ]; then
@@ -30,6 +33,7 @@ if [ "${parity_fail}" -eq 0 ]; then
 else
     FAILURES=$((FAILURES + 1))
 fi
+# --- parite-templates:fin ---
 
 # [impl->req~adr-verification~1]
 # Tout ADR au statut Accepté comporte une section « ## Vérification » (R6).

@@ -16,7 +16,16 @@ JAR="${ROOT}/.cache/openfasttrace-${OFT_VERSION}.jar"
 
 # Périmètre scanné (relatif à la racine). templates/ est exclu : les modèles
 # contiennent des identifiants d'exemple qui ne doivent pas devenir des items.
-INPUTS="spec docs examples tools .github AGENTS.md README.md README.en.md CONTRIBUTING.md CHANGELOG.md Taskfile.yml"
+# Les chemins absents sont filtrés à l'exécution : un projet instancié peut
+# retirer une langue (ADR-0009) ou une forge (ADR-0010) sans casser la porte.
+INPUTS="spec docs examples tools .github .gitlab .gitlab-ci.yml AGENTS.md README.md README.en.md CONTRIBUTING.md CHANGELOG.md Taskfile.yml"
+
+scan_inputs() {
+    SCAN=""
+    for p in ${INPUTS}; do
+        if [ -e "${p}" ]; then SCAN="${SCAN} ${p}"; fi
+    done
+}
 
 require_java() {
     command -v java >/dev/null 2>&1 || {
@@ -47,18 +56,20 @@ case "${1:-trace}" in
     trace)
         require_java
         fetch_jar
-        # shellcheck disable=SC2086 — la découpe en mots de INPUTS est voulue.
-        java -jar "${JAR}" trace -v failures ${INPUTS}
+        scan_inputs
+        # shellcheck disable=SC2086 — la découpe en mots de SCAN est voulue.
+        java -jar "${JAR}" trace -v failures ${SCAN}
         echo "Traçabilité : OK (aucune exigence orpheline)."
         ;;
     report)
         require_java
         fetch_jar
+        scan_inputs
         mkdir -p build
         # Le rapport HTML est informatif : généré même en cas de défauts ; le
         # code retour de la porte est porté par le résumé qui suit.
-        java -jar "${JAR}" trace -o html -f build/tracabilite.html ${INPUTS} || true
-        java -jar "${JAR}" trace -v summary ${INPUTS}
+        java -jar "${JAR}" trace -o html -f build/tracabilite.html ${SCAN} || true
+        java -jar "${JAR}" trace -v summary ${SCAN}
         echo "Rapport : build/tracabilite.html"
         ;;
     *)

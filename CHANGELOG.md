@@ -20,6 +20,14 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   test mécanisé `tools/init-test.sh` câblé en CI : personnalise l'identité du
   projet, retire la spécification et les ADR du gabarit, laisse les portes
   vertes.
+- Arbitrages d'instanciation : politique d'attribution des agents dans les
+  commits (req~politique-attribution-agents~1, ADR-0008, interdite par défaut)
+  et langue du dépôt fr/en/fr-en (req~politique-langue~1, ADR-0009, bilingue
+  par défaut) — appliqués mécaniquement par init.sh (blocs à marqueurs dans
+  les portes).
+- Portabilité des forges (req~portabilite-forges~1, ADR-0010) : façade CI
+  GitLab `.gitlab-ci.yml` et modèles d'issues/MR `.gitlab/`, mêmes scripts que
+  la façade GitHub ; périmètre de traçabilité filtrant les chemins absents.
 - Onboarding « Scripts to Rule Them All » (req~onboarding-outille~1) :
   `tools/setup.sh` (accueil après clone : bootstrap, hooks, portes,
   orientation) et `tools/bootstrap.sh` (socle + point d'extension où chaque

@@ -14,6 +14,8 @@ fi
 
 last=0
 for f in docs/adr/[0-9]*.md; do
+    # Glob sans correspondance (registre vide) : ignorer la chaîne littérale.
+    [ -e "${f}" ] || continue
     n="${f##*/}"
     n="${n%%-*}"
     # Retire les zéros de tête pour éviter l'interprétation octale.
@@ -24,6 +26,11 @@ done
 next="$(printf '%04d' $((last + 1)))"
 dest="docs/adr/${next}-${titre}.md"
 
-cp templates/fr/adr.md "${dest}"
+# Le jeu de modèles dépend de la langue choisie à l'instanciation (ADR-0009).
+if [ -f templates/fr/adr.md ]; then
+    cp templates/fr/adr.md "${dest}"
+else
+    cp templates/en/adr.md "${dest}"
+fi
 echo "Créé : ${dest}"
 echo "Remplacer ADR-NNNN par ADR-${next} et ajouter l'entrée à l'index docs/adr/README.md."

@@ -1,0 +1,22 @@
+# [impl->req~portabilite-forges~1]
+# Façade CI GitLab — délégation pure (ADR-0010) : mêmes étapes, mêmes scripts
+# que .github/workflows/ci.yml. Aucune logique de porte ici.
+portes:
+  image: eclipse-temurin:17
+  before_script:
+    - apt-get update -qq && apt-get install -yqq --no-install-recommends git curl
+  script:
+    - tools/oft.sh trace
+    - tools/checks.sh
+    - tools/init-test.sh
+    - tools/setup-test.sh
+  after_script:
+    - tools/oft.sh report || true
+  cache:
+    key: openfasttrace-jar
+    paths:
+      - .cache/
+  artifacts:
+    when: always
+    paths:
+      - build/tracabilite.html

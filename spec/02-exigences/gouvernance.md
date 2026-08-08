@@ -96,6 +96,93 @@ Covers:
 
 Needs: impl, utest
 
+## Politique d'attribution des agents arbitrée à l'instanciation
+
+`req~politique-attribution-agents~1`
+
+Quand un projet est instancié depuis le gabarit, l'autorisation ou
+l'interdiction des mentions d'agents IA (co-auteur généré, « generated
+with »…) dans les commits DOIT être arbitrée par l'instanciateur et appliquée
+mécaniquement par le hook commit-msg. Si aucun choix explicite n'est exprimé,
+alors l'interdiction DOIT s'appliquer.
+
+Rationale:
+C'est un choix d'éditorialisation de l'historique propre à chaque
+organisation ; le gabarit fournit le défaut conservateur et le mécanisme,
+pas le dogme (ADR-0008).
+
+Critères d'acceptation :
+
+- Étant donné une instanciation sans choix explicite, quand un commit porte un
+  co-auteur généré, alors le hook le refuse.
+- Étant donné une instanciation avec attribution autorisée, quand un commit
+  porte un co-auteur généré, alors le hook l'accepte et la règle R0 du contrat
+  reflète le choix.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: dsn, impl, utest
+
+## Langue du dépôt arbitrée à l'instanciation
+
+`req~politique-langue~1`
+
+Quand un projet est instancié depuis le gabarit, la langue du dépôt (fr, en ou
+fr-en) DOIT être arbitrée par l'instanciateur : les artefacts générés et le
+jeu de modèles conservé suivent ce choix, et la porte de parité des templates
+ne s'applique qu'au choix bilingue. Si aucun choix explicite n'est exprimé,
+alors le bilinguisme fr-en DOIT s'appliquer.
+
+Rationale:
+Corollaire de l'ADR-0005 au niveau projet : le bilinguisme des modèles est la
+politique du gabarit, pas une obligation des projets. Limitation assumée : la
+documentation normative du gabarit reste en français (ADR-0009).
+
+Critères d'acceptation :
+
+- Étant donné une instanciation en « fr », quand elle s'achève, alors le jeu
+  anglais de modèles et le README anglais sont retirés et les portes passent
+  sans contrôle de parité.
+- Étant donné une instanciation en « en », quand elle s'achève, alors le
+  README principal est en anglais, le jeu français de modèles est retiré et
+  les portes passent.
+- Étant donné une instanciation sans choix, quand elle s'achève, alors les
+  deux jeux de modèles et le contrôle de parité sont conservés.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: dsn, impl, utest
+
+## Portabilité entre forges git
+
+`req~portabilite-forges~1`
+
+Les portes qualité DOIVENT être exécutables sans aucune forge (scripts locaux
+et hooks git), et le dépôt DOIT fournir des configurations d'intégration
+continue de délégation pure pour GitHub et GitLab, exécutant les mêmes étapes
+via les mêmes scripts. L'ajout d'une autre forge DOIT se limiter à l'écriture
+d'une nouvelle façade CI.
+
+Rationale:
+Le gabarit ne doit pas coupler la méthode à un hébergeur. Corollaire de
+l'ADR-0007 : la logique vit dans les scripts, les forges comme les
+orchestrateurs ne reçoivent que des façades (ADR-0010).
+
+Critères d'acceptation :
+
+- Étant donné un clone sans aucune forge, quand les portes sont exécutées
+  localement, alors elles produisent le même verdict que la CI.
+- Étant donné les façades CI GitHub et GitLab, quand on les compare, alors
+  elles exécutent la même liste d'étapes via les mêmes scripts, sans logique
+  propre.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: dsn, impl
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

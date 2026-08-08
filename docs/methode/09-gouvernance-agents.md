@@ -41,9 +41,11 @@ câblée » avec raison et échéance.
   l'index du registre : ce sont eux qu'un relecteur humain relit en premier.
 - **Second regard croisé.** Le code produit par un agent est revu par un agent
   différent ou un humain — jamais par lui-même (chapitre revue).
-- **Pas d'attribution d'agent.** Ni co-auteur, ni « generated with », ni
-  emoji signature dans les commits : l'historique décrit le changement, pas
-  l'outil. Vérifié par le hook commit-msg.
+- **Attribution d'agent : une politique, pas un dogme.** Par défaut ni
+  co-auteur, ni « generated with », ni emoji signature dans les commits —
+  l'historique décrit le changement, pas l'outil. Le choix inverse appartient
+  à l'instanciateur (ADR-0008) ; dans les deux cas la politique est appliquée
+  par le hook commit-msg, jamais laissée à la vigilance.
 - **Continuité inter-sessions.** L'état de travail d'un agent (plan en cours,
   reste-à-faire) vit dans les artefacts versionnés (issues, questions
   ouvertes, exigences) — pas dans des fichiers d'état locaux, qui ne survivent

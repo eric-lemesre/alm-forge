@@ -48,18 +48,24 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 | `templates/fr/`, `templates/en/` | Modèles d'artefacts bilingues |
 | `tools/` | Les portes qualité (scripts POSIX autonomes) |
 | `Taskfile.yml`, `.githooks/` | Façade d'orchestration (interchangeable, ADR-0007) et hooks |
-| `.github/workflows/ci.yml` | Les mêmes portes en CI |
+| `.github/workflows/ci.yml`, `.gitlab-ci.yml` | Les mêmes portes en CI — façades par forge (ADR-0010) |
 | `examples/demo-multi-langages/` | Chaîne complète en Python, Rust et shell |
 | `AGENTS.md` | Contrat de travail, humains et agents IA |
 
 ## Démarrer un projet
 
-1. Cloner (ou « Use this template » sur GitHub), renommer.
+1. Créer le dépôt sur la forge de votre choix : « Use this template » sur
+   GitHub, ou simple clone + nouveau remote sur GitLab et toute autre forge
+   git (les portes sont locales, la CI est fournie pour GitHub **et** GitLab,
+   ADR-0010).
 2. `task init -- --nom mon-projet --porteur "Prénom Nom"` (ou
-   `sh tools/init.sh …`) : l'identité du projet est posée, la spécification et
-   les ADR propres au gabarit sont retirés, LICENSE/CHANGELOG/VERSION et
-   registres réinitialisés, traçabilité laissée verte — GitHub ne substituant
-   aucune variable, ce script est la personnalisation.
+   `sh tools/init.sh …`) : l'identité du projet est posée et trois arbitrages
+   vous appartiennent — attribution des agents dans les commits
+   (`--attribution-agents autorisee|interdite`, ADR-0008), langue du dépôt
+   (`--langue fr|en|fr-en`, ADR-0009). La spécification et les ADR propres au
+   gabarit sont retirés, LICENSE/CHANGELOG/VERSION et registres réinitialisés,
+   traçabilité laissée verte — aucune forge ne substituant de variables, ce
+   script est la personnalisation.
 3. Choisir l'orchestrateur : garder `Taskfile.yml` (défaut), le remplacer par
    la variante justfile de `templates/orchestrators/`, ou n'en garder aucun —
    les portes de `tools/` s'appellent aussi directement.

@@ -63,3 +63,6 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0005](0005-documentation-normative-francaise-templates-bilingues.md) | Documentation normative en français, templates bilingues | Accepté |
 | [0006](0006-contrat-agents-unique-avec-adaptateurs.md) | Un contrat d'agents unique, raccordé par adaptateurs | Accepté |
 | [0007](0007-orchestrateur-en-facade-interchangeable.md) | Séparer les portes de l'orchestrateur, façade interchangeable | Accepté |
+| [0008](0008-attribution-agents-arbitree-a-l-instanciation.md) | Rendre la politique d'attribution des agents arbitrable à l'instanciation | Accepté |
+| [0009](0009-langue-du-depot-arbitree-a-l-instanciation.md) | Rendre la langue du dépôt arbitrable à l'instanciation | Accepté |
+| [0010](0010-ci-en-facades-par-forge.md) | Porter la CI en façades de délégation par forge | Accepté |
