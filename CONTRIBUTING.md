@@ -36,3 +36,5 @@ optionnelle et remplaçable (ADR-0007, `templates/orchestrators/`).
   de mention de l'IA du projet (par défaut : trailer `IA:` obligatoire,
   responsable humain si IA — R0, ADR-0011).
 - Un contrôle introduit sans démonstration de son cas d'échec (R3).
+- Un secret dans une contribution (`task secrets` — bloquant en CI ; les faux
+  positifs passent par une entrée justifiée de `.gitleaks.toml`).

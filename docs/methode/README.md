@@ -36,6 +36,7 @@ main.
 | [7. Revue et recette](07-revue-et-recette.md) | Second regard, recette multi-rôles, sortie négative |
 | [8. Versionnement et release](08-versionnement-release.md) | SemVer, Keep a Changelog, publication |
 | [9. Gouvernance des agents](09-gouvernance-agents.md) | AGENTS.md, adaptateurs, règles vérifiées |
+| [10. Sécurité continue](10-securite-continue.md) | STRIDE léger, vulnérabilités et exceptions, SBOM, porte anti-secrets |
 
 ## Principes transverses
 

@@ -5,7 +5,7 @@
 
 ## Definition of Done
 
-- [ ] Exigences concernées approuvées (EARS, critères d'acceptation, Covers)
+- [ ] Exigences concernées approuvées (EARS, critères d'acceptation, Covers ; menaces STRIDE reportées en critères pour le niveau S)
 - [ ] Décisions structurantes actées en ADR (avec section Vérification)
 - [ ] Implémentation taguée — `task trace` passe
 - [ ] Tests du niveau déclaré tagués et verts

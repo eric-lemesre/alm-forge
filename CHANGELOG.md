@@ -21,6 +21,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- Porte anti-secrets (req~detection-secrets~1, ADR-0012) : gitleaks épinglé
+  par version et empreintes par plateforme, bloquant en CI, signalant en
+  local sans l'outil ; test mécanisé `tools/secrets-test.sh` ; cible
+  `secrets` dans les façades, intégrée à `ci` et au hook pre-commit.
+- Cadre de sécurité continue (req~securite-continue~1, méthode ch. 10) :
+  STRIDE léger obligatoire pour les exigences de niveau S (reporté dans la
+  Definition of Done), politique de vulnérabilités avec délais par sévérité
+  et exceptions justifiées-datées-portées, SBOM en point d'extension de la
+  release ; modèles bilingues threat-model et security-exception.
+- Durcissement des façades CI : permissions minimales (contents: read) et
+  persist-credentials: false sur le checkout GitHub.
 - Scripts `tools/adr-new.sh` et `tools/bump.sh` (logique sortie des façades).
 - Script d'instanciation `tools/init.sh` (req~instanciation-outillee~1) avec
   test mécanisé `tools/init-test.sh` câblé en CI : personnalise l'identité du

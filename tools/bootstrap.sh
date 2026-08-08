@@ -25,6 +25,10 @@ if ! command -v task >/dev/null 2>&1; then
     echo "note : la façade « task » n'est pas installée — optionnelle," >&2
     echo "les portes restent utilisables via sh tools/*.sh (ADR-0007)." >&2
 fi
+if ! command -v gitleaks >/dev/null 2>&1 && [ ! -e .cache/gitleaks-* ]; then
+    echo "note : gitleaks sera téléchargé (épinglé) au premier tools/secrets.sh ;" >&2
+    echo "sur un poste hors ligne, l'installer manuellement (ADR-0012)." >&2
+fi
 
 # --- Point d'extension du projet instancié -------------------------------
 # Ajouter ici l'outillage technologique du projet, idempotent, avec un

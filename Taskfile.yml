@@ -29,11 +29,17 @@ tasks:
     cmds:
       - sh tools/checks.sh
 
+  secrets:
+    desc: Porte anti-secrets (balayage complet du dépôt)
+    cmds:
+      - sh tools/secrets.sh scan
+
   ci:
     desc: Tout ce que la CI exécute
     cmds:
       - task: trace
       - task: check
+      - task: secrets
       - 'echo "CI locale : OK."'
 
   hooks:

@@ -67,3 +67,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0009](0009-langue-du-depot-arbitree-a-l-instanciation.md) | Rendre la langue du dépôt arbitrable à l'instanciation | Accepté |
 | [0010](0010-ci-en-facades-par-forge.md) | Porter la CI en façades de délégation par forge | Accepté |
 | [0011](0011-declaration-ia-obligatoire-par-defaut.md) | Exiger par défaut la déclaration d'usage de l'IA dans chaque commit | Accepté |
+| [0012](0012-detecter-les-secrets-avec-gitleaks.md) | Détecter les secrets avec gitleaks, bloquant en CI, signalant en local | Accepté |

@@ -21,8 +21,12 @@ report:
 check:
     sh tools/checks.sh
 
+# Porte anti-secrets (balayage complet du dépôt)
+secrets:
+    sh tools/secrets.sh scan
+
 # Tout ce que la CI exécute
-ci: trace check
+ci: trace check secrets
     @echo "CI locale : OK."
 
 # Installe les hooks git du dépôt

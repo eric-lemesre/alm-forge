@@ -47,7 +47,8 @@ dans `tools/*.sh`, appelables directement sans aucun runner.
 | `task trace` | `sh tools/oft.sh trace` | traçabilité complète (échoue si un maillon manque) |
 | `task report` | `sh tools/oft.sh report` | rapport HTML dans `build/tracabilite.html` |
 | `task check` | `sh tools/checks.sh` | contrôles de cohérence (ADR, templates, version) |
-| `task ci` | les deux commandes ci-dessus | tout ce que la CI exécute |
+| `task secrets` | `sh tools/secrets.sh scan` | porte anti-secrets (gitleaks épinglé, ADR-0012) |
+| `task ci` | les trois commandes ci-dessus | tout ce que la CI exécute |
 | `task hooks` | `git config core.hooksPath .githooks` | installe les hooks git du dépôt |
 | `task init -- --nom N --porteur P` | `sh tools/init.sh …` | instancie le gabarit (une seule fois) |
 | `task setup` | `sh tools/setup.sh` | accueil après clone : bootstrap + hooks + portes |

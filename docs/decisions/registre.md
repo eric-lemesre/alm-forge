@@ -17,3 +17,4 @@ de séance sont archivés dans ce répertoire (modèle :
 | D-2026-08-07 | 2026-08-08 | La langue du dépôt (fr, en, fr-en) est à la discrétion de l'instanciateur (fr-en par défaut) | [ADR-0009](../adr/0009-langue-du-depot-arbitree-a-l-instanciation.md) |
 | D-2026-08-08 | 2026-08-08 | Le gabarit fonctionne sur toute forge git : portes locales, CI en façades par forge (GitHub, GitLab fournies) | [ADR-0010](../adr/0010-ci-en-facades-par-forge.md) |
 | D-2026-08-09 | 2026-08-08 | Défaut de la politique IA : déclaration obligatoire par commit, responsable humain, relecture recommandée (diligence) — remplace le défaut d'interdiction | [ADR-0011](../adr/0011-declaration-ia-obligatoire-par-defaut.md) |
+| D-2026-08-10 | 2026-08-08 | Apports DevSecOps retenus : durcissement CI, porte anti-secrets gitleaks, chapitre sécurité continue (postmortem écarté) | [ADR-0012](../adr/0012-detecter-les-secrets-avec-gitleaks.md) |

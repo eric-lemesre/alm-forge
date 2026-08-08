@@ -8,6 +8,8 @@ portes:
   script:
     - tools/oft.sh trace
     - tools/checks.sh
+    - tools/secrets.sh scan
+    - tools/secrets-test.sh
     - tools/init-test.sh
     - tools/setup-test.sh
     - tools/clean-test.sh

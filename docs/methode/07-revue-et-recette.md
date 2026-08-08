@@ -41,7 +41,8 @@ mesurent la vérité.
 Une exigence est terminée quand — dans l'ordre :
 
 1. son texte est approuvé (EARS, critères d'acceptation, Covers vers le
-   besoin) ;
+   besoin — et, pour le niveau d'enjeu S, menaces STRIDE examinées et
+   reportées en critères, méthode ch. 10) ;
 2. les décisions qu'elle appelait sont actées en ADR ;
 3. l'implémentation est taguée et la traçabilité passe ;
 4. les tests du niveau déclaré sont tagués et passent ;
