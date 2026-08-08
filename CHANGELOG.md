@@ -29,6 +29,11 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 - Portabilité des forges (req~portabilite-forges~1, ADR-0010) : façade CI
   GitLab `.gitlab-ci.yml` et modèles d'issues/MR `.gitlab/`, mêmes scripts que
   la façade GitHub ; périmètre de traçabilité filtrant les chemins absents.
+- Nettoyage outillé du dépôt local (req~nettoyage-outille~1) :
+  `tools/clean.sh` (chemins déclarés uniquement, point d'extension projet,
+  cache purgé sur `--all` seulement, volume libéré affiché — motivé par
+  l'incident des 500 Go de target/ sur ergonomia) et son test
+  `tools/clean-test.sh` câblé dans les deux façades CI.
 - Onboarding « Scripts to Rule Them All » (req~onboarding-outille~1) :
   `tools/setup.sh` (accueil après clone : bootstrap, hooks, portes,
   orientation) et `tools/bootstrap.sh` (socle + point d'extension où chaque

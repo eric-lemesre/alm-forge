@@ -90,6 +90,7 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 | `task ci` | Tout ce que la CI exécute |
 | `task adr-new -- titre` | ADR suivant depuis le modèle |
 | `task hooks` | Installe les hooks git |
+| `task clean` | Nettoie les artefacts locaux (`-- --all` : cache d'outillage inclus) |
 
 Chaque commande a son équivalent direct sans orchestrateur (`sh tools/oft.sh
 trace`, `sh tools/checks.sh`…) : voir AGENTS.md §3.

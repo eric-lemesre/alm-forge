@@ -33,6 +33,9 @@ jobs:
       - name: Test du parcours d'accueil
         run: tools/setup-test.sh
 
+      - name: Test du nettoyage
+        run: tools/clean-test.sh
+
       - name: Rapport HTML de traçabilité
         if: always()
         run: tools/oft.sh report

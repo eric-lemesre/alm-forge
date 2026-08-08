@@ -126,6 +126,7 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
          tools/hooks/commit-msg.sh tools/init.sh tools/init-test.sh \
          tools/bootstrap.sh tools/setup.sh tools/setup-test.sh \
+         tools/clean.sh tools/clean-test.sh \
          .github/workflows/ci.yml .gitlab-ci.yml; do
     [ -f "${f}" ] || continue
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \

@@ -190,6 +190,40 @@ Covers:
 
 Needs: dsn, impl
 
+## Nettoyage outillé du dépôt local
+
+`req~nettoyage-outille~1`
+
+Le dépôt DOIT fournir un mécanisme de nettoyage local idempotent qui supprime
+les artefacts générés du socle (rapports ; cache d'outillage sur demande
+explicite seulement) et expose un point d'extension où le projet instancié
+déclare les artefacts de son propre outillage (répertoires de build des
+langages, dépendances téléchargées). Le nettoyage ne DOIT supprimer que des
+chemins ou commandes explicitement déclarés — jamais l'état versionné, jamais
+de balayage aveugle du type git clean -x.
+
+Rationale:
+Sans mécanisme dédié, les artefacts de build s'accumulent sans limite —
+incident fondateur observé sur ergonomia : 500 Go de target/ faute de
+nettoyage Cargo. La déclaration explicite (plutôt qu'un balayage) protège les
+états locaux non versionnés utiles.
+
+Critères d'acceptation :
+
+- Étant donné des artefacts générés présents, quand le nettoyage s'exécute,
+  alors ils sont supprimés et le volume libéré est affiché.
+- Étant donné un dépôt déjà propre, quand le nettoyage est relancé, alors il
+  réussit sans effet (idempotence).
+- Étant donné les fichiers versionnés, quand le nettoyage s'exécute, alors
+  ils sont intacts.
+- Étant donné le cache d'outillage, quand le nettoyage s'exécute sans demande
+  explicite, alors le cache est conservé.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

@@ -30,6 +30,10 @@ hooks:
     git config core.hooksPath .githooks
     @echo "Hooks installés (core.hooksPath = .githooks)."
 
+# Nettoie les artefacts locaux (chemins déclarés) : just clean [--all]
+clean *args:
+    sh tools/clean.sh {{args}}
+
 # Vérifie/installe les dépendances (socle + point d'extension projet)
 bootstrap:
     sh tools/bootstrap.sh

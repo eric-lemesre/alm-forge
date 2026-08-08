@@ -42,6 +42,11 @@ tasks:
       - git config core.hooksPath .githooks
       - echo "Hooks installés (core.hooksPath = .githooks)."
 
+  clean:
+    desc: "Nettoie les artefacts locaux (chemins déclarés) : task clean [-- --all]"
+    cmds:
+      - sh tools/clean.sh {{.CLI_ARGS}}
+
   bootstrap:
     desc: Vérifie/installe les dépendances (socle + point d'extension projet)
     cmds:
