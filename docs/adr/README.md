@@ -31,7 +31,7 @@ compte-rendu d'une séance (il vit dans `docs/decisions/`).
   remplace ; l'ancien passe au statut « Remplacé par ADR-XXXX ».
 - La section **Vérification** est obligatoire pour tout ADR accepté : une
   décision qu'aucun mécanisme ne protège dérivera. Ce point est contrôlé par
-  les portes qualité (`just check`).
+  les portes qualité (`task check`).
 - Quand la décision répond à une exigence tracée, l'ADR porte un item de
   conception OpenFastTrace (type dsn) qui couvre l'exigence : la décision entre
   ainsi dans la matrice de traçabilité.
@@ -62,3 +62,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0004](0004-rediger-les-exigences-selon-ears.md) | Rédiger les exigences selon la syntaxe EARS | Accepté |
 | [0005](0005-documentation-normative-francaise-templates-bilingues.md) | Documentation normative en français, templates bilingues | Accepté |
 | [0006](0006-contrat-agents-unique-avec-adaptateurs.md) | Un contrat d'agents unique, raccordé par adaptateurs | Accepté |
+| [0007](0007-orchestrateur-en-facade-interchangeable.md) | Séparer les portes de l'orchestrateur, façade interchangeable | Accepté |

@@ -46,7 +46,8 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 | `spec/02-exigences/` | Exigences EARS (items req) |
 | `spec/open-questions.md` | Registre des blocages en attente d'arbitrage |
 | `templates/fr/`, `templates/en/` | Modèles d'artefacts bilingues |
-| `tools/`, `.githooks/`, `justfile` | Portes qualité locales |
+| `tools/` | Les portes qualité (scripts POSIX autonomes) |
+| `Taskfile.yml`, `.githooks/` | Façade d'orchestration (interchangeable, ADR-0007) et hooks |
 | `.github/workflows/ci.yml` | Les mêmes portes en CI |
 | `examples/demo-multi-langages/` | Chaîne complète en Python, Rust et shell |
 | `AGENTS.md` | Contrat de travail, humains et agents IA |
@@ -54,12 +55,15 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 ## Démarrer un projet
 
 1. Cloner (ou « Use this template » sur GitHub), renommer.
-2. `just hooks` puis `just ci` — tout doit être vert avant la première ligne.
-3. Vider `spec/01-besoins/` et `spec/02-exigences/` de la spécification du
+2. Choisir l'orchestrateur : garder `Taskfile.yml` (défaut), le remplacer par
+   la variante justfile de `templates/orchestrators/`, ou n'en garder aucun —
+   les portes de `tools/` s'appellent aussi directement.
+3. `task hooks` puis `task ci` — tout doit être vert avant la première ligne.
+4. Vider `spec/01-besoins/` et `spec/02-exigences/` de la spécification du
    gabarit, y écrire vos besoins (modèles dans `templates/`).
-4. Archiver les ADR du gabarit qui ne vous concernent pas (statut Déprécié),
+5. Archiver les ADR du gabarit qui ne vous concernent pas (statut Déprécié),
    écrire l'ADR-0001 de votre projet.
-5. Étendre `tools/oft.sh` (périmètre scanné) et la CI aux répertoires de votre
+6. Étendre `tools/oft.sh` (périmètre scanné) et la CI aux répertoires de votre
    code, ajouter vos portes propres (lint, couverture, sécurité) — toute porte
    documentée est câblée, ou marquée « non câblée » avec raison et échéance.
 
@@ -67,14 +71,18 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 
 | Commande | Effet |
 | --- | --- |
-| `just trace` | Traçabilité complète (échoue si un maillon manque) |
-| `just report` | Rapport HTML navigable dans `build/` |
-| `just check` | Cohérence : ADR acceptés, parité des templates, version |
-| `just ci` | Tout ce que la CI exécute |
-| `just adr-new titre` | ADR suivant depuis le modèle |
-| `just hooks` | Installe les hooks git |
+| `task trace` | Traçabilité complète (échoue si un maillon manque) |
+| `task report` | Rapport HTML navigable dans `build/` |
+| `task check` | Cohérence : ADR acceptés, parité des templates, version |
+| `task ci` | Tout ce que la CI exécute |
+| `task adr-new -- titre` | ADR suivant depuis le modèle |
+| `task hooks` | Installe les hooks git |
 
-Prérequis : git, just, bash, curl, Java 17+.
+Chaque commande a son équivalent direct sans orchestrateur (`sh tools/oft.sh
+trace`, `sh tools/checks.sh`…) : voir AGENTS.md §3.
+
+Prérequis : git, un shell `sh` POSIX (fourni par Git sous Windows), curl,
+Java 17+ ; [Task](https://taskfile.dev/) optionnel (façade par défaut).
 
 ## Licence
 

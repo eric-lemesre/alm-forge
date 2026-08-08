@@ -1,11 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # [impl->req~garde-fous-locaux~1]
 # Corps du hook pre-commit : rejoue les portes de la CI avant que le commit
-# n'atteigne le dépôt. Le wrapper .githooks/pre-commit (sans extension, non
-# scanné par OpenFastTrace) délègue ici — voir méthode, ch. 4.
-set -euo pipefail
+# n'atteigne le dépôt, sans dépendre d'aucun orchestrateur (ADR-0007). Le
+# wrapper .githooks/pre-commit (sans extension, non scanné par OpenFastTrace)
+# délègue ici — voir méthode, ch. 4. POSIX sh strict.
+set -eu
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(git rev-parse --show-toplevel)"
 
 if [ "${ALM_SKIP_HOOKS:-0}" = "1" ]; then
     echo "AVERTISSEMENT : portes locales contournées (ALM_SKIP_HOOKS=1)." >&2
@@ -14,7 +15,7 @@ if [ "${ALM_SKIP_HOOKS:-0}" = "1" ]; then
 fi
 
 echo "Porte locale 1/2 — traçabilité (OpenFastTrace)"
-"${ROOT}/tools/oft.sh" trace
+sh "${ROOT}/tools/oft.sh" trace
 
 echo "Porte locale 2/2 — contrôles de cohérence"
-"${ROOT}/tools/checks.sh"
+sh "${ROOT}/tools/checks.sh"

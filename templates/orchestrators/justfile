@@ -1,0 +1,39 @@
+# Façade d'orchestration « just » — variante interchangeable (ADR-0007).
+# Pour l'adopter : copier ce fichier à la racine du projet à la place de
+# Taskfile.yml. PURE DÉLÉGATION : la logique vit dans tools/*.sh ; une
+# logique qui apparaît ici est un défaut à corriger en revue.
+# Note : just exécute ses recettes via un shell sh (voir `windows-shell` dans
+# le manuel just pour les postes Windows sans Git Bash).
+
+# Liste des recettes disponibles
+default:
+    @just --list
+
+# Traçabilité complète (échoue si un maillon manque)
+trace:
+    sh tools/oft.sh trace
+
+# Rapport HTML de traçabilité dans build/tracabilite.html
+report:
+    sh tools/oft.sh report
+
+# Contrôles de cohérence (ADR, templates, version)
+check:
+    sh tools/checks.sh
+
+# Tout ce que la CI exécute
+ci: trace check
+    @echo "CI locale : OK."
+
+# Installe les hooks git du dépôt
+hooks:
+    git config core.hooksPath .githooks
+    @echo "Hooks installés (core.hooksPath = .githooks)."
+
+# Crée l'ADR suivant depuis le modèle : just adr-new titre-en-kebab
+adr-new titre:
+    sh tools/adr-new.sh {{titre}}
+
+# Met à jour VERSION (compléter le CHANGELOG) : just bump X.Y.Z
+bump version:
+    sh tools/bump.sh {{version}}

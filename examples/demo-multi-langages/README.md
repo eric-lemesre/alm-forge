@@ -5,7 +5,7 @@
 Démonstration minimale mais réelle de la méthode, du besoin jusqu'aux tests
 mécanisés, avec la même exigence implémentée en **Python, Rust et shell** : la
 traçabilité ne dépend pas du langage. Cet exemple est scanné par la même
-commande `just trace` que le reste du dépôt — s'il casse, la CI casse.
+commande `task trace` (ou `sh tools/oft.sh trace`) que le reste du dépôt — s'il casse, la CI casse.
 
 | Maillon | Fichier |
 | --- | --- |

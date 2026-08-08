@@ -5,6 +5,18 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Modifié
+
+- Orchestration découplée (ADR-0007, OQ-001) : portes réécrites en POSIX sh
+  strict dans `tools/` (appelées directement par la CI et les hooks),
+  orchestrateur réduit à une façade de délégation pure et interchangeable —
+  `Taskfile.yml` (Task) par défaut, variante justfile dans
+  `templates/orchestrators/`, ou aucun. Le justfile racine est supprimé.
+
+### Ajouté
+
+- Scripts `tools/adr-new.sh` et `tools/bump.sh` (logique sortie des façades).
+
 ## [0.1.0] - 2026-08-08
 
 ### Ajouté

@@ -29,5 +29,10 @@ What you get when you instantiate this template:
 - **A multi-language example** (Python, Rust, shell) running the full chain,
   scanned by the same gate as the rest of the repository.
 
-Quick start: `just hooks && just ci` — prerequisites: git, just, bash, curl,
-Java 17+. Licence: [MIT](LICENSE).
+- **Interchangeable orchestrator**: quality gates are standalone POSIX
+  scripts (`tools/`); the default [Task](https://taskfile.dev/) façade purely
+  delegates to them and can be swapped for just, make, or nothing.
+
+Quick start: `task hooks && task ci` (or `sh tools/oft.sh trace && sh
+tools/checks.sh` without any runner) — prerequisites: git, a POSIX `sh`
+(bundled with Git on Windows), curl, Java 17+. Licence: [MIT](LICENSE).

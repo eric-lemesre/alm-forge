@@ -1,8 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # [impl->req~garde-fous-locaux~1]
 # Corps du hook commit-msg : commits conventionnels en français (R4) et
-# interdiction des mentions d'agent ou de co-auteur généré (R0).
-set -euo pipefail
+# interdiction des mentions d'agent ou de co-auteur généré (R0). POSIX sh ;
+# grep est fourni partout où git l'est (y compris Git pour Windows).
+set -eu
 
 MSG_FILE="$1"
 SUBJECT="$(head -n1 "${MSG_FILE}")"

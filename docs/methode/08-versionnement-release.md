@@ -10,12 +10,12 @@
   « Non publié » alimentée au fil des pull requests, transformée en section
   versionnée datée au moment de la release. C'est la lecture du journal qui
   décide du niveau d'incrément (correctif, mineur, majeur).
-- La cohérence VERSION ↔ CHANGELOG est une porte mécanique (`just check`) : on
+- La cohérence VERSION ↔ CHANGELOG est une porte mécanique (`task check`) : on
   ne peut pas publier une version absente du journal.
 - Dans un projet instancié multi-composants, tous les manifestes (Cargo.toml,
-  package.json…) suivent le même numéro ; la recette `bump` du justfile est le
-  point unique de mise à jour — l'étendre aux manifestes du projet fait partie
-  de l'instanciation.
+  package.json…) suivent le même numéro ; `tools/bump.sh` est le point unique
+  de mise à jour — l'étendre aux manifestes du projet fait partie de
+  l'instanciation.
 
 ## Commits et branches
 
@@ -32,8 +32,8 @@
 
 ## Release
 
-1. Vérifier que `just ci` passe.
-2. `just bump X.Y.Z` — met à jour VERSION ; transformer la section
+1. Vérifier que `task ci` passe.
+2. `task bump -- X.Y.Z` — met à jour VERSION ; transformer la section
    « Non publié » du journal en section `[X.Y.Z] - AAAA-MM-JJ`.
 3. Commit `chore: version X.Y.Z`, tag `vX.Y.Z`, push du tag.
 4. La publication d'artefacts (paquets, images, SBOM) est propre à chaque

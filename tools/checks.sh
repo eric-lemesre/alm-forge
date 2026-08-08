@@ -1,61 +1,74 @@
-#!/usr/bin/env bash
-# Contrôles de cohérence du dépôt, exécutés par le hook pre-commit et la CI.
+#!/bin/sh
+# Contrôles de cohérence du dépôt, exécutés par le hook pre-commit, la CI et
+# les façades d'orchestration. POSIX sh strict, uniquement des commandes
+# intégrées et utilitaires universels (cat, ls) : aucun grep/sed/diff requis.
 # Chaque contrôle est tagué vers l'exigence qu'il réalise (R2) et a été testé
 # sur son cas d'échec à sa mise en place (R3).
-set -euo pipefail
+set -eu
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "${ROOT}"
 FAILURES=0
-
-fail() {
-    echo "ÉCHEC : $1" >&2
-    FAILURES=$((FAILURES + 1))
-}
 
 # [impl->req~bilinguisme-templates~1]
 # Parité des templates fr/en : mêmes noms de fichiers des deux côtés.
-check_templates_parity() {
-    local diff_out
-    diff_out="$(diff <(ls "${ROOT}/templates/fr") <(ls "${ROOT}/templates/en") || true)"
-    if [ -n "${diff_out}" ]; then
-        fail "parité templates/fr ↔ templates/en rompue :
-${diff_out}"
-    else
-        echo "ok — parité des templates fr/en"
+parity_fail=0
+for f in templates/fr/*.md; do
+    if [ ! -f "templates/en/${f##*/}" ]; then
+        echo "ÉCHEC : templates/en/${f##*/} manquant" >&2
+        parity_fail=1
     fi
-}
+done
+for f in templates/en/*.md; do
+    if [ ! -f "templates/fr/${f##*/}" ]; then
+        echo "ÉCHEC : templates/fr/${f##*/} manquant" >&2
+        parity_fail=1
+    fi
+done
+if [ "${parity_fail}" -eq 0 ]; then
+    echo "ok — parité des templates fr/en"
+else
+    FAILURES=$((FAILURES + 1))
+fi
 
 # [impl->req~adr-verification~1]
 # Tout ADR au statut Accepté comporte une section « ## Vérification » (R6).
-check_adr_verification() {
-    local f status_line missing=0
-    for f in "${ROOT}"/docs/adr/[0-9]*.md; do
-        status_line="$(grep -m1 '^\*\*Statut\*\*' "${f}" || true)"
-        if printf '%s' "${status_line}" | grep -q 'Accepté'; then
-            if ! grep -q '^## Vérification' "${f}"; then
-                fail "ADR accepté sans section Vérification : ${f#"${ROOT}"/}"
-                missing=1
-            fi
-        fi
-    done
-    [ "${missing}" -eq 0 ] && echo "ok — section Vérification présente dans les ADR acceptés"
-}
+adr_fail=0
+for f in docs/adr/[0-9]*.md; do
+    accepte=0
+    verif=0
+    while IFS= read -r line; do
+        case "${line}" in
+            "**Statut** : Accepté"*) accepte=1 ;;
+            "## Vérification"*) verif=1 ;;
+        esac
+    done < "${f}"
+    if [ "${accepte}" -eq 1 ] && [ "${verif}" -eq 0 ]; then
+        echo "ÉCHEC : ADR accepté sans section Vérification : ${f}" >&2
+        adr_fail=1
+    fi
+done
+if [ "${adr_fail}" -eq 0 ]; then
+    echo "ok — section Vérification présente dans les ADR acceptés"
+else
+    FAILURES=$((FAILURES + 1))
+fi
 
 # [impl->req~versionnement-release~1]
-# La version du fichier VERSION existe dans le CHANGELOG (Keep a Changelog).
-check_version_changelog() {
-    local version
-    version="$(tr -d '[:space:]' < "${ROOT}/VERSION")"
-    if ! grep -q "^## \[${version}\]" "${ROOT}/CHANGELOG.md"; then
-        fail "la version ${version} (fichier VERSION) n'a pas de section dans CHANGELOG.md"
-    else
-        echo "ok — VERSION ${version} présente dans le CHANGELOG"
-    fi
-}
-
-check_templates_parity
-check_adr_verification
-check_version_changelog
+# La version du fichier VERSION a sa section dans le CHANGELOG (Keep a Changelog).
+version="$(cat VERSION)"
+found=0
+while IFS= read -r line; do
+    case "${line}" in
+        "## [${version}]"*) found=1 ;;
+    esac
+done < CHANGELOG.md
+if [ "${found}" -eq 1 ]; then
+    echo "ok — VERSION ${version} présente dans le CHANGELOG"
+else
+    echo "ÉCHEC : la version ${version} (fichier VERSION) n'a pas de section dans CHANGELOG.md" >&2
+    FAILURES=$((FAILURES + 1))
+fi
 
 if [ "${FAILURES}" -gt 0 ]; then
     echo "${FAILURES} contrôle(s) en échec." >&2

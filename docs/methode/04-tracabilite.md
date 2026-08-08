@@ -69,17 +69,19 @@ pas les blocs de code pour les commentaires HTML des fichiers Markdown, et un
 titre Markdown à l'intérieur d'un bloc de code réactive l'importateur d'items —
 ne jamais placer un titre ni un tag HTML complet dans un exemple de code.
 
-**Piège vérifié** : les fichiers **sans extension** (justfile, hooks git) ne
+**Piège vérifié** : les fichiers **sans extension** (hooks git, justfile…) ne
 sont pas scannés. Les tags doivent vivre dans des fichiers à extension reconnue
 (.sh, .py, .rs, .js, .ts, .yml, .md…) — d'où les hooks minces qui délèguent à
-des scripts `.sh` tagués dans `tools/`.
+des scripts `.sh` tagués dans `tools/`. C'est aussi une des raisons du choix
+de `Taskfile.yml` comme façade par défaut : son extension le rend scannable
+(ADR-0007).
 
 ## Exécution
 
 | Commande | Effet |
 | --- | --- |
-| `just trace` | vérification complète, liste les défauts, code retour non nul si échec |
-| `just report` | rapport HTML navigable dans `build/tracabilite.html` |
+| `task trace` (ou `sh tools/oft.sh trace`) | vérification complète, liste les défauts, code retour non nul si échec |
+| `task report` (ou `sh tools/oft.sh report`) | rapport HTML navigable dans `build/tracabilite.html` |
 
 Le périmètre scanné est défini une seule fois dans `tools/oft.sh` (hooks et CI
 exécutent le même script). `templates/` en est exclu : les modèles contiennent

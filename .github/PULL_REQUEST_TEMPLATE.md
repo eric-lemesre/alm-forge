@@ -7,9 +7,9 @@
 
 - [ ] Exigences concernées approuvées (EARS, critères d'acceptation, Covers)
 - [ ] Décisions structurantes actées en ADR (avec section Vérification)
-- [ ] Implémentation taguée — `just trace` passe
+- [ ] Implémentation taguée — `task trace` passe
 - [ ] Tests du niveau déclaré tagués et verts
-- [ ] `just ci` passe en local
+- [ ] `task ci` passe en local
 - [ ] Revue archivée dans `docs/revues/` et constats soldés (Corrigé / Rejeté motivé)
 - [ ] CHANGELOG.md complété si le changement est visible
 - [ ] Aucune porte contournée ; contournements éventuels expliqués ci-dessous

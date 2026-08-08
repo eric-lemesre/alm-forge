@@ -14,8 +14,28 @@ ou le relevé qui l'acte.
 
 ---
 
-Aucune question ouverte à ce jour : le registre n'a pas encore servi. La
-première entrée suivra le format ci-dessous.
+## OQ-001 — Choix de l'orchestrateur des portes qualité
+
+- **Bloque** : outillage transverse (aucune exigence directement — la façade
+  d'orchestration n'est pas une exigence tracée).
+- **Contexte** : just exige un shell `sh` non garanti hors POSIX et son
+  fichier sans extension échappe au scan OpenFastTrace ; le porteur souhaite
+  par ailleurs que l'outil reste au choix du projet instancié.
+- **Options** :
+  - A) Basculer sur Task avec portes inlinées (Windows sans bash, outil imposé).
+  - B) Portes en scripts POSIX autonomes + façade de délégation pure
+    interchangeable (Task par défaut, variante just fournie).
+  - C) Deux orchestrateurs complets avec contrôle de parité.
+- **Recommandation** : B — seul découpage compatible avec le libre choix à
+  l'instanciation ; l'argument « Windows sans bash » de A est théorique, git
+  étant requis et Git pour Windows fournissant sh.
+- **Décision** : B, actée le 2026-08-08 par Éric Lemesre →
+  [ADR-0007](../docs/adr/0007-orchestrateur-en-facade-interchangeable.md).
+- **Statut** : resolved
+
+---
+
+Format d'une nouvelle entrée :
 
 ```markdown
 ## OQ-001 — Titre court
