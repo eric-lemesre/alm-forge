@@ -27,6 +27,9 @@ jobs:
       - name: Contrôles de cohérence
         run: tools/checks.sh
 
+      - name: Test du script d'instanciation
+        run: tools/init-test.sh
+
       - name: Rapport HTML de traçabilité
         if: always()
         run: tools/oft.sh report

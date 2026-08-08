@@ -16,6 +16,10 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 ### Ajouté
 
 - Scripts `tools/adr-new.sh` et `tools/bump.sh` (logique sortie des façades).
+- Script d'instanciation `tools/init.sh` (req~instanciation-outillee~1) avec
+  test mécanisé `tools/init-test.sh` câblé en CI : personnalise l'identité du
+  projet, retire la spécification et les ADR du gabarit, laisse les portes
+  vertes.
 
 ## [0.1.0] - 2026-08-08
 

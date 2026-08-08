@@ -35,6 +35,9 @@ fi
 # Tout ADR au statut Accepté comporte une section « ## Vérification » (R6).
 adr_fail=0
 for f in docs/adr/[0-9]*.md; do
+    # Glob sans correspondance (projet fraîchement instancié, aucun ADR) :
+    # la chaîne littérale reste — l'ignorer au lieu d'échouer sur la lecture.
+    [ -e "${f}" ] || continue
     accepte=0
     verif=0
     while IFS= read -r line; do

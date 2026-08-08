@@ -48,6 +48,7 @@ dans `tools/*.sh`, appelables directement sans aucun runner.
 | `task check` | `sh tools/checks.sh` | contrôles de cohérence (ADR, templates, version) |
 | `task ci` | les deux commandes ci-dessus | tout ce que la CI exécute |
 | `task hooks` | `git config core.hooksPath .githooks` | installe les hooks git du dépôt |
+| `task init -- --nom N --porteur P` | `sh tools/init.sh …` | instancie le gabarit (une seule fois) |
 | `task adr-new -- titre` | `sh tools/adr-new.sh titre` | crée l'ADR suivant depuis le modèle |
 | `task bump -- X.Y.Z` | `sh tools/bump.sh X.Y.Z` | met à jour VERSION (journal à compléter à la main) |
 

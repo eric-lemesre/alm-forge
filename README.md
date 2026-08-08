@@ -55,14 +55,17 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 ## Démarrer un projet
 
 1. Cloner (ou « Use this template » sur GitHub), renommer.
-2. Choisir l'orchestrateur : garder `Taskfile.yml` (défaut), le remplacer par
+2. `task init -- --nom mon-projet --porteur "Prénom Nom"` (ou
+   `sh tools/init.sh …`) : l'identité du projet est posée, la spécification et
+   les ADR propres au gabarit sont retirés, LICENSE/CHANGELOG/VERSION et
+   registres réinitialisés, traçabilité laissée verte — GitHub ne substituant
+   aucune variable, ce script est la personnalisation.
+3. Choisir l'orchestrateur : garder `Taskfile.yml` (défaut), le remplacer par
    la variante justfile de `templates/orchestrators/`, ou n'en garder aucun —
    les portes de `tools/` s'appellent aussi directement.
-3. `task hooks` puis `task ci` — tout doit être vert avant la première ligne.
-4. Vider `spec/01-besoins/` et `spec/02-exigences/` de la spécification du
-   gabarit, y écrire vos besoins (modèles dans `templates/`).
-5. Archiver les ADR du gabarit qui ne vous concernent pas (statut Déprécié),
-   écrire l'ADR-0001 de votre projet.
+4. `task hooks` puis `task ci` — tout doit être vert avant la première ligne.
+5. Écrire votre premier besoin (`templates/fr/need.md`) et l'ADR-0001 de votre
+   projet (`task adr-new -- …`).
 6. Étendre `tools/oft.sh` (périmètre scanné) et la CI aux répertoires de votre
    code, ajouter vos portes propres (lint, couverture, sécurité) — toute porte
    documentée est câblée, ou marquée « non câblée » avec raison et échéance.

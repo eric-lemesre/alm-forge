@@ -37,6 +37,35 @@ Covers:
 
 Needs: dsn, impl
 
+## Instanciation outillée
+
+`req~instanciation-outillee~1`
+
+Quand un projet est instancié depuis le gabarit, le dépôt DOIT fournir un
+script d'initialisation qui personnalise l'identité du projet (nom, porteur),
+retire la spécification et les ADR propres au gabarit (y compris leurs tags de
+couverture dans les documents conservés), réinitialise le journal des
+changements, la version, la licence et les registres, et laisse la traçabilité
+et les contrôles de cohérence verts.
+
+Rationale:
+GitHub n'effectue aucune substitution de variables à la création depuis un
+template : sans script, la personnalisation est une checklist manuelle,
+incomplète par construction (licence, registres et tags oubliés).
+
+Critères d'acceptation :
+
+- Étant donné une copie du gabarit, quand le script est exécuté avec un nom de
+  projet et un porteur, alors la spécification du gabarit et ses ADR sont
+  retirés, la licence porte le porteur, et la traçabilité passe.
+- Étant donné un dépôt déjà initialisé, quand le script est relancé sans
+  forçage, alors il refuse d'agir.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`
