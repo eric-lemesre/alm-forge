@@ -26,8 +26,9 @@
   `feat(notif): req~notification-terminale~1 accusé sonore`. Un commit = une
   exigence ou une intention cohérente — pas de commits fourre-tout.
 - Le format est vérifié par le hook commit-msg (garde absente d'ergonomia,
-  ajoutée ici) ; les mentions d'agent ou de co-auteur généré suivent la
-  politique arbitrée à l'instanciation — interdites par défaut (R0, ADR-0008).
+  ajoutée ici) ; la mention de l'IA suit la politique arbitrée à
+  l'instanciation — par défaut, déclaration obligatoire avec responsable
+  humain et relecture recommandée (R0, ADR-0011).
 - Branches : `type/sujet-court` (`feat/notification-sonore`,
   `fix/echeance-fin-de-mois`).
 

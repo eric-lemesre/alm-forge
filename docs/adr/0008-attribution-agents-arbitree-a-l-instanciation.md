@@ -1,13 +1,14 @@
 # ADR-0008 — Rendre la politique d'attribution des agents arbitrable à l'instanciation
 
-**Statut** : Accepté
+**Statut** : Remplacé par [ADR-0011](0011-declaration-ia-obligatoire-par-defaut.md)
 **Date** : 2026-08-08
 **Décideur** : Éric Lemesre — consultation directe (voir D-2026-08-06, registre des décisions)
 **Portée** : durable
 
 ## Item de conception
 
-`dsn~politique-attribution~1`
+*Item de conception repris en révision 2 par l'ADR-0011 (la traçabilité suit
+la décision en vigueur ; la prose ci-dessous reste le texte d'origine).*
 
 L'interdiction des mentions d'agents IA dans les commits (règle R0) est la
 politique **par défaut** du gabarit, pas une constante : le script
@@ -16,9 +17,6 @@ autorisee|interdite`, interdiction en l'absence de choix), et applique la
 décision mécaniquement — le bloc de contrôle du hook commit-msg, délimité par
 des marqueurs, est conservé ou retiré, et la règle R0 d'AGENTS.md est
 reformulée en conséquence.
-
-Covers:
-- req~politique-attribution-agents~1
 
 ## Contexte
 

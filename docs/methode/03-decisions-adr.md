@@ -26,6 +26,12 @@ Toutes les décisions ne couvrent pas une exigence (choix d'intendance,
 outillage) : un ADR sans item dsn est légitime. L'inverse — un item dsn hors
 ADR — ne l'est pas.
 
+Quand un ADR est remplacé, son item de conception suit la décision en
+vigueur : l'ADR remplaçant porte l'item (révision incrémentée si l'exigence a
+elle-même changé de révision), et la définition d'item est retirée de l'ADR
+remplacé au profit d'une note de renvoi — la prose historique, elle, reste
+intacte. La matrice trace le présent ; les ADR tracent l'histoire.
+
 ## Trois circuits selon l'enjeu
 
 - **S (structurant)** : séance avec les parties prenantes, relevé de décision

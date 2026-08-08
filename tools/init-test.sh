@@ -1,6 +1,6 @@
 #!/bin/sh
 # [utest->req~instanciation-outillee~1]
-# [utest->req~politique-attribution-agents~1]
+# [utest->req~politique-attribution-agents~2]
 # [utest->req~politique-langue~1]
 # Test mécanisé du script d'instanciation : exécute tools/init.sh sur des
 # copies temporaires et vérifie les critères d'acceptation des trois
@@ -13,7 +13,8 @@ TA="$(mktemp -d)"
 TB="$(mktemp -d)"
 TC="$(mktemp -d)"
 TD="$(mktemp -d)"
-trap 'rm -rf "${TA}" "${TB}" "${TC}" "${TD}"' EXIT INT TERM
+TE="$(mktemp -d)"
+trap 'rm -rf "${TA}" "${TB}" "${TC}" "${TD}" "${TE}"' EXIT INT TERM
 fail=0
 
 instancier() {
@@ -44,9 +45,25 @@ esac
 if [ ! -d "${TA}/templates/en" ] || [ ! -f "${TA}/README.en.md" ]; then
     echo "ÉCHEC [A] : le défaut fr-en doit conserver le bilinguisme" >&2 ; fail=1
 fi
-printf 'feat: sujet valide\n\nCo-Authored-By: Robot <r@x>\n' > "${TA}/msg-attr"
+# Politique par défaut : déclaration obligatoire (diligence, ADR-0011).
+printf 'feat: sujet valide\n' > "${TA}/msg-attr"
 if (cd "${TA}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
-    echo "ÉCHEC [A] : le hook accepte un co-auteur alors que l'attribution est interdite par défaut" >&2
+    echo "ÉCHEC [A] : le hook accepte un commit sans trailer IA (défaut = obligatoire)" >&2
+    fail=1
+fi
+printf 'feat: sujet valide\n\nIA: aucune\n' > "${TA}/msg-attr"
+if ! (cd "${TA}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
+    echo "ÉCHEC [A] : le hook refuse « IA: aucune »" >&2
+    fail=1
+fi
+printf 'feat: sujet valide\n\nIA: Outil X\n' > "${TA}/msg-attr"
+if (cd "${TA}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
+    echo "ÉCHEC [A] : le hook accepte un usage d'IA sans responsable humain" >&2
+    fail=1
+fi
+printf 'feat: sujet valide\n\nIA: Outil X\nResponsable: Porteuse Test\n' > "${TA}/msg-attr"
+if ! (cd "${TA}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
+    echo "ÉCHEC [A] : le hook refuse une déclaration IA complète (outil + responsable)" >&2
     fail=1
 fi
 (cd "${TA}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
@@ -56,17 +73,35 @@ if (cd "${TA}" && sh tools/init.sh --nom x --porteur y </dev/null) 2>/dev/null; 
     echo "ÉCHEC [A] : init.sh a accepté de tourner deux fois sans --force" >&2 ; fail=1
 fi
 
-echo "init-test [B] — attribution des agents autorisée"
+echo "init-test [B] — mentions autorisées, sans obligation"
 instancier "${TB}" --attribution-agents autorisee
 printf 'feat: sujet valide\n\nCo-Authored-By: Robot <r@x>\n' > "${TB}/msg-attr"
 if ! (cd "${TB}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
-    echo "ÉCHEC [B] : le hook refuse un co-auteur alors que l'attribution est autorisée" >&2
+    echo "ÉCHEC [B] : le hook refuse un co-auteur alors que les mentions sont autorisées" >&2
+    fail=1
+fi
+printf 'feat: sujet valide\n' > "${TB}/msg-attr"
+if ! (cd "${TB}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
+    echo "ÉCHEC [B] : le hook impose un trailer alors que rien n'est obligatoire" >&2
     fail=1
 fi
 case "$(cat "${TB}/AGENTS.md")" in
-    *"autorisées (choix d'instanciation"*) ;;
+    *"autorisées, sans obligation"*) ;;
     *) echo "ÉCHEC [B] : la règle R0 d'AGENTS.md ne reflète pas le choix" >&2 ; fail=1 ;;
 esac
+
+echo "init-test [E] — mentions interdites"
+instancier "${TE}" --attribution-agents interdite
+printf 'feat: sujet valide\n\nCo-Authored-By: Robot <r@x>\n' > "${TE}/msg-attr"
+if (cd "${TE}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
+    echo "ÉCHEC [E] : le hook accepte un co-auteur alors que les mentions sont interdites" >&2
+    fail=1
+fi
+printf 'feat: sujet valide\n' > "${TE}/msg-attr"
+if ! (cd "${TE}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
+    echo "ÉCHEC [E] : le hook refuse un commit sain sous interdiction" >&2
+    fail=1
+fi
 
 echo "init-test [C] — langue fr uniquement"
 instancier "${TC}" --langue fr

@@ -11,7 +11,7 @@
 
 | # | Règle | Vérifiée par |
 | --- | --- | --- |
-| R0 | Aucune mention d'agent, de co-auteur généré ou d'outil d'IA dans les commits, le code ou la documentation — politique par défaut, arbitrée à l'instanciation (ADR-0008) | hook `commit-msg`, revue |
+| R0 | Diligence : chaque commit déclare l'usage de l'IA (trailer `IA: aucune` ou `IA: <outil>`) ; tout usage déclaré est endossé par un humain (`Responsable: Prénom Nom`), la relecture (`Relu-par: …`) est recommandée — politique par défaut, arbitrée à l'instanciation (ADR-0011) | hook `commit-msg`, revue |
 | R1 | Les bonnes pratiques priment sur la rapidité ; déroger exige une décision tracée | revue, ADR |
 | R2 | Toute exigence vit dans `spec/` avec un identifiant tracé ; tout code de réalisation porte son tag de couverture | `tools/oft.sh` (hook + CI) |
 | R3 | Aucun contrôle qui passe toujours : toute porte se teste sur son cas d'échec à sa mise en place | revue de la PR qui l'introduit |
@@ -31,7 +31,8 @@
 5. Implémenter, taguer chaque site (`[impl->req~…~n]`).
 6. Écrire les tests du niveau déclaré, tagués (`[utest->…]`, `[itest->…]`…).
 7. `task ci` en local — tout doit passer avant de proposer.
-8. Commit conventionnel portant l'identifiant d'exigence.
+8. Commit conventionnel portant l'identifiant d'exigence et les trailers de
+   la politique R0 (`IA:`, `Responsable:`, `Relu-par:` le cas échéant).
 9. Pull request : la checklist du modèle est la Definition of Done.
 10. Solder la revue (chaque constat : corrigé ou rejeté motivé).
 

@@ -98,26 +98,33 @@ Needs: impl, utest
 
 ## Politique d'attribution des agents arbitrée à l'instanciation
 
-`req~politique-attribution-agents~1`
+`req~politique-attribution-agents~2`
 
-Quand un projet est instancié depuis le gabarit, l'autorisation ou
-l'interdiction des mentions d'agents IA (co-auteur généré, « generated
-with »…) dans les commits DOIT être arbitrée par l'instanciateur et appliquée
-mécaniquement par le hook commit-msg. Si aucun choix explicite n'est exprimé,
-alors l'interdiction DOIT s'appliquer.
+Quand un projet est instancié depuis le gabarit, la politique de mention de
+l'IA dans les commits (obligatoire, autorisée ou interdite) DOIT être arbitrée
+par l'instanciateur et appliquée mécaniquement par le hook commit-msg. Si
+aucun choix explicite n'est exprimé, alors la déclaration DOIT être
+obligatoire : chaque commit porte un trailer `IA: aucune` ou `IA: <outil>`,
+tout usage déclaré exige un endossement humain (`Responsable: Prénom Nom`),
+et la relecture (`Relu-par: …`) DEVRAIT être renseignée.
 
 Rationale:
-C'est un choix d'éditorialisation de l'historique propre à chaque
-organisation ; le gabarit fournit le défaut conservateur et le mécanisme,
-pas le dogme (ADR-0008).
+Principe de diligence : transparence sur le rôle de l'IA et responsabilité
+humaine assumée du résultat (ADR-0011, qui remplace l'ADR-0008 et son défaut
+d'interdiction).
 
 Critères d'acceptation :
 
-- Étant donné une instanciation sans choix explicite, quand un commit porte un
-  co-auteur généré, alors le hook le refuse.
-- Étant donné une instanciation avec attribution autorisée, quand un commit
-  porte un co-auteur généré, alors le hook l'accepte et la règle R0 du contrat
-  reflète le choix.
+- Étant donné le défaut, quand un commit ne porte aucun trailer IA, alors le
+  hook le refuse.
+- Étant donné le défaut, quand un commit déclare un outil sans responsable
+  humain, alors le hook le refuse ; avec responsable, il l'accepte.
+- Étant donné le défaut, quand un commit déclare « IA: aucune », alors le
+  hook l'accepte.
+- Étant donné le choix « interdite », quand un commit porte une mention
+  d'agent, alors le hook le refuse.
+- Étant donné le choix « autorisee », quand un commit porte ou non des
+  mentions, alors le hook n'impose rien.
 
 Covers:
 - feat~gouvernance-agnostique~1

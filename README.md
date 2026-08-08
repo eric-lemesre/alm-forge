@@ -60,9 +60,10 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
    ADR-0010).
 2. `task init -- --nom mon-projet --porteur "Prénom Nom"` (ou
    `sh tools/init.sh …`) : l'identité du projet est posée et trois arbitrages
-   vous appartiennent — attribution des agents dans les commits
-   (`--attribution-agents autorisee|interdite`, ADR-0008), langue du dépôt
-   (`--langue fr|en|fr-en`, ADR-0009). La spécification et les ADR propres au
+   vous appartiennent — politique de mention de l'IA dans les commits
+   (`--attribution-agents obligatoire|autorisee|interdite`, défaut :
+   déclaration obligatoire avec responsable humain, ADR-0011), langue du
+   dépôt (`--langue fr|en|fr-en`, ADR-0009). La spécification et les ADR propres au
    gabarit sont retirés, LICENSE/CHANGELOG/VERSION et registres réinitialisés,
    traçabilité laissée verte — aucune forge ne substituant de variables, ce
    script est la personnalisation.
