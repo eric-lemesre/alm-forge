@@ -1,0 +1,15 @@
+# Artefacts générés (rapports de traçabilité, distributions)
+build/
+
+# Cache d'outillage (jar OpenFastTrace téléchargé par tools/oft.sh)
+.cache/
+
+# Éditeurs et environnements locaux
+.idea/
+.vscode/
+*.swp
+
+# Fichiers d'état d'agents locaux (jamais versionnés)
+.hermes/
+.codewhale/
+.deepseek/
