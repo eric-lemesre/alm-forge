@@ -31,6 +31,11 @@ fi
 # commentaire renvoyant vers l'ADR qui le justifie. Exemples :
 #   command -v cargo >/dev/null 2>&1 || { echo "installer rustup (ADR-00NN)"; exit 1; }
 #   docker compose -f dev/compose.yml up -d db   # base de dev (ADR-00NN)
+#
+# Si le poste utilise des caches partagés (CARGO_TARGET_DIR, store pnpm…),
+# documentez-le ici et bannissez les chemins d'artefacts en dur dans les
+# recettes et la CI — voir méthode, ch. 4, anti-pattern « outillage aveugle
+# à son environnement ».
 # -------------------------------------------------------------------------
 
 echo "Bootstrap : socle commun présent."

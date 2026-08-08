@@ -7,6 +7,12 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Modifié
 
+- Anti-pattern « outillage aveugle à son environnement » ajouté à la méthode
+  (ch. 4) et rappelé dans les points d'extension de `tools/clean.sh` et
+  `tools/bootstrap.sh` : chemins d'artefacts en dur cassés ou neutralisés
+  par les caches partagés du poste (CARGO_TARGET_DIR…), nettoyages d'outil
+  devenus globaux — leçon d'un cas vécu le jour même.
+
 - Orchestration découplée (ADR-0007, OQ-001) : portes réécrites en POSIX sh
   strict dans `tools/` (appelées directement par la CI et les hooks),
   orchestrateur réduit à une façade de délégation pure et interchangeable —

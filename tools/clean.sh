@@ -43,6 +43,14 @@ nettoyer build
 #   nettoyer target                # Rust — ou : cargo clean (ADR-00NN)
 #   nettoyer node_modules          # Node (ADR-00NN)
 #   nettoyer .venv                 # Python (ADR-00NN)
+#
+# PIÈGE VÉRIFIÉ (méthode, ch. 4, anti-patterns) : si le poste déplace les
+# artefacts (CARGO_TARGET_DIR partagé, store pnpm, ccache…), les chemins
+# ci-dessus deviennent silencieusement sans effet et les commandes de
+# nettoyage de l'outil (cargo clean) peuvent devenir GLOBALES au poste.
+# Résoudre les chemins via l'outil (cargo metadata → target_directory) et
+# re-tester ce script après tout changement d'environnement : un nettoyage
+# no-op est un contrôle qui passe toujours.
 # -------------------------------------------------------------------------
 
 if [ "${ALL}" -eq 1 ]; then

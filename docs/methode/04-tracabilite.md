@@ -98,3 +98,15 @@ des exemples d'identifiants qui ne doivent pas devenir des items.
 - **Contrôle no-op** : un contrôle de dérive qui compare un fichier jamais
   généré passe toujours. Vérifier le cas d'échec d'une porte fait partie de sa
   mise en place.
+- **Outillage aveugle à son environnement** : un chemin d'artefact de build
+  codé en dur (`./target`, `node_modules/.bin`…) dans une recette, un script
+  ou une CI casse — ou pire, devient silencieusement sans effet — dès qu'un
+  réglage de poste le déplace (répertoire Cargo partagé via
+  CARGO_TARGET_DIR, store pnpm, ccache…). Résoudre les chemins via l'outil
+  (`cargo metadata` donne `target_directory`), et re-tester les portes —
+  nettoyage compris — après tout changement d'environnement : un nettoyage
+  devenu no-op est un contrôle qui passe toujours. Attention aussi au sens
+  inverse : avec un cache partagé, un `cargo clean` « local » purge le
+  répertoire commun à tous les projets du poste. (Cas vécu à l'origine de
+  cette règle : bascule d'un poste en target partagé, scripts de nettoyage
+  devenus vides et recettes clean devenues globales le même jour.)
