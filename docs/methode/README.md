@@ -37,6 +37,7 @@ main.
 | [8. Versionnement et release](08-versionnement-release.md) | SemVer, Keep a Changelog, publication |
 | [9. Gouvernance des agents](09-gouvernance-agents.md) | AGENTS.md, adaptateurs, règles vérifiées |
 | [10. Sécurité continue](10-securite-continue.md) | STRIDE léger, vulnérabilités et exceptions, SBOM, porte anti-secrets |
+| [11. Cycle de vie des issues](11-cycle-de-vie-issues.md) | État/attente/acte, flux Spec/Orga/réalisation, triage et priorités, fins de vie |
 
 ## Principes transverses
 

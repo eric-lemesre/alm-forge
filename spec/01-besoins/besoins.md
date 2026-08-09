@@ -52,6 +52,26 @@ de contrôle, et une porte déclarée mais non exécutée crée une fausse confi
 
 Needs: req
 
+## Coordination du travail par les issues
+
+`feat~coordination-issues~1`
+
+Le parcours d'une issue — de son ouverture à sa fin de vie — DOIT être défini
+pour les trois flux observés sur un dépôt vivant : arbitrage d'une
+spécification, arbitrage d'un document d'organisation, réalisation d'une
+demande ou correction d'une anomalie. L'état du travail se lit d'un coup
+d'œil ; chaque acte (lecture, validation, décision, refus) laisse une trace
+signée, datée et opposable dans le dépôt ou sur l'issue.
+
+Rationale:
+Besoin exprimé le 2026-08-09, à partir du processus éprouvé sur ergonomia
+(docs/00-organisation) : sans cycle de vie explicite, les issues restent dans
+des états faux (demande ventilée en exigences toujours « à discuter »), les
+étiquettes prolifèrent sans servir, et la trace des arbitrages se perd hors du
+dépôt.
+
+Needs: req
+
 ## Gouvernance agnostique du langage et de l'agent
 
 `feat~gouvernance-agnostique~1`

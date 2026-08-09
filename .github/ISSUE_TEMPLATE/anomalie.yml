@@ -1,8 +1,21 @@
+# [impl->req~issues-triage-priorites~1] — la gravité se constate ici ;
+# la priorité se décide au triage, le formulaire n'en demande aucune.
 name: Anomalie
 description: Un comportement contredit une exigence ou une attente légitime
 title: "[Bug] "
 labels: [bug]
 body:
+  - type: dropdown
+    id: gravite
+    attributes:
+      label: Gravité
+      description: Un fait, pas une priorité — la priorité sera décidée au triage.
+      options:
+        - Critique — pas de contournement, ou données à risque
+        - Gênant — un contournement existe, mais il coûte
+        - Mineur — confort, cosmétique
+    validations:
+      required: true
   - type: input
     id: exigence
     attributes:

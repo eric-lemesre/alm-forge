@@ -21,6 +21,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- Cycle de vie des issues (feat~coordination-issues~1, méthode ch. 11),
+  formalisé depuis le processus éprouvé sur ergonomia : règle état/attente/acte
+  (req~issues-etat-attente-acte~1 — l'étiquette dit l'état, l'assignation dit
+  qui est attendu, le commentaire trace l'acte et fait seul foi), trois flux
+  [Spec]/[Orga]/réalisation avec avancement scindé en étapes, entraves et
+  sorties et fins de vie motivées (req~issues-flux-avancement~1), triage où la
+  gravité se constate et la priorité se décide — P1/P2/P3 par le « quand »,
+  limite de P1 (req~issues-triage-priorites~1). Formulaires : gravité ajoutée
+  à l'anomalie (GitHub et GitLab), nouveau formulaire [Orga], le formulaire
+  [Spec] passe en `à-consulter`. Automatismes de forge documentés non câblés
+  (R7) : à câbler à l'instanciation, testés sur leur cas d'échec.
 - Porte anti-secrets (req~detection-secrets~1, ADR-0012) : gitleaks épinglé
   par version et empreintes par plateforme, bloquant en CI, signalant en
   local sans l'outil ; test mécanisé `tools/secrets-test.sh` ; cible

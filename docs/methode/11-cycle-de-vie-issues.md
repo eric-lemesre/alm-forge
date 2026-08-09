@@ -1,0 +1,189 @@
+# 11. Cycle de vie des issues
+
+<!-- [impl->req~issues-etat-attente-acte~1] -->
+<!-- [impl->req~issues-flux-avancement~1] -->
+<!-- [impl->req~issues-triage-priorites~1] -->
+
+Le dépôt est la mémoire, l'issue n'est que le lieu de coordination (principe
+transverse 4) : toute décision finit dans `spec/`, `docs/adr/` ou
+`docs/decisions/` — l'issue n'en est que le point de rendez-vous. Ce chapitre
+décrit le parcours d'une issue, de son ouverture à sa fin de vie, pour les
+trois flux d'un dépôt vivant. Processus éprouvé sur ergonomia
+(`docs/00-organisation`), formulé ici en termes neutres de forge : étiquette,
+assignation et commentaire existent partout (ADR-0010).
+
+## La règle transverse : l'état, l'attente, l'acte
+
+| Artefact | Son rôle | Ses propriétés |
+| --- | --- | --- |
+| L'**étiquette** | dit l'**état** — où en est l'issue | se pose et se retire ; une seule étape à la fois ; ne prouve rien |
+| L'**assignation** | dit **qui est attendu** — de qui le prochain geste dépend | se retire dès que la personne a fait son geste |
+| Le **commentaire** | trace l'**acte** — ce qui a été fait, constaté, décidé | signé, daté, immuable ; cite la version quand l'acte porte sur une version ; **c'est lui qui fait foi** |
+
+Trois conséquences, jamais négociées :
+
+1. **Rien de nominatif dans une étiquette.** Quand un nom compte, c'est
+   l'assignation qui le porte (tant que le geste est attendu) ou le
+   commentaire (une fois le geste fait).
+2. **Les automatismes dérivent l'état depuis l'acte, jamais l'inverse.** Un
+   robot peut poser une étiquette ou désassigner quelqu'un *après* un
+   commentaire ; aucun humain n'atteste en posant une étiquette, aucun robot
+   ne décide à la place de quelqu'un.
+3. **Aucun changement d'état sans motif écrit.** Retour en développement,
+   clôture sans recette, changement de priorité : chaque transition
+   s'accompagne d'un commentaire qui dit pourquoi.
+
+## Familles d'étiquettes
+
+Quatre familles orthogonales — nature, enjeu, priorité, avancement —
+l'avancement étant scindé en trois sous-familles :
+
+| Sous-famille | Exclusivité | Rôle |
+| --- | --- | --- |
+| **étape** | une seule | où en est le parcours (`à-discuter`, `à-consulter`, `en-attente-de-PR`, `à-tester`, `à-clôturer`…) |
+| **entrave** | cumulable | ce qui se superpose à une étape (`bloquant`, `en-attente-d-une-autre-issue`, `bug:régression`) |
+| **sortie** | terminale | pourquoi l'issue est fermée (`livré` ; `doublon`, `invalide`, `ne-sera-pas-fait`, `abandonnée`, `différé`) |
+
+La règle s'énonce alors sans exception : **une étape à la fois, autant
+d'entraves que la réalité en impose, une seule sortie.**
+
+Deux garde-fous contre la prolifération, leçons chiffrées d'ergonomia
+(plusieurs étiquettes jamais employées en ~400 issues) :
+
+- **ne jamais dupliquer dans une étiquette ce que la forge modélise déjà**
+  (une PR liée, un jalon, l'état ouvert/fermé) : l'information tenue à deux
+  endroits diverge, et c'est toujours la copie manuelle qui ment ;
+- **créer une étiquette sur manque avéré, jamais par symétrie** : la question
+  n'est pas « où sont les `bug:*` ? » mais « quel état manque au parcours
+  d'une anomalie ? ».
+
+## Les trois flux
+
+```text
+(ouverture) ─ à-discuter ── en-attente-de-PR ─ à-tester ─ à-clôturer ─ livré   (réalisation)
+
+(ouverture) ─ à-consulter ─┬─ spec:prêt-à-acter ─ spec:actée                   ([Spec] exigence)
+                           └─ orga:prêt-à-acter ─ orga:actée                   ([Orga] méthode)
+```
+
+Les deux circuits ne partagent aucun artefact : l'un produit du logiciel,
+l'autre une décision.
+
+### `[Spec]` — arbitrage d'une exigence
+
+1. **Le document d'abord.** L'exigence est rédigée (EARS, ch. 2) et fusionnée
+   en `Status: draft` — hors dénominateur de couverture — avant toute
+   discussion : on ne débat pas d'une intention, on débat d'un texte citable,
+   diffable et amendable.
+2. **Consultation.** Une issue `[Spec]` (formulaire dédié) porte le niveau
+   d'enjeu, l'étiquette `à-consulter` et l'assignation des intervenants
+   attendus. Deux verbes distincts en commentaire : **`/vu`** — « j'ai pris
+   connaissance », sans engagement — et **`/acter`** — « je valide les
+   défauts proposés », qui engage son auteur. Si le texte change en cours de
+   consultation, les lectures retombent : « j'ai lu » porte sur une version.
+3. **Adoption sans séance.** Quand chaque point à trancher porte une option
+   par défaut et un décideur nommé, le silence à l'échéance vaut absence
+   d'objection, et trois `/acter` valent adoption immédiate. Une objection
+   n'envoie en séance que le point concerné.
+4. **La décision s'écrit.** Relevé au registre `docs/decisions/` (ch. 3) ;
+   décision structurante → ADR. L'exigence perd son `Status: draft` et entre
+   au dénominateur ; l'issue est fermée en référençant le relevé.
+
+### `[Orga]` — arbitrage d'un document d'organisation
+
+Même circuit, objet différent : un document de méthode ou de gouvernance
+(`docs/methode/`, `AGENTS.md` — dont toute modification exige un ADR). Les
+étiquettes d'étape sont préfixées `orga:` pour que « où en sont les
+arbitrages de spécification ? » reste une question filtrable.
+
+### `[Feature]` / `[Bug]` — réalisation et anomalie
+
+1. **Triage** (voir ci-dessous) : priorité et jalon, `à-discuter` seulement
+   si un arbitrage manque.
+2. **Ventilation.** Une demande trop large pour une PR devient une ou
+   plusieurs exigences dans `spec/` ; l'issue quitte alors `à-discuter` pour
+   `feat:spécifiée`, avec les identifiants créés en commentaire — elle est le
+   fil qui les rassemble et se ferme quand toutes sont livrées. Une issue ni
+   traitée, ni abandonnée, ni en discussion mais restée `à-discuter` est un
+   état faux.
+3. **Développement puis recette** (ch. 7) : `en-attente-de-PR` → `à-tester` →
+   validations par commentaire citant la version → `à-clôturer` → fermeture
+   par l'auteur de l'issue avec la sortie `livré`. Une PR ne ferme jamais une
+   issue : fermer, c'est confirmer que le besoin est couvert.
+4. **Régression.** `bug:régression` est une entrave, pas une étape : elle
+   signale un garde-fou manquant, et son correctif n'est recevable
+   qu'accompagné d'un test de non-régression (R3 appliqué à l'existant).
+
+**Fins de vie.** Toute fermeture autre que `livré` se fait « non planifiée »,
+motif en commentaire :
+
+| Fin de vie | Sortie | Nature |
+| --- | --- | --- |
+| Livrée, testée, acceptée | `livré` | l'aboutissement normal |
+| Doublon | `doublon` | le commentaire renvoie à l'issue conservée |
+| Mal posée | `invalide` | le commentaire dit en quoi |
+| Refusée | `ne-sera-pas-fait` | une **décision**, motivée par qui l'a prise |
+| Non reproduite | `invalide` | un **constat** : le commentaire dit ce qui a été essayé, avec quelle version |
+| Abandonnée | `abandonnée` | un **silence** : personne ne porte plus le besoin |
+| Reportée | `différé` | avec sa **condition de réouverture** — un jalon si la condition est une échéance |
+
+Refus et abandon ne pèsent pas pareil : rouvrir une issue abandonnée est
+naturel, rouvrir une issue refusée demande de rediscuter la décision.
+
+## Triage : la gravité se constate, la priorité se décide
+
+- **La gravité est un fait**, décrit par le déclarant dans le formulaire
+  d'anomalie : **critique** (pas de contournement, ou données à risque),
+  **gênant** (contournement coûteux), **mineur** (confort). Elle n'a pas
+  d'étiquette : elle vit dans le texte de l'issue.
+- **La priorité est une décision**, prise au triage — jamais demandée à la
+  création — et définie par le *quand*, pas par le domaine :
+
+| Étiquette | Quand s'en occupe-t-on ? |
+| --- | --- |
+| `P1` | **Avant tout le reste.** La prochaine session de travail commence par là. |
+| `P2` | **Dans le jalon en cours ou le suivant.** |
+| `P3` | **Un jour.** Au backlog, repassé en revue à chaque changement de jalon. |
+
+- **Limite : jamais plus de 5 issues en P1** (défaut, arbitrable à
+  l'instanciation). Poser la sixième oblige à en redescendre une — et à dire
+  laquelle et pourquoi, en commentaire. C'est l'antidote au « tout est P1 ».
+- La gravité éclaire la priorité sans la fixer : un bug critique sur un écran
+  que personne n'utilisera avant le jalon suivant peut attendre en `P2`, et
+  le triage le dit.
+- Revue périodique (hebdomadaire par défaut) des issues sans priorité ; le
+  triage ne juge pas le fond, il répond à une seule question : **quand ?**
+
+## Niveaux d'enjeu : la charge suit la réversibilité
+
+| Niveau | Critère | Circuit |
+| --- | --- | --- |
+| **S — structurant** | porte irréversible : modèle de données, sécurité, conformité, engagement | circuit complet, arbitrage collégial obligatoire — et menaces STRIDE examinées (ch. 10) |
+| **F — fonctionnel** | réversible en quelques jours | consultation asynchrone ; décision du décideur du domaine sauf objection dans le délai |
+| **É — éditorial** | clarification sans effet sur une exigence | simple PR, aucune issue |
+
+Le niveau est proposé par l'auteur ; **tout intervenant peut le relever,
+personne ne l'abaisse seul**. Un doute se tranche vers le haut. L'enjeu n'est
+pas la priorité : la priorité dit *quand* traiter, l'enjeu dit *quelle
+cérémonie* appliquer — un sujet `P3` et structurant est précisément la
+combinaison la plus dangereuse à traiter à la légère.
+
+## Automatismes — non câblés dans le gabarit
+
+Les automatismes utiles (cocher la liste de consultation sur `/vu` et la
+réinitialiser quand le texte change, fermer « non planifiée » à la pose d'une
+sortie, rappeler les recettes dormantes) vivent côté forge : le gabarit,
+agnostique de la forge (ADR-0010), les documente sans les câbler.
+
+**Portes non câblées** (R7) — raison : elles dépendent de l'API de la forge
+retenue ; échéance : à l'instanciation, si le projet retient le circuit de
+consultation outillé. Le projet qui les câble teste chaque automatisme sur son
+cas d'échec (R3) et respecte le sens unique : l'automatisme signale et
+reflète, il n'arbitre pas.
+
+## Défauts arbitrés à l'instanciation
+
+Comme la politique d'attribution (ADR-0011), ces valeurs sont des défauts que
+l'instanciateur peut ajuster — en le consignant au registre des décisions :
+délai de consultation (10 jours ouvrés), limite de P1 (5), cadence de la
+revue de triage (hebdomadaire), cadence des séances d'arbitrage (mensuelle).

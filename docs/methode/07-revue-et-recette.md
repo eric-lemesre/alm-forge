@@ -26,7 +26,9 @@ mesurent la vérité.
 
 - La recette confronte le livrable aux **critères d'acceptation** des exigences
   livrées, par les rôles concernés (métier, produit, technique) — chacun valide
-  son regard, la validation finale exige tous les regards.
+  son regard, la validation finale exige tous les regards. Le parcours d'issue
+  qui l'encadre (étiquettes, fins de vie) est décrit au
+  [chapitre 11](11-cycle-de-vie-issues.md).
 - Une validation est nominative et horodatée (commentaire d'issue ou relevé) ;
   une validation tacite n'existe pas.
 - **Sortie négative documentée** : un refus de recette retire les validations

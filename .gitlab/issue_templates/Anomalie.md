@@ -1,4 +1,11 @@
+<!-- [impl->req~issues-triage-priorites~1] — la gravité se constate ici ;
+     la priorité se décide au triage, le formulaire n'en demande aucune. -->
 /label ~bug
+
+## Gravité
+
+<!-- Un fait, pas une priorité : Critique (pas de contournement, ou données à
+     risque) / Gênant (contournement coûteux) / Mineur (confort). -->
 
 ## Exigence concernée
 
