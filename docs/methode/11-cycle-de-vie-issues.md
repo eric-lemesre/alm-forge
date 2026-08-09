@@ -1,18 +1,35 @@
 # 11. Cycle de vie des issues
 
-<!-- [impl->req~issues-etat-attente-acte~1] -->
-<!-- [impl->req~issues-flux-avancement~1] -->
-<!-- [impl->req~issues-triage-priorites~1] -->
+<!-- [impl->req~issues-etat-attente-acte~2] -->
+<!-- [impl->req~issues-flux-avancement~2] -->
+<!-- [impl->req~issues-triage-priorites~2] -->
 
 Le dépôt est la mémoire, l'issue n'est que le lieu de coordination (principe
 transverse 4) : toute décision finit dans `spec/`, `docs/adr/` ou
 `docs/decisions/` — l'issue n'en est que le point de rendez-vous. Ce chapitre
 décrit le parcours d'une issue, de son ouverture à sa fin de vie, pour les
 trois flux d'un dépôt vivant. Processus éprouvé sur ergonomia
-(`docs/00-organisation`), formulé ici en termes neutres de forge : étiquette,
+(`docs/00-organisation`), formulé en termes neutres de forge : étiquette,
 assignation et commentaire existent partout (ADR-0010).
 
-## La règle transverse : l'état, l'attente, l'acte
+## Socle et défauts — ce qui s'arbitre à l'instanciation
+
+Ce chapitre porte deux couches, arbitrées par l'ADR-0013 :
+
+| Couche | Contenu | Statut |
+| --- | --- | --- |
+| **Socle** | la règle état/attente/acte ci-dessous ; le dépôt comme mémoire ; toute fin de vie motivée par écrit | **invariant** — s'applique à tout projet instancié |
+| **Défauts** | flux `[Spec]`/`[Orga]`, jeu d'étiquettes, décideurs par domaine, valeurs (délais, limite de P1, cadences), automatismes | **arbitrable** — l'instanciateur adopte, adapte ou réduit, et le consigne au registre des décisions du projet |
+
+Le socle ne dépend ni de l'équipe, ni du rythme, ni de la forge : il fonde
+l'opposabilité des actes de coordination. Les défauts, eux, supposent un
+contexte — un porteur solo n'a personne à consulter et peut réduire les flux
+d'arbitrage à la question ouverte (ch. 6) ; une équipe de trois a besoin du
+circuit complet. Sans choix explicite à l'instanciation, les défauts
+s'appliquent tels quels. Un arbitrage est une décision : il se consigne, il ne
+se constate pas après coup.
+
+## La règle transverse : l'état, l'attente, l'acte — socle
 
 | Artefact | Son rôle | Ses propriétés |
 | --- | --- | --- |
@@ -32,6 +49,8 @@ Trois conséquences, jamais négociées :
 3. **Aucun changement d'état sans motif écrit.** Retour en développement,
    clôture sans recette, changement de priorité : chaque transition
    s'accompagne d'un commentaire qui dit pourquoi.
+
+Tout ce qui suit est le **défaut** du gabarit.
 
 ## Familles d'étiquettes
 
@@ -83,8 +102,8 @@ l'autre une décision.
    consultation, les lectures retombent : « j'ai lu » porte sur une version.
 3. **Adoption sans séance.** Quand chaque point à trancher porte une option
    par défaut et un décideur nommé, le silence à l'échéance vaut absence
-   d'objection, et trois `/acter` valent adoption immédiate. Une objection
-   n'envoie en séance que le point concerné.
+   d'objection, et l'`/acter` de tous les intervenants vaut adoption
+   immédiate. Une objection n'envoie en séance que le point concerné.
 4. **La décision s'écrit.** Relevé au registre `docs/decisions/` (ch. 3) ;
    décision structurante → ADR. L'exigence perd son `Status: draft` et entre
    au dénominateur ; l'issue est fermée en référençant le relevé.
@@ -115,7 +134,8 @@ arbitrages de spécification ? » reste une question filtrable.
    qu'accompagné d'un test de non-régression (R3 appliqué à l'existant).
 
 **Fins de vie.** Toute fermeture autre que `livré` se fait « non planifiée »,
-motif en commentaire :
+motif en commentaire (le motif écrit est du socle ; le jeu de sorties est du
+défaut) :
 
 | Fin de vie | Sortie | Nature |
 | --- | --- | --- |
@@ -145,9 +165,9 @@ naturel, rouvrir une issue refusée demande de rediscuter la décision.
 | `P2` | **Dans le jalon en cours ou le suivant.** |
 | `P3` | **Un jour.** Au backlog, repassé en revue à chaque changement de jalon. |
 
-- **Limite : jamais plus de 5 issues en P1** (défaut, arbitrable à
-  l'instanciation). Poser la sixième oblige à en redescendre une — et à dire
-  laquelle et pourquoi, en commentaire. C'est l'antidote au « tout est P1 ».
+- **Limite : jamais plus de 5 issues en P1** (défaut). Poser la sixième
+  oblige à en redescendre une — et à dire laquelle et pourquoi, en
+  commentaire. C'est l'antidote au « tout est P1 ».
 - La gravité éclaire la priorité sans la fixer : un bug critique sur un écran
   que personne n'utilisera avant le jalon suivant peut attendre en `P2`, et
   le triage le dit.
@@ -178,12 +198,26 @@ agnostique de la forge (ADR-0010), les documente sans les câbler.
 **Portes non câblées** (R7) — raison : elles dépendent de l'API de la forge
 retenue ; échéance : à l'instanciation, si le projet retient le circuit de
 consultation outillé. Le projet qui les câble teste chaque automatisme sur son
-cas d'échec (R3) et respecte le sens unique : l'automatisme signale et
-reflète, il n'arbitre pas.
+cas d'échec (R3) et respecte le sens unique du socle : l'automatisme signale
+et reflète, il n'arbitre pas.
 
-## Défauts arbitrés à l'instanciation
+## Arbitrer les défauts à l'instanciation
 
-Comme la politique d'attribution (ADR-0011), ces valeurs sont des défauts que
-l'instanciateur peut ajuster — en le consignant au registre des décisions :
-délai de consultation (10 jours ouvrés), limite de P1 (5), cadence de la
-revue de triage (hebdomadaire), cadence des séances d'arbitrage (mensuelle).
+L'arbitrage (ADR-0013) porte sur — et se consigne au registre des décisions
+du projet instancié, comme la politique d'attribution (ADR-0011) :
+
+- **les flux d'arbitrage** `[Spec]`/`[Orga]` : adoptés tels quels, adaptés,
+  ou réduits — un porteur solo remplace la consultation par le registre des
+  questions ouvertes (ch. 6) et l'ADR ;
+- **le jeu d'étiquettes** : créé sur la forge au démarrage, réduit au besoin
+  avéré du projet ;
+- **les décideurs par domaine** : qui tranche quoi, dérivé de l'équipe
+  réelle ;
+- **les valeurs** : délai de consultation (10 jours ouvrés), limite de P1
+  (5), cadence de la revue de triage (hebdomadaire), cadence des séances
+  d'arbitrage (mensuelle) ;
+- **l'outillage des automatismes** ci-dessus.
+
+Le socle — l'état, l'attente, l'acte — ne s'arbitre pas : un projet qui veut
+y déroger ne configure pas le gabarit, il change de méthode par ADR local, en
+en assumant la trace.

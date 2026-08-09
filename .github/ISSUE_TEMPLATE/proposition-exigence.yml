@@ -1,4 +1,4 @@
-# [impl->req~issues-flux-avancement~1] — entrée du flux [Spec] : consultation
+# [impl->req~issues-flux-avancement~2] — entrée du flux [Spec] : consultation
 # d'un texte fusionné (à-consulter), pas discussion d'une question (à-discuter).
 name: Proposition d'exigence
 description: Soumettre une exigence rédigée pour consultation avant intégration à spec/

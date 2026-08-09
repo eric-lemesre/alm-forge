@@ -1,4 +1,4 @@
-<!-- [impl->req~issues-triage-priorites~1] — la gravité se constate ici ;
+<!-- [impl->req~issues-triage-priorites~2] — la gravité se constate ici ;
      la priorité se décide au triage, le formulaire n'en demande aucune. -->
 /label ~bug
 

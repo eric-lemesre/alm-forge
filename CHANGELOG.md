@@ -23,15 +23,21 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 - Cycle de vie des issues (feat~coordination-issues~1, méthode ch. 11),
   formalisé depuis le processus éprouvé sur ergonomia : règle état/attente/acte
-  (req~issues-etat-attente-acte~1 — l'étiquette dit l'état, l'assignation dit
+  (req~issues-etat-attente-acte~2 — l'étiquette dit l'état, l'assignation dit
   qui est attendu, le commentaire trace l'acte et fait seul foi), trois flux
   [Spec]/[Orga]/réalisation avec avancement scindé en étapes, entraves et
-  sorties et fins de vie motivées (req~issues-flux-avancement~1), triage où la
+  sorties et fins de vie motivées (req~issues-flux-avancement~2), triage où la
   gravité se constate et la priorité se décide — P1/P2/P3 par le « quand »,
-  limite de P1 (req~issues-triage-priorites~1). Formulaires : gravité ajoutée
+  limite de P1 (req~issues-triage-priorites~2). Formulaires : gravité ajoutée
   à l'anomalie (GitHub et GitLab), nouveau formulaire [Orga], le formulaire
   [Spec] passe en `à-consulter`. Automatismes de forge documentés non câblés
   (R7) : à câbler à l'instanciation, testés sur leur cas d'échec.
+- Arbitrage d'instanciation du cycle de vie des issues (ADR-0013,
+  D-2026-08-11) : seul le socle état/attente/acte est invariant ; flux
+  [Spec]/[Orga], jeu d'étiquettes, décideurs par domaine, valeurs (délais,
+  limite de P1, cadences) et outillage des automatismes sont des défauts que
+  l'instanciateur adopte, adapte ou réduit en le consignant au registre des
+  décisions du projet. Exigences passées en révision 2, sites re-tagués.
 - Porte anti-secrets (req~detection-secrets~1, ADR-0012) : gitleaks épinglé
   par version et empreintes par plateforme, bloquant en CI, signalant en
   local sans l'outil ; test mécanisé `tools/secrets-test.sh` ; cible
