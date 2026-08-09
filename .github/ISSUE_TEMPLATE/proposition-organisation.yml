@@ -1,5 +1,6 @@
-# [impl->req~issues-flux-avancement~2] — entrée du flux [Orga] : même circuit
-# que [Spec], objet différent (méthode, gouvernance).
+# [impl->req~issues-flux-avancement~2]
+# Entrée du flux [Orga] : même circuit que [Spec], objet différent
+# (méthode, gouvernance).
 name: Proposition d'organisation
 description: Soumettre un document de méthode ou de gouvernance pour consultation
 title: "[Orga] "

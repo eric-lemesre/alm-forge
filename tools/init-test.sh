@@ -3,9 +3,10 @@
 # [utest->req~politique-attribution-agents~2]
 # [utest->req~politique-langue~1]
 # Test mécanisé du script d'instanciation : exécute tools/init.sh sur des
-# copies temporaires et vérifie les critères d'acceptation des trois
-# arbitrages (identité, attribution des agents, langue), le refus de tourner
-# deux fois, et des portes vertes dans chaque variante. POSIX sh strict.
+# copies temporaires et vérifie les critères d'acceptation des quatre
+# arbitrages (identité, attribution des agents, langue, cycle de vie des
+# issues), le refus de tourner deux fois, et des portes vertes dans chaque
+# variante. POSIX sh strict.
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -14,7 +15,8 @@ TB="$(mktemp -d)"
 TC="$(mktemp -d)"
 TD="$(mktemp -d)"
 TE="$(mktemp -d)"
-trap 'rm -rf "${TA}" "${TB}" "${TC}" "${TD}" "${TE}"' EXIT INT TERM
+TF="$(mktemp -d)"
+trap 'rm -rf "${TA}" "${TB}" "${TC}" "${TD}" "${TE}" "${TF}"' EXIT INT TERM
 fail=0
 
 instancier() {
@@ -66,11 +68,28 @@ if ! (cd "${TA}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
     echo "ÉCHEC [A] : le hook refuse une déclaration IA complète (outil + responsable)" >&2
     fail=1
 fi
+# Cycle de vie des issues par défaut : circuit complet conservé et consigné.
+if [ ! -f "${TA}/.github/ISSUE_TEMPLATE/proposition-exigence.yml" ] || \
+   [ ! -f "${TA}/.github/ISSUE_TEMPLATE/proposition-organisation.yml" ]; then
+    echo "ÉCHEC [A] : le défaut complet doit conserver les formulaires [Spec]/[Orga]" >&2
+    fail=1
+fi
+case "$(cat "${TA}/docs/decisions/registre.md")" in
+    *"défaut du gabarit adopté"*) ;;
+    *) echo "ÉCHEC [A] : l'arbitrage du cycle de vie n'est pas consigné au registre" >&2 ; fail=1 ;;
+esac
+if grep -q 'impl->req~issues-' "${TA}/.github/ISSUE_TEMPLATE/anomalie.yml" 2>/dev/null; then
+    echo "ÉCHEC [A] : les tags de couverture des formulaires n'ont pas été retirés" >&2
+    fail=1
+fi
 (cd "${TA}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
     echo "ÉCHEC [A] : portes non vertes après instanciation" >&2 ; fail=1
 }
 if (cd "${TA}" && sh tools/init.sh --nom x --porteur y </dev/null) 2>/dev/null; then
     echo "ÉCHEC [A] : init.sh a accepté de tourner deux fois sans --force" >&2 ; fail=1
+fi
+if (cd "${TA}" && sh tools/init.sh --nom x --porteur y --cycle-issues nimporte --force </dev/null) 2>/dev/null; then
+    echo "ÉCHEC [A] : init.sh a accepté une valeur invalide pour --cycle-issues" >&2 ; fail=1
 fi
 
 echo "init-test [B] — mentions autorisées, sans obligation"
@@ -130,6 +149,21 @@ esac
 (cd "${TD}" && sh tools/adr-new.sh premiere-decision >/dev/null && \
     [ -f docs/adr/0001-premiere-decision.md ]) || {
     echo "ÉCHEC [D] : adr-new doit fonctionner sans templates/fr" >&2 ; fail=1
+}
+
+echo "init-test [F] — cycle de vie des issues réduit"
+instancier "${TF}" --cycle-issues reduit
+if [ -f "${TF}/.github/ISSUE_TEMPLATE/proposition-exigence.yml" ] || \
+   [ -f "${TF}/.github/ISSUE_TEMPLATE/proposition-organisation.yml" ]; then
+    echo "ÉCHEC [F] : les formulaires de consultation [Spec]/[Orga] auraient dû être retirés" >&2
+    fail=1
+fi
+case "$(cat "${TF}/docs/decisions/registre.md")" in
+    *"circuit réduit"*) ;;
+    *) echo "ÉCHEC [F] : la réduction du cycle de vie n'est pas consignée au registre" >&2 ; fail=1 ;;
+esac
+(cd "${TF}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
+    echo "ÉCHEC [F] : portes non vertes en cycle réduit" >&2 ; fail=1
 }
 
 if [ "${fail}" -ne 0 ]; then

@@ -203,12 +203,16 @@ et reflète, il n'arbitre pas.
 
 ## Arbitrer les défauts à l'instanciation
 
-L'arbitrage (ADR-0013) porte sur — et se consigne au registre des décisions
-du projet instancié, comme la politique d'attribution (ADR-0011) :
+L'arbitrage (ADR-0013) se rend à l'instanciation : l'option
+`--cycle-issues complet|reduit` de `tools/init.sh` applique le choix des flux
+et le consigne au registre des décisions du projet — y compris quand c'est le
+défaut qui s'applique, comme pour la politique d'attribution (ADR-0011). Il
+porte sur :
 
-- **les flux d'arbitrage** `[Spec]`/`[Orga]` : adoptés tels quels, adaptés,
-  ou réduits — un porteur solo remplace la consultation par le registre des
-  questions ouvertes (ch. 6) et l'ADR ;
+- **les flux d'arbitrage** `[Spec]`/`[Orga]` : adoptés tels quels (`complet`,
+  défaut), adaptés, ou réduits (`reduit` — les formulaires de consultation
+  sont retirés, un porteur solo remplace la consultation par le registre des
+  questions ouvertes, ch. 6, et l'ADR) ;
 - **le jeu d'étiquettes** : créé sur la forge au démarrage, réduit au besoin
   avéré du projet ;
 - **les décideurs par domaine** : qui tranche quoi, dérivé de l'équipe

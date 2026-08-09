@@ -2,12 +2,14 @@
 # [impl->req~instanciation-outillee~1]
 # Script d'instanciation du gabarit : personnalise l'identité du projet,
 # applique les arbitrages de l'instanciateur (attribution des agents,
-# ADR-0008 ; langue, ADR-0009) et retire tout ce qui n'appartient qu'à
-# alm-forge, en laissant la traçabilité verte. À lancer UNE FOIS, juste après
-# la création du dépôt (« Use this template » sur GitHub, ou simple clone +
-# nouveau remote sur GitLab et toute autre forge, ADR-0010).
+# ADR-0011 ; langue, ADR-0009 ; cycle de vie des issues, ADR-0013) et retire
+# tout ce qui n'appartient qu'à alm-forge, en laissant la traçabilité verte.
+# À lancer UNE FOIS, juste après la création du dépôt (« Use this template »
+# sur GitHub, ou simple clone + nouveau remote sur GitLab et toute autre
+# forge, ADR-0010).
 #   sh tools/init.sh --nom mon-projet --porteur "Prénom Nom" \
-#       [--attribution-agents autorisee|interdite] [--langue fr|en|fr-en] [--force]
+#       [--attribution-agents autorisee|interdite] [--langue fr|en|fr-en] \
+#       [--cycle-issues complet|reduit] [--force]
 # POSIX sh strict. GitHub ne substituant aucune variable à la création depuis
 # un template, ce script est le mécanisme de personnalisation.
 set -eu
@@ -19,10 +21,11 @@ NOM=""
 PORTEUR=""
 ATTRIBUTION=""
 LANGUE=""
+CYCLE=""
 FORCE=0
 
 usage() {
-    echo "Usage : sh tools/init.sh --nom mon-projet --porteur \"Prénom Nom\" [--attribution-agents autorisee|interdite] [--langue fr|en|fr-en] [--force]" >&2
+    echo "Usage : sh tools/init.sh --nom mon-projet --porteur \"Prénom Nom\" [--attribution-agents autorisee|interdite] [--langue fr|en|fr-en] [--cycle-issues complet|reduit] [--force]" >&2
     exit 2
 }
 
@@ -40,6 +43,12 @@ while [ $# -gt 0 ]; do
             case "${2:-}" in
                 fr|en|fr-en) LANGUE="$2" ;;
                 *) echo "ERREUR : --langue attend « fr », « en » ou « fr-en »." >&2 ; exit 2 ;;
+            esac
+            shift 2 ;;
+        --cycle-issues)
+            case "${2:-}" in
+                complet|reduit) CYCLE="$2" ;;
+                *) echo "ERREUR : --cycle-issues attend « complet » ou « reduit »." >&2 ; exit 2 ;;
             esac
             shift 2 ;;
         --force) FORCE=1; shift ;;
@@ -72,10 +81,19 @@ if [ -z "${LANGUE}" ] && [ -t 0 ]; then
         *) LANGUE="fr-en" ;;
     esac
 fi
+if [ -z "${CYCLE}" ] && [ -t 0 ]; then
+    printf 'Cycle de vie des issues — complet ([Spec]/[Orga] par consultation) ou reduit (questions ouvertes + ADR) ? [complet] '
+    read -r reponse_cycle
+    case "${reponse_cycle}" in
+        complet|reduit) CYCLE="${reponse_cycle}" ;;
+        *) CYCLE="complet" ;;
+    esac
+fi
 # Défauts en l'absence de choix : déclaration obligatoire — diligence
-# (ADR-0011) — et bilingue (ADR-0009).
+# (ADR-0011) —, bilingue (ADR-0009) et cycle de vie complet (ADR-0013).
 [ -n "${ATTRIBUTION}" ] || ATTRIBUTION="obligatoire"
 [ -n "${LANGUE}" ] || LANGUE="fr-en"
+[ -n "${CYCLE}" ] || CYCLE="complet"
 if [ -z "${NOM}" ] || [ -z "${PORTEUR}" ]; then
     echo "ERREUR : --nom et --porteur sont requis." >&2
     exit 2
@@ -120,7 +138,7 @@ sed_inplace() {
 
 annee="$(date +%Y)"
 
-echo "1/10 — Retrait des tags de couverture du gabarit dans les documents conservés"
+echo "1/11 — Retrait des tags de couverture du gabarit dans les documents conservés"
 for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
          tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
@@ -128,7 +146,8 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          tools/bootstrap.sh tools/setup.sh tools/setup-test.sh \
          tools/clean.sh tools/clean-test.sh \
          tools/secrets.sh tools/secrets-test.sh \
-         .github/workflows/ci.yml .gitlab-ci.yml; do
+         .github/workflows/ci.yml .gitlab-ci.yml \
+         .github/ISSUE_TEMPLATE/*.yml .gitlab/issue_templates/*.md; do
     [ -f "${f}" ] || continue
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \
         -e '/^# \[impl->/d' -e '/^# \[utest->/d' \
@@ -136,7 +155,7 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
     mv "${f}.tmp" "${f}"
 done
 
-echo "2/10 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
+echo "2/11 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
 # [impl->req~politique-attribution-agents~2]
 if [ "${ATTRIBUTION}" != "obligatoire" ]; then
     # Le bloc livré par défaut (déclaration obligatoire) est retiré…
@@ -164,7 +183,7 @@ FINHOOK
         ;;
 esac
 
-echo "3/10 — Langue du dépôt : ${LANGUE}"
+echo "3/11 — Langue du dépôt : ${LANGUE}"
 # [impl->req~politique-langue~1]
 if [ "${LANGUE}" != "fr-en" ]; then
     # Une seule langue : un seul jeu de modèles, plus de porte de parité.
@@ -184,7 +203,7 @@ else
     modeles="templates/fr/ (et templates/en/)"
 fi
 
-echo "4/10 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
+echo "4/11 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
 rm -f spec/01-besoins/besoins.md
 rm -f spec/02-exigences/*.md
 if [ "${LANGUE}" = "en" ]; then
@@ -239,7 +258,7 @@ Aucune question ouverte à ce jour.
 EOF
 fi
 
-echo "5/10 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
+echo "5/11 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
 rm -f docs/adr/0*.md
 sed -n '1,/^## Index/p' docs/adr/README.md > docs/adr/README.md.tmp
 cat >> docs/adr/README.md.tmp <<EOF
@@ -252,7 +271,7 @@ consultables dans son dépôt d'origine.
 EOF
 mv docs/adr/README.md.tmp docs/adr/README.md
 
-echo "6/10 — Registre des décisions réinitialisé"
+echo "6/11 — Registre des décisions réinitialisé"
 if [ "${LANGUE}" = "en" ]; then
     cat > docs/decisions/registre.md <<'EOF'
 # Decision register
@@ -282,7 +301,42 @@ Aucune décision enregistrée à ce jour.
 EOF
 fi
 
-echo "7/10 — CHANGELOG et VERSION réinitialisés"
+echo "7/11 — Arbitrage du cycle de vie des issues : ${CYCLE}"
+# [impl->req~issues-flux-avancement~2]
+# L'arbitrage s'applique (formulaires) puis se consigne au registre du projet
+# (ADR-0013) — y compris quand c'est le défaut : un arbitrage non consigné
+# n'existe pas. Étiquettes et automatismes de forge restent documentaires
+# (méthode, ch. 11).
+if [ "${CYCLE}" = "reduit" ]; then
+    # Porteur solo : les flux de consultation [Spec]/[Orga] sont remplacés
+    # par les questions ouvertes (méthode, ch. 6) et les ADR.
+    rm -f .github/ISSUE_TEMPLATE/proposition-exigence.yml \
+          .github/ISSUE_TEMPLATE/proposition-organisation.yml
+fi
+if [ "${LANGUE}" = "en" ]; then
+    if [ "${CYCLE}" = "reduit" ]; then
+        decision_cycle="Issue lifecycle: reduced circuit — [Spec]/[Orga] consultation flows replaced by open questions and ADRs"
+    else
+        decision_cycle="Issue lifecycle: template default adopted (full [Spec]/[Orga] consultation circuit)"
+    fi
+    ref_cycle="alm-forge template ADR-0013"
+else
+    if [ "${CYCLE}" = "reduit" ]; then
+        decision_cycle="Cycle de vie des issues : circuit réduit — flux de consultation [Spec]/[Orga] remplacés par questions ouvertes et ADR"
+    else
+        decision_cycle="Cycle de vie des issues : défaut du gabarit adopté (circuit de consultation [Spec]/[Orga] complet)"
+    fi
+    ref_cycle="ADR-0013 du gabarit alm-forge"
+fi
+awk -v row="| D-$(date +%Y-%m)-01 | $(date +%Y-%m-%d) | ${decision_cycle} | ${ref_cycle} |" '
+    /Aucune décision enregistrée à ce jour\./ { next }
+    /No decision recorded to date\./ { next }
+    { print }
+    $0 == "| --- | --- | --- | --- |" { print row }
+' docs/decisions/registre.md > docs/decisions/registre.md.tmp
+mv docs/decisions/registre.md.tmp docs/decisions/registre.md
+
+echo "8/11 — CHANGELOG et VERSION réinitialisés"
 if [ "${LANGUE}" = "en" ]; then
     cat > CHANGELOG.md <<EOF
 # Changelog
@@ -316,10 +370,10 @@ EOF
 fi
 printf '0.1.0\n' > VERSION
 
-echo "8/10 — LICENSE au nom du porteur"
+echo "9/11 — LICENSE au nom du porteur"
 sed_inplace "s/^Copyright (c) .*/Copyright (c) ${annee} ${PORTEUR}/" LICENSE
 
-echo "9/10 — README réécrits pour ${NOM}"
+echo "10/11 — README réécrits pour ${NOM}"
 if [ "${LANGUE}" = "en" ]; then
     cat > README.md <<EOF
 # ${NOM}
@@ -363,14 +417,14 @@ EOF
     fi
 fi
 
-echo "10/10 — Vérification finale (traçabilité + cohérence)"
+echo "11/11 — Vérification finale (traçabilité + cohérence)"
 sh tools/oft.sh trace
 sh tools/checks.sh
 
 cat <<EOF
 
 Instanciation de ${NOM} terminée (langue : ${LANGUE}, attribution d'agents :
-${ATTRIBUTION}). Prochaines étapes :
+${ATTRIBUTION}, cycle de vie des issues : ${CYCLE}). Prochaines étapes :
   1. task setup               — accueil du poste (bootstrap, hooks, portes)
   2. Écrire le premier besoin — spec/01-besoins/ (modèle need.md)
   3. Écrire votre ADR-0001    — task adr-new -- votre-premiere-decision

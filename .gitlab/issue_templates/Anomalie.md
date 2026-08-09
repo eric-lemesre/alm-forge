@@ -1,5 +1,6 @@
-<!-- [impl->req~issues-triage-priorites~2] — la gravité se constate ici ;
-     la priorité se décide au triage, le formulaire n'en demande aucune. -->
+<!-- [impl->req~issues-triage-priorites~2] -->
+<!-- La gravité se constate ici ; la priorité se décide au triage, le
+     formulaire n'en demande aucune. -->
 /label ~bug
 
 ## Gravité

@@ -38,6 +38,15 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   limite de P1, cadences) et outillage des automatismes sont des défauts que
   l'instanciateur adopte, adapte ou réduit en le consignant au registre des
   décisions du projet. Exigences passées en révision 2, sites re-tagués.
+- Arbitrage du cycle de vie outillé (amendement de l'ADR-0013, en conception
+  de gabarit) : option `--cycle-issues complet|reduit` de `tools/init.sh` —
+  le circuit réduit retire les formulaires de consultation [Spec]/[Orga]
+  (questions ouvertes + ADR à la place), et l'arbitrage rendu, défaut
+  compris, est consigné automatiquement au registre des décisions du projet
+  instancié ; testé sur ses deux modes et sa valeur invalide
+  (`tools/init-test.sh`). L'instanciation retire désormais aussi les tags de
+  couverture des formulaires d'issues (ils pointaient vers des exigences
+  supprimées et cassaient la traçabilité du projet instancié).
 - Porte anti-secrets (req~detection-secrets~1, ADR-0012) : gitleaks épinglé
   par version et empreintes par plateforme, bloquant en CI, signalant en
   local sans l'outil ; test mécanisé `tools/secrets-test.sh` ; cible
