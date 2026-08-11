@@ -52,7 +52,7 @@ dans `tools/*.sh`, appelables directement sans aucun runner.
 | `task hooks` | `git config core.hooksPath .githooks` | installe les hooks git du dépôt |
 | `task init -- --nom N --porteur P` | `sh tools/init.sh …` | instancie le gabarit (une seule fois) |
 | `task setup` | `sh tools/setup.sh` | accueil après clone : bootstrap + hooks + portes |
-| `task bootstrap` | `sh tools/bootstrap.sh` | dépendances : socle + point d'extension du projet |
+| `task bootstrap` | `sh tools/bootstrap.sh` | dépendances, flux consenti : socle + modules du projet (`tools/bootstrap.d/`) |
 | `task clean` (`-- --all` : cache inclus) | `sh tools/clean.sh` | nettoie les artefacts locaux (chemins déclarés uniquement) |
 | `task adr-new -- titre` | `sh tools/adr-new.sh titre` | crée l'ADR suivant depuis le modèle |
 | `task bump -- X.Y.Z` | `sh tools/bump.sh X.Y.Z` | met à jour VERSION (journal à compléter à la main) |

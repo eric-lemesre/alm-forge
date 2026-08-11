@@ -143,7 +143,9 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
          tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
          tools/hooks/commit-msg.sh tools/init.sh tools/init-test.sh \
-         tools/bootstrap.sh tools/setup.sh tools/setup-test.sh \
+         tools/bootstrap.sh tools/bootstrap.d/*.sh tools/bootstrap-test.sh \
+         tools/install-git.sh tools/install-git.ps1 \
+         tools/setup.sh tools/setup-test.sh \
          tools/clean.sh tools/clean-test.sh \
          tools/secrets.sh tools/secrets-test.sh \
          .github/workflows/ci.yml .gitlab-ci.yml \

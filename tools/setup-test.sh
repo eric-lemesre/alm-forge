@@ -1,5 +1,5 @@
 #!/bin/sh
-# [utest->req~onboarding-outille~1]
+# [utest->req~onboarding-outille~2]
 # Test mécanisé du parcours d'accueil : exécute setup.sh sur une copie
 # temporaire et vérifie ses critères d'acceptation (hooks installés, portes
 # vertes, idempotence, échec du bootstrap sur prérequis manquant).
