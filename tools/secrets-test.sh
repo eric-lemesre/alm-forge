@@ -12,7 +12,7 @@ trap 'rm -rf "${TMP}"' EXIT INT TERM
 fail=0
 
 echo "secrets-test — dépôt sain : la porte doit passer"
-(cd "${TMP}" && git init -q && git commit -q --allow-empty -m init)
+(cd "${TMP}" && git init -q && git -c user.name=t -c user.email=t@t commit -q --allow-empty -m init)
 mkdir -p "${TMP}/tools" "${TMP}/.cache"
 cp "${ROOT}/tools/secrets.sh" "${TMP}/tools/"
 cp "${ROOT}"/.cache/gitleaks-* "${TMP}/.cache/" 2>/dev/null || true
