@@ -32,6 +32,15 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- Modules de bootstrap **prêts à copier** (`templates/bootstrap.d/`, matériel
+  post-instanciation hors traçabilité du gabarit, comme
+  `templates/orchestrators/`) : kit **lint Markdown** — modules Node.js 22+
+  et dépendances npm, porte `markdown.sh` (lint/fix, auto-suffisante via
+  `npm ci`), formateur `format-tables.mjs` aligné sur la règle MD060 (même
+  mesure `string-width`, emoji compris) et configuration `markdownlint-cli2`
+  modèle. Le projet instancié copie, adapte les globs, tague vers ses
+  exigences (R2) et câble la porte dans sa CI (R7).
+
 - Cycle de vie des issues (feat~coordination-issues~1, méthode ch. 11),
   formalisé depuis le processus éprouvé sur ergonomia : règle état/attente/acte
   (req~issues-etat-attente-acte~2 — l'étiquette dit l'état, l'assignation dit

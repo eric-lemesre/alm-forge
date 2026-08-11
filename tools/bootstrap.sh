@@ -21,6 +21,7 @@
 # script) — le préfixe NN fixe l'ordre, chaque module technologique est la
 # section Vérification concrète d'un ADR du projet. Exemple :
 #   tools/bootstrap.d/50-rust.sh  → vérifie cargo, installe rustup (ADR-00NN)
+# Modules prêts à copier : templates/bootstrap.d/ (Node.js 22+, lint Markdown).
 # Si le poste utilise des caches partagés (CARGO_TARGET_DIR, store pnpm…),
 # le documenter dans le module et bannir les chemins d'artefacts en dur —
 # voir méthode, ch. 4, anti-pattern « outillage aveugle à son environnement ».

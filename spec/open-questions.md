@@ -35,6 +35,29 @@ ou le relevé qui l'acte.
 
 ---
 
+## OQ-002 — Assainissement de l'historique avant publication du dépôt
+
+- **Bloque** : la mise en visibilité publique du dépôt (intendance — aucune
+  exigence tracée).
+- **Contexte** : l'historique git a été réécrit le 2026-08-11 pour retirer
+  des références à un dépôt privé (fichiers et messages de commit). Or GitHub
+  conserve des artefacts hors de portée d'une réécriture : instantanés
+  `refs/pull/*/head` des pull requests, historique d'édition de leurs
+  descriptions, commits orphelins jusqu'au ramasse-miettes. Le dépôt étant
+  privé, il n'y a aucune exposition active — la question se tranche au moment
+  de publier.
+- **Options** :
+  - A) Publier un **dépôt neuf** depuis l'historique purgé (garantie
+    maximale ; les issues/PR historiques restent dans le dépôt privé).
+  - B) Faire purger les refs et historiques d'édition par le support GitHub,
+    puis basculer la visibilité du dépôt existant.
+  - C) Basculer la visibilité telle quelle, en acceptant le résidu.
+- **Recommandation** : A — seule option sans dépendance à un tiers ni résidu.
+- **Décision** : —
+- **Statut** : open
+
+---
+
 Format d'une nouvelle entrée :
 
 ```markdown
