@@ -54,9 +54,9 @@ tasks:
       - sh tools/clean.sh {{.CLI_ARGS}}
 
   bootstrap:
-    desc: Vérifie/installe les dépendances (socle + point d'extension projet)
+    desc: "Dépendances, flux consenti : socle + modules projet (tools/bootstrap.d/)"
     cmds:
-      - sh tools/bootstrap.sh
+      - sh tools/bootstrap.sh {{.CLI_ARGS}}
 
   setup:
     desc: Accueil d'un contributeur qui vient de cloner (bootstrap + hooks + portes)

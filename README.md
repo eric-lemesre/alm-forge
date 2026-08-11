@@ -84,6 +84,7 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 | Commande | Effet |
 | --- | --- |
 | `task setup` | Accueil après clone : bootstrap + hooks + portes |
+| `task bootstrap` | Dépendances, flux consenti : socle + modules du projet (`tools/bootstrap.d/`) |
 | `task trace` | Traçabilité complète (échoue si un maillon manque) |
 | `task report` | Rapport HTML navigable dans `build/` |
 | `task check` | Cohérence : ADR acceptés, parité des templates, version |
@@ -95,8 +96,13 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 Chaque commande a son équivalent direct sans orchestrateur (`sh tools/oft.sh
 trace`, `sh tools/checks.sh`…) : voir AGENTS.md §3.
 
-Prérequis : git, un shell `sh` POSIX (fourni par Git sous Windows), curl,
-Java 17+ ; [Task](https://taskfile.dev/) optionnel (façade par défaut).
+Prérequis : git, un shell `sh` POSIX (fourni par Git sous Windows) — s'il
+manque, `sh tools/install-git.sh` (Linux/macOS) ou
+`powershell -ExecutionPolicy Bypass -File tools\install-git.ps1` (Windows),
+le dépôt se récupérant sans git via l'archive d'export de la forge. Le reste
+du socle (curl, Java 17+) se vérifie et s'installe, avec accord, par
+`task bootstrap` (ADR-0014) ; [Task](https://taskfile.dev/) optionnel
+(façade par défaut).
 
 ## Licence
 

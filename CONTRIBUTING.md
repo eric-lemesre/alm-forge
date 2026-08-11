@@ -11,7 +11,8 @@ task setup   # accueil complet : dépendances, hooks, portes, orientation
 ```
 
 (ou `sh tools/setup.sh` sans façade). Le script est idempotent ; il enchaîne
-`bootstrap` (prérequis du socle + outillage propre au projet), l'installation
+`bootstrap` (socle + modules du projet, installation consentie des manquants —
+ADR-0014), l'installation
 des hooks et les portes. Détail des cibles : AGENTS.md §3.
 
 Prérequis : git, un shell `sh` POSIX (fourni par Git sous Windows), curl,

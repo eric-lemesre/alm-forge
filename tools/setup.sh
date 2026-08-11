@@ -1,5 +1,5 @@
 #!/bin/sh
-# [impl->req~onboarding-outille~1]
+# [impl->req~onboarding-outille~2]
 # « Scripts to Rule Them All » — setup : accueillir un contributeur qui vient
 # de cloner. Dépendances (bootstrap), garde-fous, portes, puis orientation.
 # Idempotent : relançable sans dégât. POSIX sh strict.

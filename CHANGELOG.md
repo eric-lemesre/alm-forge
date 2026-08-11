@@ -7,6 +7,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Modifié
 
+- Bootstrap consenti, modulaire et auto-installant (ADR-0014,
+  req~onboarding-outille~2) : `tools/bootstrap.sh` devient un orchestrateur —
+  annonce → accord (`--oui`/`--verifie`) → vérifie → installe les seuls
+  manquants via le gestionnaire natif (apt/dnf/brew/winget), échec nommant
+  les outils restés absents. Chaque outil du socle vit dans son module
+  `tools/bootstrap.d/NN-outil.sh` ; le point d'extension des projets
+  instanciés devient l'ajout d'un module, jamais l'édition du script.
+  Nouveaux scripts consentis `tools/install-git.sh` / `tools/install-git.ps1`
+  pour le prérequis git (Windows compris, où `sh` n'existe qu'avec Git for
+  Windows). Test mécanisé `tools/bootstrap-test.sh` câblé dans les deux CI.
+
 - Anti-pattern « outillage aveugle à son environnement » ajouté à la méthode
   (ch. 4) et rappelé dans les points d'extension de `tools/clean.sh` et
   `tools/bootstrap.sh` : chemins d'artefacts en dur cassés ou neutralisés
