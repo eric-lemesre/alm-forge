@@ -69,3 +69,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0011](0011-declaration-ia-obligatoire-par-defaut.md) | Exiger par défaut la déclaration d'usage de l'IA dans chaque commit | Accepté |
 | [0012](0012-detecter-les-secrets-avec-gitleaks.md) | Détecter les secrets avec gitleaks, bloquant en CI, signalant en local | Accepté |
 | [0013](0013-cycle-de-vie-issues-arbitre-a-l-instanciation.md) | Rendre le cycle de vie des issues arbitrable à l'instanciation | Accepté |
+| [0014](0014-bootstrap-consenti-et-modulaire.md) | Rendre le bootstrap consenti, modulaire et auto-installant | Accepté |

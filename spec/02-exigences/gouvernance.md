@@ -68,33 +68,51 @@ Needs: impl, utest
 
 ## Onboarding outillé des contributeurs
 
-`req~onboarding-outille~1`
+`req~onboarding-outille~2`
 
 Quand un contributeur clone un projet issu du gabarit, le dépôt DOIT fournir
 un script d'accueil idempotent qui vérifie les prérequis du socle, exécute le
-point d'extension bootstrap (où chaque projet instancié installe son propre
-outillage technologique, en vérification de ses ADR), installe les garde-fous
-locaux, rejoue les portes et oriente vers le contrat et la méthode.
+bootstrap, installe les garde-fous locaux, rejoue les portes et oriente vers
+le contrat et la méthode. Le bootstrap DOIT annoncer ce qu'il va vérifier,
+n'installer les outils manquants qu'avec l'accord explicite de l'utilisateur
+(interactif, ou donné d'avance en ligne de commande) et échouer en nommant
+les outils restés absents ; un outil déjà présent n'est jamais touché. Chaque
+outil vérifié DOIT vivre dans son propre module (`tools/bootstrap.d/`) — le
+point d'extension des projets instanciés est l'ajout d'un module (en
+vérification de leurs ADR), jamais l'édition de l'orchestrateur. git,
+prérequis du bootstrap, DOIT disposer de scripts d'installation consentis
+couvrant aussi les plateformes sans shell POSIX préinstallé.
 
 Rationale:
 Pattern « Scripts to Rule Them All » : des points d'entrée normalisés rendent
-un contributeur productif sans connaissance préalable du projet. Le gabarit
-étant agnostique du langage, il ne fournit que le socle et la convention ; les
-technologies s'installent dans le point d'extension, jamais dans le gabarit.
+un contributeur productif sans connaissance préalable du projet. L'installation
+consentie étend le pattern aux postes neufs sans jamais agir à l'insu de
+l'utilisateur ; la modularité évite le script monolithique que chaque projet
+instancié devrait éditer — source de conflits à la resynchronisation avec le
+gabarit. Le gabarit reste agnostique du langage : il ne fournit que les
+modules du socle, les technologies s'ajoutent en modules du projet.
 
 Critères d'acceptation :
 
-- Étant donné un clone frais, quand le script d'accueil est exécuté, alors les
-  hooks git sont installés, les portes passent et le script sort en succès.
-- Étant donné un prérequis du socle manquant, quand le bootstrap s'exécute,
-  alors il échoue en nommant l'outil absent.
+- Étant donné un clone frais dont le socle est complet, quand le script
+  d'accueil est exécuté, alors les hooks git sont installés, les portes
+  passent et le script sort en succès.
+- Étant donné un prérequis du socle manquant, quand le bootstrap s'exécute
+  sans accord d'installation, alors il échoue en nommant l'outil absent.
+- Étant donné l'accord d'installation (`--oui` ou réponse interactive), quand
+  un outil du socle manque, alors le bootstrap l'installe via le gestionnaire
+  de paquets de la plateforme, sans toucher aux outils déjà présents.
+- Étant donné une entrée non interactive sans `--oui`, quand le bootstrap
+  s'exécute, alors aucune installation n'a lieu (vérification seule).
 - Étant donné un poste déjà configuré, quand le script est relancé, alors le
   résultat est identique (idempotence).
+- Étant donné un argument inconnu, quand le bootstrap s'exécute, alors il
+  échoue en rappelant l'usage.
 
 Covers:
 - feat~gouvernance-agnostique~1
 
-Needs: impl, utest
+Needs: dsn, impl, utest
 
 ## Politique d'attribution des agents arbitrée à l'instanciation
 

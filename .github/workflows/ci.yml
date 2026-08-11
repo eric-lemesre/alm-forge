@@ -48,6 +48,9 @@ jobs:
       - name: Test du parcours d'accueil
         run: tools/setup-test.sh
 
+      - name: Test du bootstrap consenti
+        run: tools/bootstrap-test.sh
+
       - name: Test du nettoyage
         run: tools/clean-test.sh
 
