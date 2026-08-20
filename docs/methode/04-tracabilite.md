@@ -130,6 +130,12 @@ des exemples d'identifiants qui ne doivent pas devenir des items.
   — la régénération l'écrit, la comparaison ne voit rien, la porte est verte.
   D'où le double contrôle de `tools/derive.sh` : suivi par git, *puis*
   comparé.
+- **Agrégat recalculé ailleurs** : deux outils qui comptent la même chose
+  finissent par ne plus compter pareil, et rien ne dit lequel se trompe. Un
+  chiffre a **une** source ; qui en a besoin la consulte, ne la recalcule pas.
+  Corollaire pratique : un état d'avancement se **calcule** à partir des
+  artefacts, il ne se saisit jamais à la main — un état saisi est un second
+  chiffre en puissance.
 - **Porte muette par changement de langue** : une porte qui cherche un terme
   écrit en dur (« ACTIVE », « conforme », « à-tester ») ne trouve plus rien
   dans un dépôt instancié dans l'autre langue — et ne signale rien, puisqu'elle

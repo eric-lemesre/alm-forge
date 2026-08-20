@@ -49,11 +49,20 @@ des entrées ajoutées après coup dans la section d'une version déjà taguée,
 donc **absentes du paquet réellement livré sous ce numéro**. Le journal
 promettait ce que le binaire ne contenait pas.
 
-Une correction purement éditoriale — reformatage, faute d'orthographe — se
-déclare dans `tools/journaux-revisions-editoriales.txt`, un SHA par ligne avec
-son motif. Fichier distinct de `.git-blame-ignore-revs`, pour ne pas fausser
+Une correction purement éditoriale — reformatage, faute d'orthographe,
+renumérotation d'un document cité — se déclare dans
+`tools/journaux-revisions-editoriales.txt`, un SHA par ligne avec son motif.
+Fichier distinct de `.git-blame-ignore-revs`, pour ne pas fausser
 l'attribution globale du dépôt avec des commits qui portent par ailleurs du
 vrai contenu.
+
+**Le geste vient nécessairement après la fusion** : sur une pull request
+fusionnée en un seul commit, le SHA à déclarer n'existe pas avant le squash.
+La déclaration est donc un commit de suite, pas une case à cocher dans la
+demande — et c'est le seul cas où l'on touche à une section publiée sans être
+en faute. Le critère qui sépare la révision éditoriale du reste tient en une
+question : **le sens de l'entrée change-t-il ?** Si oui, ce n'est pas une
+révision éditoriale, c'est une réécriture de l'histoire.
 
 ## Campagne de non-régression : aux versions mineures
 

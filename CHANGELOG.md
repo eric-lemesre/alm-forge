@@ -62,6 +62,24 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 - **Modèles bilingues** `roadmap-card.md` et `audit-sheet.md`.
 
+### Corrigé
+
+- **Deux angles morts de la porte des liens**, comblés d'après le retour
+  d'ergonomia du même jour (FIX-#846) : les fichiers de forge
+  (`.github/`, `.gitlab/`) n'étaient pas parcourus, et les URL
+  `https://<forge>/<org>/<dépôt>/blob/<ref>/<chemin>` étaient rangées avec les
+  liens externes alors qu'elles désignent un chemin du dépôt — seule forme de
+  lien dont disposent les gabarits d'issue. Là-bas, un renommage de répertoire
+  a tué seize renvois dont la regex d'un workflow, restée verte en ne filtrant
+  plus rien. Cinq cas de test ajoutés, dont deux garde-fous contre les faux
+  positifs (dépôt tiers, URL interpolée) et un contre la confusion
+  commentaire YAML / titre Markdown.
+- **Le filtre de retombée des lectures se prouve désormais**
+  (`templates/forge/tools/automatismes.sh`) : écrit en chemins, il survivait
+  syntaxiquement à un renommage tout en ne filtrant plus rien — et aurait vidé
+  les positions de toutes les consultations ouvertes. `verifier_filtre` refuse
+  de s'exécuter si un chemin exclu n'existe pas.
+
 ### Modifié
 
 - **Dette révélée et résorbée.** La porte de classification a montré que 19
@@ -81,6 +99,13 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 - Contrat d'agents : R8 outillée, deux règles ajoutées (R9 vocabulaire au
   lexique, R10 vérification déclarée pour tout DOIT), trois interdits
   explicites.
+- Méthode, trois amendements repris d'ergonomia le même jour : une
+  spécification validée **ne ferme pas** la demande — l'artefact n'est pas le
+  besoin, et « quand la totalité de la pratique dément une règle écrite, c'est
+  la règle qui est fausse » (ch. 11) ; un agrégat a **une** source, et un état
+  d'avancement se calcule au lieu de se saisir (ch. 4, nouvel anti-pattern) ;
+  la révision éditoriale d'une section publiée se déclare **après** la fusion,
+  son SHA n'existant pas avant le squash (ch. 8).
 
 ### Connu
 

@@ -12,9 +12,10 @@ fail=0
 
 prepare() {
     rm -rf "${TMP}/depot"
-    mkdir -p "${TMP}/depot/tools" "${TMP}/depot/docs"
+    mkdir -p "${TMP}/depot/tools" "${TMP}/depot/docs" "${TMP}/depot/.github/ISSUE_TEMPLATE"
     cp "${ROOT}/tools/liens.sh" "${TMP}/depot/tools/"
-    (cd "${TMP}/depot" && git init -q)
+    (cd "${TMP}/depot" && git init -q && \
+        git remote add origin https://github.com/une-org/un-depot.git)
 }
 commit() {
     (cd "${TMP}/depot" && git add -A && \
@@ -91,6 +92,87 @@ EOF
 commit
 if porte; then
     echo "ÉCHEC : ancre inexistante non signalée" >&2
+    fail=1
+fi
+
+echo "liens-test — URL « blob » du dépôt : contrôlée comme un lien interne"
+# Angle mort d'ergonomia (FIX-#846) : ces URL désignent un chemin de CE dépôt.
+# Un renommage de répertoire les tue sans qu'aucune porte ne bronche.
+prepare
+printf '# Cible\n' > "${TMP}/depot/docs/cible.md"
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+[Vers la doc](https://github.com/une-org/un-depot/blob/main/docs/cible.md)
+EOF
+commit
+if ! porte; then
+    echo "ÉCHEC : URL blob valide refusée" >&2
+    fail=1
+fi
+
+echo "liens-test — URL « blob » vers un fichier disparu : la porte doit échouer"
+prepare
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+[Vers la doc](https://github.com/une-org/un-depot/blob/main/docs/renomme.md)
+EOF
+commit
+if porte; then
+    echo "ÉCHEC : URL blob vers un fichier absent non signalée" >&2
+    fail=1
+fi
+
+echo "liens-test — URL NUE dans un gabarit d'issue (.yml) : la porte doit échouer"
+# Second angle mort : les fichiers de forge n'étaient pas parcourus, et un
+# gabarit d'issue ne sait pas écrire de lien relatif — c'est sa seule forme.
+prepare
+cat > "${TMP}/depot/.github/ISSUE_TEMPLATE/anomalie.yml" <<'EOF'
+name: Anomalie
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Avant d ouvrir, lire la procédure :
+        https://github.com/une-org/un-depot/blob/main/docs/procedure-disparue.md
+EOF
+printf '# Accueil\n' > "${TMP}/depot/README.md"
+commit
+if porte; then
+    echo "ÉCHEC : lien mort d'un gabarit de forge non signalé" >&2
+    fail=1
+fi
+
+echo "liens-test — lien vers un AUTRE dépôt : ne doit produire aucun faux positif"
+prepare
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+- [Dépôt tiers](https://github.com/autre-org/autre-depot/blob/main/nimporte-quoi.md)
+- [URL à variable](https://github.com/${GITHUB_REPOSITORY}/blob/main/aussi-inexistant.md)
+EOF
+commit
+if ! porte; then
+    echo "ÉCHEC : faux positif sur un lien externe ou une URL interpolée" >&2
+    fail=1
+fi
+
+echo "liens-test — commentaire YAML : ne doit pas être pris pour un titre"
+prepare
+printf '# Cible\n\n## Section réelle\n' > "${TMP}/depot/docs/cible.md"
+cat > "${TMP}/depot/.github/ISSUE_TEMPLATE/config.yml" <<'EOF'
+# Section inventée par un commentaire
+blank_issues_enabled: false
+EOF
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+[Ancre qui n existe pas](docs/cible.md#section-inventée-par-un-commentaire)
+EOF
+commit
+if porte; then
+    echo "ÉCHEC : un commentaire YAML a été pris pour un titre Markdown" >&2
     fail=1
 fi
 

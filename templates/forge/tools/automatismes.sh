@@ -42,6 +42,25 @@ shift
 # alors qu'aucun dossier de fond n'avait bougé.
 EXCLUS_RETOMBEE="docs/methode/ docs/adr/ templates/"
 
+# SECOND piège, plus grave, et vécu lui aussi (ergonomia, FIX-#846) : ce filtre
+# est écrit en CHEMINS. Un répertoire renommé le laisse syntaxiquement valide
+# et fonctionnellement mort — il ne filtre plus rien, en silence, et la
+# première retouche d'un document de procédure vide les positions de toutes
+# les consultations ouvertes. Un filtre qui ne filtre plus ne lève aucune
+# erreur : il faut donc lui demander de se prouver.
+verifier_filtre() {
+    _absents=""
+    for _p in ${EXCLUS_RETOMBEE}; do
+        [ -e "${_p}" ] || _absents="${_absents} ${_p}"
+    done
+    if [ -n "${_absents}" ]; then
+        echo "ERREUR : le filtre d'exclusion vise des chemins qui n'existent pas :${_absents}" >&2
+        echo "  Renommage non répercuté ? Tant que ce filtre est faux, la retombée" >&2
+        echo "  viderait les positions de TOUTES les consultations ouvertes." >&2
+        exit 1
+    fi
+}
+
 case "${CMD}" in
 
 # --- Un lecteur déclare avoir lu ---------------------------------------------
@@ -72,6 +91,7 @@ lecture)
 # retombent. Cases décochées, intervenants réassignés, comparatif en
 # commentaire pour qu'on relise le delta, pas tout.
 retombee)
+    verifier_filtre
     base="${1:?commit de base}"; tete="${2:?commit de tête}"
     modifies="$(git diff --name-only "${base}" "${tete}")"
     for doc in ${modifies}; do

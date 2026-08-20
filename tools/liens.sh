@@ -12,6 +12,24 @@
 # protesté. Sur un dépôt dont la documentation EST le produit, c'est un défaut
 # de premier ordre.
 #
+# DEUX ANGLES MORTS, comblés d'emblée d'après le retour d'ergonomia du
+# 2026-08-20 (FIX-#846) — ils se cumulaient exactement sur le même cas :
+#
+#   1. les fichiers de la forge (`.github/`, `.gitlab/`) n'étaient pas
+#      parcourus, alors que gabarits d'issue et workflows citent la
+#      documentation aussi sûrement qu'un document le fait ;
+#   2. les URL absolues `https://<forge>/<org>/<dépôt>/blob/<ref>/<chemin>`
+#      étaient rangées avec les liens externes, alors qu'elles désignent un
+#      chemin de CE dépôt — et c'est la SEULE forme de lien dont disposent les
+#      gabarits d'issue, qui ne savent pas faire de lien relatif.
+#
+# Ce que ça a coûté là-bas : un renommage de répertoire a tué seize renvois,
+# dont la regex d'un workflow qui excluait les documents de procédure du
+# déclencheur de retombée des lectures. Elle est restée verte tout en ne
+# filtrant plus rien — et aurait vidé les positions de toutes les
+# consultations ouvertes. Un contrôle qui ne regarde pas où vivent les liens
+# ne protège personne.
+#
 #   sh tools/liens.sh            # verdict, code retour non nul si défaut
 #
 # POSIX sh + awk. Aucune dépendance hors du socle.
@@ -30,12 +48,45 @@ git ls-files > "${INDEX}"
 
 # Les modèles sont scannés comme le reste : ils contiennent de vrais renvois
 # vers la méthode, et un modèle qui pointe dans le vide accueille chaque
-# nouveau projet par un lien mort.
-MD="$(git ls-files '*.md')"
-[ -n "${MD}" ] || { echo "Liens de documentation : aucun fichier Markdown."; exit 0; }
+# nouveau projet par un lien mort. Les fichiers de forge entrent par la même
+# porte : un gabarit d'issue affiche ses liens à qui ouvre une demande, un
+# workflow poste les siens en commentaire sur une issue.
+SCAN="$(git ls-files '*.md' '.github/**' '.gitlab/**' | \
+        grep -E '\.(md|yml|yaml)$' | sort -u)"
+[ -n "${SCAN}" ] || { echo "Liens de documentation : aucun fichier à contrôler."; exit 0; }
 
-# shellcheck disable=SC2086 — la découpe en mots de MD est voulue.
-awk -v index_file="${INDEX}" '
+# Couples org/dépôt des remotes : une URL « blob » qui les cite désigne un
+# chemin de CE dépôt, pas une ressource externe. Sans remote, ces URL restent
+# traitées comme externes — mieux vaut ne pas contrôler que produire des faux
+# positifs sur les liens vers un autre dépôt.
+# Le suffixe « .git » de l'URL de clone n'existe pas dans une URL « blob » :
+# le retirer est ce qui fait correspondre les deux formes.
+DEPOTS="$(git remote -v 2>/dev/null | \
+          sed -n 's#^[^[:space:]]*[[:space:]]*[^[:space:]]*[/:]\([^/:]*\)/\([^/[:space:]]*\).*#\1/\2#p' | \
+          sed 's/\.git$//' | sort -u | tr '\n' ' ')"
+
+# shellcheck disable=SC2086 — la découpe en mots de SCAN est voulue.
+awk -v index_file="${INDEX}" -v depots="${DEPOTS}" '
+# --- URL « blob » : un chemin du dépôt déguisé en lien externe ---------------
+# https://<forge>/<org>/<dépôt>/blob/<ref>/<chemin> désigne un fichier de CE
+# dépôt dès lors que <org>/<dépôt> est un de ses remotes. Les gabarits
+# d’issue n’ont pas d’autre forme de lien à leur disposition : les ignorer,
+# c’est laisser leur documentation pourrir sans témoin.
+function chemin_blob(url,    reste, i, n, parts, couple) {
+    if (url !~ /^https?:\/\/[^\/]+\/[^\/]+\/[^\/]+\/blob\//) return ""
+    # Une URL qui interpole une variable ne désigne aucun chemin fixe.
+    if (url ~ /\$\{/ || url ~ /\$[A-Z_]/) return ""
+    sub(/^https?:\/\/[^\/]+\//, "", url)
+    n = split(url, parts, "/")
+    if (n < 4) return ""
+    couple = parts[1] "/" parts[2]
+    if (index(" " depots " ", " " couple " ") == 0) return ""
+    if (parts[3] != "blob") return ""
+    reste = ""
+    for (i = 5; i <= n; i++) reste = (reste == "" ? parts[i] : reste "/" parts[i])
+    return reste
+}
+
 # --- Slug des ancres, règle GitHub ------------------------------------------
 # Minuscules, ponctuation ASCII retirée, espaces en tirets. La ponctuation est
 # retirée par ÉNUMÉRATION et non par classe négative : une classe [^a-z0-9-]
@@ -81,12 +132,15 @@ FILENAME == index_file {
 }
 
 # --- Passe 1 : titres (pour les ancres) et liens ----------------------------
-FNR == 1 { dans_bloc = 0 }
+# Les conventions Markdown — clôtures de bloc de code, titres — n’ont pas
+# cours dans un YAML : un « # commentaire » y serait pris pour un titre et
+# polluerait la table des ancres.
+FNR == 1 { dans_bloc = 0; est_md = (FILENAME ~ /\.md$/) }
 
-/^[ \t]*(```|~~~)/ { dans_bloc = !dans_bloc; next }
+est_md && /^[ \t]*(```|~~~)/ { dans_bloc = !dans_bloc; next }
 dans_bloc { next }
 
-/^#{1,6}[ \t]+/ {
+est_md && /^#{1,6}[ \t]+/ {
     titre = $0
     sub(/^#{1,6}[ \t]+/, "", titre)
     a = slug(titre)
@@ -105,9 +159,26 @@ dans_bloc { next }
         ligne = substr(ligne, RSTART + RLENGTH)
         gsub(/[ \t)]+$/, "", cible)
         if (cible == "") continue
-        # Liens externes et protocoles : hors périmètre de cette porte.
-        if (cible ~ /^(https?|mailto|ftp|tel):/) continue
-        LIENS[++nl] = FILENAME "\t" FNR "\t" cible
+        if (cible ~ /^(https?|mailto|ftp|tel):/) {
+            interne = chemin_blob(cible)
+            # Externe véritable : hors périmètre de cette porte.
+            if (interne == "") continue
+            LIENS[++nl] = FILENAME "\t" FNR "\t/" interne "\t" cible
+            continue
+        }
+        LIENS[++nl] = FILENAME "\t" FNR "\t" cible "\t" cible
+    }
+
+    # URL « blob » écrites NUES — la forme qu’emploient les gabarits d’issue,
+    # qui ne savent pas produire de lien Markdown relatif.
+    ligne = $0
+    while (match(ligne, /https?:\/\/[^ \t)"'"'"'<>]+/)) {
+        url = substr(ligne, RSTART, RLENGTH)
+        ligne = substr(ligne, RSTART + RLENGTH)
+        gsub(/[.,;:]+$/, "", url)
+        interne = chemin_blob(url)
+        if (interne == "") continue
+        LIENS[++nl] = FILENAME "\t" FNR "\t/" interne "\t" url
     }
 }
 
@@ -116,7 +187,7 @@ END {
     defauts = 0
     for (i = 1; i <= nl; i++) {
         split(LIENS[i], c, "\t")
-        source = c[1]; num = c[2]; cible = c[3]
+        source = c[1]; num = c[2]; cible = c[3]; brut = c[4]
 
         ancre = ""
         p = index(cible, "#")
@@ -131,7 +202,7 @@ END {
             fichier = normalise(cible ~ /^\// ? cible : (base == "" ? cible : base "/" cible))
             if (!(fichier in FICHIERS)) {
                 if (fichier in REPS) continue        # renvoi vers un répertoire
-                printf "ÉCHEC : %s:%d — cible absente : %s\n", source, num, c[3] > "/dev/stderr"
+                printf "ÉCHEC : %s:%d — cible absente : %s\n", source, num, brut > "/dev/stderr"
                 defauts++
                 continue
             }
@@ -151,6 +222,6 @@ END {
     }
     printf "ok — %d lien(s) interne(s) vérifié(s)\n", nl
 }
-' "${INDEX}" ${MD}
+' "${INDEX}" ${SCAN}
 
 echo "Liens de documentation : OK."

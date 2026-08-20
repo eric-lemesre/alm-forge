@@ -188,6 +188,41 @@ pas la priorité : la priorité dit *quand* traiter, l'enjeu dit *quelle
 cérémonie* appliquer — un sujet `P3` et structurant est précisément la
 combinaison la plus dangereuse à traiter à la légère.
 
+## Une spécification validée ne ferme rien
+
+Une demande ne se ferme qu'à **la livraison**, ou par une sortie négative
+motivée. Il n'y a pas de troisième sortie — et en particulier, **la validation
+de la spécification n'en est pas une** : elle fait passer la demande d'« à
+spécifier » à « spécifiée », état d'**attente** et non état terminal. Une
+demande ventilée en plusieurs spécifications se ferme quand toutes sont
+livrées ; elle est le fil qui les rassemble.
+
+La raison est de fond : fermer à la spécification confond **l'artefact et le
+besoin**. Personne ne demande une spécification — on demande que quelque chose
+marche. Fermer à la spec revient à déclarer satisfait un besoin qui ne l'est
+pas, et coupe au milieu la chaîne que cette méthode revendique : redescendre
+de n'importe quelle demande jusqu'au test qui prouve qu'elle est tenue. Une
+demande fermée à la spec ne redescend nulle part.
+
+> **La leçon de méthode, plus large que le cas.** Ergonomia portait la règle
+> inverse. La mesure l'a tranchée : **zéro** demande y a jamais été fermée à la
+> validation de sa spécification, contre trente et une fermées à la livraison.
+> Quand la totalité de la pratique dément une règle écrite, **c'est la règle
+> qui est fausse** — pas la pratique. Avant de rappeler une règle à l'ordre,
+> compter combien de fois elle a été suivie.
+
+**Effet de bord assumé** : le nombre de demandes ouvertes augmente. C'est le
+prix de l'exactitude — mieux vaut quarante demandes ouvertes dont l'état est
+juste que trente fermées dont aucune n'est livrée à qui l'avait réclamée. En
+contrepartie, le filtre « ouverte **et** spécifiée » devient le stock des
+**engagements pris et non tenus**, qui n'était lisible nulle part.
+
+Corollaire, qui rejoint le chapitre 13 : une fois la séance passée,
+**l'arbitrage se lit dans le statut du fichier de spécification, pas dans une
+étiquette**. L'étiquette dit où en est la demande ; le fichier dit ce qui est
+décidé. Les faire porter la même information, c'est garantir qu'ils
+divergeront.
+
 ## Familles : qualifier sans créer un second état
 
 Les préfixes `bug:` et `feat:` (empruntés aux Conventional Commits, et

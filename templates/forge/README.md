@@ -54,6 +54,13 @@ Deux pièges vécus sur ergonomia, à connaître avant de câbler :
 - **La retombée des lectures doit exclure les documents de procédure.** Cités
   par le gabarit d'issue, ils déclenchaient la retombée sur toutes les
   consultations ouvertes à la fois, sans qu'aucun dossier de fond ait bougé.
+- **Et ce filtre doit se prouver.** Il est écrit en chemins : un répertoire
+  renommé le laisse syntaxiquement valide et fonctionnellement mort, sans la
+  moindre erreur. C'est exactement ce qui est arrivé là-bas — le filtre est
+  resté vert vingt-quatre heures en ne filtrant plus rien. `verifier_filtre`
+  refuse désormais de s'exécuter si un chemin exclu n'existe pas ; et la porte
+  des liens (`tools/liens.sh`) couvre les fichiers de forge pour la même
+  raison.
 - **Un rappel ne doit pas se rappeler lui-même.** Le commentaire de rappel
   rafraîchit l'activité de l'issue : sans la garde correspondante, l'automatisme
   se redéclenche indéfiniment.
