@@ -19,6 +19,15 @@
 # POSIX sh + awk.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 . "${ROOT}/tools/lexique.sh"
@@ -30,7 +39,8 @@ FICHIERS="$(git ls-files 'spec/02-exigences/*.md' 2>/dev/null | grep -v "${INDEX
 [ -n "${FICHIERS}" ] || { echo "Statuts : aucun domaine de spécification."; exit 0; }
 
 MOTIF_STATUT="$(lex SPEC_PROPOSITION)|$(lex SPEC_ACTIVE)|$(lex SPEC_OBSOLETE)"
-LIB_STATUT="$(lex SECTION_STATUT)"
+# Motif PARENTHÉSÉ — même piège que dans todo.sh (constat de revue n° 1).
+LIB_STATUT="$(lex_motif SECTION_STATUT)"
 FAILURES=0
 
 # Statut déclaré en tête d'un domaine : « **Statut : ACTIVE** ».
@@ -48,7 +58,7 @@ for f in ${FICHIERS}; do
 
     # 1. Statut présent et au vocabulaire.
     if [ -z "${statut}" ]; then
-        echo "ÉCHEC : ${f} — pas de ligne « **${LIB_STATUT} : …** » au vocabulaire (${MOTIF_STATUT})." >&2
+        echo "ÉCHEC : ${f} — pas de ligne « **$(lex SECTION_STATUT) : …** » au vocabulaire (${MOTIF_STATUT})." >&2
         FAILURES=$((FAILURES + 1))
         continue
     fi
@@ -56,11 +66,11 @@ for f in ${FICHIERS}; do
     # 2. Un domaine ACTIVE s'appuie sur une décision actée. Sans cela, un
     #    domaine peut passer ACTIVE d'un simple trait de plume et gonfler la
     #    couverture sans que personne n'ait rien validé.
-    if [ "${statut}" = "$(lex_fr SPEC_ACTIVE)" ] || [ "${statut}" = "$(lex_en SPEC_ACTIVE)" ]; then
+    if lex_est SPEC_ACTIVE "${statut}"; then
         if ! grep -q "${dom}" docs/decisions/registre.md 2>/dev/null; then
             echo "ÉCHEC : ${f} — domaine ACTIVE sans entrée au registre des décisions." >&2
             echo "        Acter le domaine (relevé + ligne D-AAAA-MM-NN citant « ${dom} »)," >&2
-            echo "        ou le repasser en ${LIB_STATUT} : $(lex SPEC_PROPOSITION)." >&2
+            echo "        ou le repasser en $(lex SECTION_STATUT) : $(lex SPEC_PROPOSITION)." >&2
             FAILURES=$((FAILURES + 1))
         fi
     fi

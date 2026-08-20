@@ -41,6 +41,16 @@ lex_def() {
     _lex_cle="$1"
     _lex_fr="$2"
     _lex_en="$3"
+    # Les clés servent à composer des noms de variables via eval : la garde
+    # rend l'invariant explicite au lieu de le supposer, et refuse net une clé
+    # qui pourrait injecter du code au moment du sourcing.
+    case "${_lex_cle}" in
+        ""|*[!A-Z0-9_]*)
+            echo "ERREUR : clé de lexique invalide : « ${_lex_cle} »" >&2
+            echo "        Attendu : majuscules, chiffres et « _ » uniquement." >&2
+            return 1
+            ;;
+    esac
     eval "LEX_${_lex_cle}_FR=\$_lex_fr"
     eval "LEX_${_lex_cle}_EN=\$_lex_en"
     case "${LEXIQUE_LANGUE}" in
@@ -65,6 +75,33 @@ lex() {
         return 1
     fi
     printf '%s' "${_lex_val}"
+}
+
+# Motif d'alternance PARENTHÉSÉ, prêt à être inséré dans une expression
+# régulière plus large. À préférer systématiquement à `lex` dans ce cas :
+# insérer « Statut|Status » au milieu d'une regex produit
+# « ^\*\*Statut|Status[ \t]*: », c'est-à-dire « commence par **Statut » OU
+# « contient Status suivi de : » — la seconde branche est une passoire, la
+# première ignore l'anglais. Défaut réel, trouvé en revue (2026-08-20).
+lex_motif() {
+    _lex_m="$(lex "$1")" || return 1
+    printf '(%s)' "${_lex_m}"
+}
+
+# Le terme reconnaît-il cette valeur ? Applique la langue figée : en « fr » ou
+# « en », seule la forme correspondante est acceptée ; en « fr-en », les deux.
+# C'est LE point d'entrée des portes qui comparent une valeur à un terme —
+# comparer soi-même à `lex_fr` revient à imposer le français à un dépôt
+# bilingue, ce qui contredit le critère d'acceptation de req~lexique-outille~1.
+lex_est() {
+    _lex_c="$1"
+    _lex_v="$2"
+    case "${LEXIQUE_LANGUE}" in
+        fr) [ "${_lex_v}" = "$(lex_fr "${_lex_c}")" ] ;;
+        en) [ "${_lex_v}" = "$(lex_en "${_lex_c}")" ] ;;
+        *)  [ "${_lex_v}" = "$(lex_fr "${_lex_c}")" ] || \
+            [ "${_lex_v}" = "$(lex_en "${_lex_c}")" ] ;;
+    esac
 }
 
 # Forme française / anglaise, indépendamment de la langue figée. Utile aux

@@ -25,6 +25,15 @@
 # POSIX sh + awk.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 . "${ROOT}/tools/lexique.sh"
@@ -42,14 +51,20 @@ REP="docs/audit"
 INDEX="${REP}/README.md"
 mkdir -p "${REP}"
 
-CONFORME="$(lex_fr AUDIT_CONFORME)"
-ECART="$(lex_fr AUDIT_ECART)"
-NON_EXAMINE="$(lex_fr AUDIT_NON_EXAMINE)"
-[ "${LEXIQUE_LANGUE}" != "en" ] || {
+# Formes d'AFFICHAGE (en-têtes du tableau de bord, messages d'aide) : celle de
+# la langue principale. La RECONNAISSANCE, elle, passe par `lex_est` — en
+# bilingue, les deux formes sont acceptées. Confondre les deux revenait à
+# imposer le français à un dépôt « fr-en », contre le critère d'acceptation de
+# req~lexique-outille~1 (constat de revue n° 1, 2026-08-20).
+if [ "${LEXIQUE_LANGUE}" = "en" ]; then
     CONFORME="$(lex_en AUDIT_CONFORME)"
     ECART="$(lex_en AUDIT_ECART)"
     NON_EXAMINE="$(lex_en AUDIT_NON_EXAMINE)"
-}
+else
+    CONFORME="$(lex_fr AUDIT_CONFORME)"
+    ECART="$(lex_fr AUDIT_ECART)"
+    NON_EXAMINE="$(lex_fr AUDIT_NON_EXAMINE)"
+fi
 
 # --- Plafond d'exigences non examinées --------------------------------------
 # Le gabarit tient 0 : toute exigence du socle est jugée. Un projet qui
@@ -119,16 +134,17 @@ for spec in ${DOMAINES}; do
             FAILURES=$((FAILURES + 1))
             continue
         fi
-        case "${verdict}" in
-            "${CONFORME}")    conformes=$((conformes + 1)) ;;
-            "${ECART}")       ecarts=$((ecarts + 1)) ;;
-            "${NON_EXAMINE}") non_examinees=$((non_examinees + 1)) ;;
-            *)
-                echo "ÉCHEC : ${fiche} — verdict hors lexique pour ${id} : « ${verdict} »" >&2
-                echo "        attendu : ${CONFORME} | ${ECART} | ${NON_EXAMINE}" >&2
-                FAILURES=$((FAILURES + 1))
-                ;;
-        esac
+        if lex_est AUDIT_CONFORME "${verdict}"; then
+            conformes=$((conformes + 1))
+        elif lex_est AUDIT_ECART "${verdict}"; then
+            ecarts=$((ecarts + 1))
+        elif lex_est AUDIT_NON_EXAMINE "${verdict}"; then
+            non_examinees=$((non_examinees + 1))
+        else
+            echo "ÉCHEC : ${fiche} — verdict hors lexique pour ${id} : « ${verdict} »" >&2
+            echo "        attendu : $(lex AUDIT_CONFORME) | $(lex AUDIT_ECART) | $(lex AUDIT_NON_EXAMINE)" >&2
+            FAILURES=$((FAILURES + 1))
+        fi
     done < "${TMP}/fiche.lignes"
 
     # Une exigence sans ligne du tout est non examinée : l'absence de fiche ne

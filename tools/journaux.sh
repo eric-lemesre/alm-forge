@@ -29,9 +29,11 @@ cd "${ROOT}"
 
 [ "${1:-}" = "" ] || { echo "Usage : sh tools/journaux.sh" >&2 ; exit 2 ; }
 
-# Fenêtre de contrôle : au-delà, le blame ne mesure plus rien d'utile (un
-# fichier créé tardivement porte des lignes anciennes réécrites en bloc).
-FENETRE=6
+# Fenêtre de contrôle : au-delà, l'attribution de lignes ne mesure plus rien
+# d'utile (un fichier créé tardivement porte des lignes anciennes réécrites en
+# bloc). Surchargeable — un projet qui publie souvent voudra une fenêtre plus
+# large, un projet qui vient de reprendre son journal une plus étroite.
+FENETRE="${JOURNAUX_FENETRE:-6}"
 
 # Commits de RÉVISION ÉDITORIALE tolérés : reformatage, correction de faute,
 # migration d'outil — des changements qui ne touchent pas au FOND d'une

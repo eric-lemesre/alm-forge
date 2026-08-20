@@ -176,6 +176,39 @@ if porte; then
     fail=1
 fi
 
+echo "liens-test — chemin à espace : le fichier doit être vu, pas coupé en deux"
+# Constat de revue n° 2 : un « $(git ls-files) » non quoté découpe « mon
+# document.md » en deux mots. La porte ne signalait alors RIEN — elle ne
+# voyait simplement pas le fichier.
+prepare
+cat > "${TMP}/depot/docs/mon document.md" <<'EOF'
+# Document à espace
+
+[Renvoi mort](../docs/jamais-verse.md)
+EOF
+printf '# Accueil\n' > "${TMP}/depot/README.md"
+commit
+if porte; then
+    echo "ÉCHEC : lien mort d\'un fichier au nom espacé non signalé" >&2
+    fail=1
+fi
+
+echo "liens-test — parenthèses dans le chemin : aucun faux positif"
+# Constat de revue n° 3 : une extraction qui s\'arrête à la première
+# parenthèse tronque « guide-(v2).md » et le déclare mort à tort.
+prepare
+printf '# Guide v2\n' > "${TMP}/depot/docs/guide-(v2).md"
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+[Guide](docs/guide-(v2).md)
+EOF
+commit
+if ! porte; then
+    echo "ÉCHEC : faux positif sur un chemin contenant des parenthèses" >&2
+    fail=1
+fi
+
 if [ "${fail}" -ne 0 ]; then
     echo "liens-test : ÉCHEC." >&2
     exit 1

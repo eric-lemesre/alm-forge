@@ -98,10 +98,13 @@ retombee)
         for exclu in ${EXCLUS_RETOMBEE}; do
             case "${doc}" in "${exclu}"*) continue 2 ;; esac
         done
-        # Consultations ouvertes qui citent ce document.
+        # Consultations ouvertes qui citent ce document. Le terme est
+        # entouré de guillemets DANS la requête : un chemin contient des « / »
+        # et des « - » que la syntaxe de recherche de la forge interpréterait
+        # (constat de revue n° 4).
         for num in $(gh issue list --state open \
                         --label "$(lex_fr LABEL_A_CONSULTER)" \
-                        --search "${doc}" --json number --jq '.[].number'); do
+                        --search "\"${doc}\"" --json number --jq '.[].number'); do
             corps="$(gh issue view "${num}" --json body --jq .body)"
             printf '%s' "${corps}" | sed 's/^\([ \t]*- \)\[x\]/\1[ ]/' | \
                 gh issue edit "${num}" --body-file -

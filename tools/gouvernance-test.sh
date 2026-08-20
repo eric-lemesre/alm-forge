@@ -236,6 +236,38 @@ if ! porte revues; then
     fail=1
 fi
 
+echo "gouvernance-test — revues : « | » non échappé dans une cellule"
+# Le décalage de colonnes qui en résulte faisait lire le verdict au mauvais
+# endroit : un constat soldé s affichait « ouvert », sans la moindre erreur.
+# Défaut trouvé en consolidant la revue de cette branche.
+prepare
+cat > "${D}/docs/revues/2026-01-revue.md" <<'EOF'
+# Revue de code — 2026-01-01
+
+| # | Sévérité | Constat | Verdict | Résolution |
+| --- | --- | --- | --- | --- |
+| 1 | basse | Motif a|b cité sans échappement | Corrigé | commit |
+EOF
+(cd "${D}" && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "chore: revue")
+cas_echec revues "barre non échappée dans une cellule"
+
+echo "gouvernance-test — revues : la même cellule, barre ÉCHAPPÉE cette fois"
+prepare
+cat > "${D}/docs/revues/2026-01-revue.md" <<'EOF'
+# Revue de code — 2026-01-01
+
+| # | Sévérité | Constat | Verdict | Résolution |
+| --- | --- | --- | --- | --- |
+| 1 | basse | Motif a\|b cité correctement | Corrigé | commit |
+EOF
+(cd "${D}" && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "chore: revue" && \
+    sh tools/revues.sh --ecrire >/dev/null && git add -A && \
+    git -c user.name=t -c user.email=t@t commit -q -m "chore: suivi")
+if ! porte revues; then
+    echo "ÉCHEC : revues — une barre échappée est du texte, pas un séparateur" >&2
+    fail=1
+fi
+
 echo "gouvernance-test — audit : exigence non examinée"
 prepare
 printf '# Audit — domaine\n\n| Exigence | Verdict | Preuve / écart |\n| --- | --- | --- |\n' \
@@ -272,6 +304,20 @@ echo "gouvernance-test — badges : badge périmé après changement de version"
 prepare
 printf '2.0.0\n' > "${D}/VERSION"
 cas_echec badges "badge de version non régénéré"
+
+echo "gouvernance-test — lexique : en « fr-en », les DEUX formes sont acceptées"
+# Angle mort du test lui-même, trouvé en revue (constat n° 1) : le cas « en »
+# ci-dessous ne prouvait rien sur le mode bilingue, qui est pourtant le DÉFAUT
+# de l'instanciation. La porte n'acceptait alors que le français.
+prepare
+sed 's/| conforme |/| compliant |/' "${D}/docs/audit/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/docs/audit/domaine.md"
+(cd "${D}" && sh tools/audit.sh --ecrire >/dev/null 2>&1 || true)
+if ! porte audit; then
+    echo "ÉCHEC : audit — un verdict anglais doit être accepté en langue « fr-en »" >&2
+    (cd "${D}" && sh tools/audit.sh 2>&1 | sed 's/^/        /') >&2
+    fail=1
+fi
 
 echo "gouvernance-test — lexique : vocabulaire anglais avec --langue en"
 prepare

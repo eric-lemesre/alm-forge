@@ -15,6 +15,15 @@
 # POSIX sh + awk.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 . "${ROOT}/tools/lexique.sh"
@@ -30,7 +39,9 @@ REP="docs/todo"
 INDEX="${REP}/README.md"
 mkdir -p "${REP}"
 
-LIBELLE="$(lex TODO_LIBELLE)"
+# Motif PARENTHÉSÉ : « Statut|Status » inséré nu dans une regex donnerait
+# « ^\*\*Statut|Status[ \t]*: » — deux branches fausses (constat de revue).
+LIBELLE="$(lex_motif TODO_LIBELLE)"
 PASTILLES="$(lex TODO_FAIT)$(lex TODO_EN_COURS)$(lex TODO_A_VENIR)"
 
 FICHES="$(git ls-files "${REP}/todo-*.md" 2>/dev/null || true)"

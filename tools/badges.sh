@@ -21,6 +21,15 @@
 # l'anti-dérive signalerait une dérive à chaque exécution.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 
@@ -74,7 +83,9 @@ version="$(cat VERSION)"
 # Items req~…~n définis seuls sur leur ligne entre accents graves (méthode,
 # ch. 4) : c'est la forme canonique d'une DÉFINITION, une citation en milieu
 # de phrase n'en est pas une.
-exigences="$(git ls-files 'spec/02-exigences/*.md' 2>/dev/null | tr '\n' ' ')"
+# Une ligne par chemin : avec IFS restreint aux fins de ligne, aplatir sur des
+# espaces empêcherait tout découpage (constaté en corrigeant le constat n° 2).
+exigences="$(git ls-files 'spec/02-exigences/*.md' 2>/dev/null || true)"
 if [ -n "${exigences}" ]; then
     # shellcheck disable=SC2086 — découpe en mots voulue.
     nb="$(awk '/^`req~[a-z0-9-]+~[0-9]+`[ \t]*$/ { n++ } END { print n + 0 }' ${exigences})"

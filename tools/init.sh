@@ -438,12 +438,20 @@ echo "11/12 — Artefacts documentaires réinitialisés"
 # indexer est nécessaire : la porte anti-dérive compare le résultat de la
 # régénération à l'index, et un artefact hérité du gabarit y ferait échouer
 # la première vérification du projet.
+# Fiches du gabarit : feuille de route, audit ET revues de code. Une revue
+# porte sur un diff qui n'existe pas dans le projet instancié ; la garder lui
+# ferait hériter de constats qui ne le concernent pas.
 rm -f docs/todo/todo-*.md docs/audit/*.md docs/revues/SUIVI.md
+find docs/revues -name '*.md' ! -name 'README.md' ! -name 'SUIVI.md' -exec rm -f {} +
 # Les procédures de vérification manuelle du gabarit couvrent des exigences
 # qui viennent d'être retirées : les garder laisserait des items orphelins.
 # Le README du répertoire, lui, explique le dispositif et reste.
 find docs/verification-manuelle -name '*.md' ! -name 'README.md' -exec rm -f {} +
-rm -rf templates/forge
+# templates/forge/ est CONSERVÉ : c'est du matériel post-instanciation, au
+# même titre que templates/orchestrators/ et templates/bootstrap.d/. Le
+# supprimer priverait le projet instancié de ce que req~automatismes-forge~1
+# promet de lui fournir — il devrait aller le rechercher dans le gabarit
+# (constat de revue n° 5).
 sh tools/todo.sh --ecrire   >/dev/null
 sh tools/revues.sh --ecrire >/dev/null
 sh tools/audit.sh --ecrire  >/dev/null

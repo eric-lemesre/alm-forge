@@ -18,6 +18,15 @@
 # POSIX sh strict.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 

@@ -148,6 +148,27 @@ if [ -f tools/lexique.sh ]; then
     fi
 fi
 
+# [impl->req~garde-fous-locaux~1]
+# Tout script est analysable par le shell. Contrôle trivial, ajouté après
+# TROIS occurrences du même défaut : une apostrophe dans un commentaire de
+# programme awk referme la quote qui l entoure, et le shell se met à lire le
+# programme awk comme du code. Le script reste sur le disque, apparemment
+# sain, et casse à l exécution — donc en CI, jamais en revue.
+syntaxe_fail=0
+for f in tools/*.sh templates/forge/tools/*.sh; do
+    [ -e "${f}" ] || continue
+    if ! sh -n "${f}" 2>/dev/null; then
+        echo "ÉCHEC : script non analysable par sh : ${f}" >&2
+        sh -n "${f}" 2>&1 | sed 's/^/        /' >&2
+        syntaxe_fail=1
+    fi
+done
+if [ "${syntaxe_fail}" -eq 0 ]; then
+    echo "ok — tous les scripts sont analysables par sh"
+else
+    FAILURES=$((FAILURES + 1))
+fi
+
 if [ "${FAILURES}" -gt 0 ]; then
     echo "${FAILURES} contrôle(s) en échec." >&2
     exit 1

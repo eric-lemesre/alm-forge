@@ -22,6 +22,15 @@
 # POSIX sh + awk.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 . "${ROOT}/tools/lexique.sh"
@@ -42,19 +51,42 @@ FICHES="$(git ls-files "${REP}/*.md" 2>/dev/null | grep -v -e "${REP}/README.md"
 
 extraire() {
     [ -n "${FICHES}" ] || return 0
+    # Le code de retour d awk se perdrait dans un pipe vers « sort » : c est
+    # le code de sort qui remonterait, toujours nul. On passe donc par un
+    # fichier intermédiaire. (« set -o pipefail » reglerait le cas mais n est
+    # pas POSIX, et le socle du gabarit exclut les bashismes.)
+    _brut="$(mktemp)"
     # shellcheck disable=SC2086 — découpe en mots voulue.
     awk -v haute="$(lex SEVERITE_HAUTE)" \
         -v moyenne="$(lex SEVERITE_MOYENNE)" \
         -v basse="$(lex SEVERITE_BASSE)" \
         -v corrige="$(lex REVUE_CORRIGE)" \
         -v rejete="$(lex REVUE_REJETE)" '
+        BEGIN { SEPARATEUR = sprintf("%c", 1) }
         function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
         # Ne lire que les lignes de tableau à cinq colonnes, en sautant
         # l’en-tête et le séparateur.
         /^[ \t]*\|/ {
-            n = split($0, c, "|")
+            # Une barre ÉCHAPPÉE (« \| ») appartient au texte de la cellule :
+            # Markdown la rend littérale. awk, lui, découperait dessus — on la
+            # met donc de côté le temps du découpage, puis on la restaure.
+            ligne_t = $0
+            gsub(/\\\|/, SEPARATEUR, ligne_t)
+            n = split(ligne_t, c, "|")
             if (n < 7) next                      # | a | b | c | d | e | → 7 champs
+            # Plus de sept champs : une cellule contient un « | » non échappé.
+            # Les colonnes sont alors décalées et le verdict lu au mauvais
+            # endroit — la porte afficherait « ouvert » un constat soldé, en
+            # silence. Une erreur franche vaut mieux que ce chiffre-là. chiffre faux.
+            if (n > 7) {
+                printf "ÉCHEC : %s:%d — « | » non échappé dans une cellule.\n", FILENAME, FNR > "/dev/stderr"
+                printf "        L écrire « \\| » : sinon les colonnes se décalent.\n" > "/dev/stderr"
+                malformees++
+                next
+            }
             ref = trim(c[2]); sev = trim(c[3]); constat = trim(c[4]); verdict = trim(c[5])
+            gsub(SEPARATEUR, "|", constat)
+            gsub(SEPARATEUR, "|", verdict)
             if (ref == "" || ref == "#") next
             if (ref ~ /^-+$/) next
             sevl = tolower(sev)
@@ -66,7 +98,10 @@ extraire() {
             rang = (sevl ~ ("^" tolower(haute) "$")) ? 1 : (sevl ~ ("^" tolower(moyenne) "$")) ? 2 : 3
             printf "%d\t%d\t%s\t%s\t%s\t%s\t%s\n", ouvert ? 0 : 1, rang, fiche, ref, sev, constat, verdict
         }
-    ' ${FICHES} | sort -t "$(printf '\t')" -k1,1n -k2,2n -k3,3
+        END { if (malformees > 0) exit 1 }
+    ' ${FICHES} > "${_brut}" || { rm -f "${_brut}"; return 1; }
+    sort -t "$(printf '\t')" -k1,1n -k2,2n -k3,3 "${_brut}"
+    rm -f "${_brut}"
 }
 
 rendre() {
@@ -83,12 +118,21 @@ rendre() {
         printf '| --- | --- | --- | --- | --- | --- |\n'
     fi
     [ -n "${_lignes}" ] || return 0
-    printf '%s\n' "${_lignes}" | awk -F "\t" -v ouvert="$(lex REVUE_OUVERT)" '
+    # Forme d'AFFICHAGE : celle de la langue principale. « lex » renverrait
+    # l'alternance « Ouvert|Open », qui n'a de sens que pour reconnaître —
+    # exactement la confusion que le constat de revue n° 1 a mise au jour,
+    # reproduite ici jusqu'à ce que la revue la révèle.
+    if [ "${LEXIQUE_LANGUE}" = "en" ]; then _ouvert="$(lex_en REVUE_OUVERT)"
+    else _ouvert="$(lex_fr REVUE_OUVERT)"; fi
+    printf '%s\n' "${_lignes}" | awk -F "\t" -v ouvert="${_ouvert}" '
         { etat = ($1 == "0") ? "**" ouvert "**" : "soldé"
           printf "| %s | %s | [%s](%s) | %s | %s | %s |\n", etat, $5, $3, $3, $4, $6, ($7 == "" ? "—" : $7) }'
 }
 
-LIGNES="$(extraire)"
+LIGNES="$(extraire)" || {
+    echo "Constats de revue : tableau mal formé, rien n'a été consolidé." >&2
+    exit 1
+}
 
 if [ "${ECRIRE}" -eq 1 ]; then
     rendre "${LIGNES}" > "${SUIVI}.tmp"

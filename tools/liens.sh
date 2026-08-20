@@ -35,6 +35,15 @@
 # POSIX sh + awk. Aucune dépendance hors du socle.
 set -eu
 
+# Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
+# découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
+# document.md » en deux et laisse un glob s'expanser. Une porte qui rate un
+# fichier ne signale rien — elle se contente de ne pas le voir. On découpe
+# donc sur les seules fins de ligne, globbing désactivé.
+IFS='
+'
+set -f
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 
@@ -154,10 +163,24 @@ est_md && /^#{1,6}[ \t]+/ {
 {
     ligne = $0
     # Chaque lien Markdown de la ligne : [texte](cible) et ![alt](cible).
-    while (match(ligne, /\]\([^)( \t]+(\)|[ \t])/)) {
-        cible = substr(ligne, RSTART + 2, RLENGTH - 3)
-        ligne = substr(ligne, RSTART + RLENGTH)
-        gsub(/[ \t)]+$/, "", cible)
+    # Les parenthèses ÉQUILIBRÉES appartiennent à la cible : « fichier-(v2).md »
+    # est un nom de fichier légitime. Une extraction qui rend les armes à la
+    # première parenthèse le tronque puis le déclare mort — faux positif, soit
+    # le défaut qui fait désactiver une porte (constat de revue n° 3).
+    pos = 1
+    while ((idx = index(substr(ligne, pos), "](")) > 0) {
+        debut = pos + idx + 1
+        prof = 1
+        j = debut
+        while (j <= length(ligne)) {
+            ch = substr(ligne, j, 1)
+            if (ch == "(") prof++
+            else if (ch == ")") { prof--; if (prof == 0) break }
+            else if (ch == " " || ch == "\t") break   # [x](cible "titre")
+            j++
+        }
+        cible = (prof == 0) ? substr(ligne, debut, j - debut) : ""
+        pos = j + 1
         if (cible == "") continue
         if (cible ~ /^(https?|mailto|ftp|tel):/) {
             interne = chemin_blob(cible)

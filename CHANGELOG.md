@@ -80,6 +80,39 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   les positions de toutes les consultations ouvertes. `verifier_filtre` refuse
   de s'exécuter si un chemin exclu n'existe pas.
 
+- **Revue de code par un relecteur tiers** (Kimi, kimi-cli 0.28.0), archivée
+  dans `docs/revues/2026-08-20-transposition-alm.md` : **sept constats, tous
+  corrigés, aucun rejeté**. Le plus important — le seul de sévérité haute —
+  contredisait un critère d'acceptation : `tools/audit.sh` n'acceptait que le
+  français en mode bilingue, qui est pourtant le défaut de l'instanciation.
+  Le lexique gagne `lex_est` (reconnaissance selon la langue figée) et
+  `lex_motif` (alternance parenthésée) ; la même classe de défaut touchait
+  `todo.sh` et `statuts.sh`, où l'alternance insérée nue dans une regex
+  produisait deux branches fausses. Le relecteur a également établi que le
+  test bilingue existant ne prouvait rien sur le mode `fr-en` : le cas
+  manquant est ajouté.
+- Robustesse des portes, d'après la même revue : découpage des listes de
+  chemins sur les seules fins de ligne (`IFS` + `set -f`, dix portes) — un
+  fichier au nom espacé était ignoré **sans que rien ne le signale** ;
+  extraction des liens à parenthèses équilibrées (`guide-(v2).md` n'est plus
+  déclaré mort à tort) ; recherche de forge échappée ; fenêtre du contrôle
+  des journaux surchargeable ; garde sur les clés du lexique.
+- `templates/forge/` n'est plus supprimé à l'instanciation : le retirer
+  privait le projet instancié de ce que `req~automatismes-forge~1` promet de
+  lui fournir. Constat classé « basse » par le relecteur, en réalité une
+  annulation d'exigence.
+- Deux défauts trouvés **en corrigeant la revue**, dans la porte de
+  consolidation elle-même : une barre verticale non échappée dans une cellule
+  décalait les colonnes et faisait lire le verdict au mauvais endroit — un
+  constat soldé s'affichait « ouvert », en silence ; et le code de retour
+  d'`awk` se perdait dans un pipe vers `sort`. Les deux sont mécanisés, avec
+  leurs cas de test.
+- **Nouveau contrôle** `tools/checks.sh` : tout script du dépôt est analysable
+  par `sh`. Ajouté après **trois** occurrences du même défaut — une apostrophe
+  dans un commentaire de programme `awk` referme la quote qui l'entoure, et le
+  shell se met à lire le programme comme du code. Le fichier paraît sain et
+  casse à l'exécution, donc en CI, jamais en revue.
+
 ### Modifié
 
 - **Dette révélée et résorbée.** La porte de classification a montré que 19
