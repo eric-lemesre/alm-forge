@@ -138,10 +138,18 @@ sed_inplace() {
 
 annee="$(date +%Y)"
 
-echo "1/11 — Retrait des tags de couverture du gabarit dans les documents conservés"
+echo "1/12 — Retrait des tags de couverture du gabarit dans les documents conservés"
 for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
+         docs/verification-manuelle/*.md \
          tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
+         tools/lexique.sh tools/liens.sh tools/liens-test.sh \
+         tools/perimetre.sh tools/perimetre-test.sh tools/ci.sh \
+         tools/derive.sh tools/derive-test.sh tools/checks-test.sh \
+         tools/todo.sh tools/revues.sh tools/audit.sh tools/badges.sh \
+         tools/statuts.sh tools/releves.sh tools/journaux.sh \
+         tools/classification.sh tools/issues.sh \
+         tools/gouvernance-test.sh tools/socle-test.sh \
          tools/hooks/commit-msg.sh tools/init.sh tools/init-test.sh \
          tools/bootstrap.sh tools/bootstrap.d/*.sh tools/bootstrap-test.sh \
          tools/install-git.sh tools/install-git.ps1 \
@@ -157,7 +165,7 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
     mv "${f}.tmp" "${f}"
 done
 
-echo "2/11 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
+echo "2/12 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
 # [impl->req~politique-attribution-agents~2]
 if [ "${ATTRIBUTION}" != "obligatoire" ]; then
     # Le bloc livré par défaut (déclaration obligatoire) est retiré…
@@ -185,7 +193,7 @@ FINHOOK
         ;;
 esac
 
-echo "3/11 — Langue du dépôt : ${LANGUE}"
+echo "3/12 — Langue du dépôt : ${LANGUE}"
 # [impl->req~politique-langue~1]
 if [ "${LANGUE}" != "fr-en" ]; then
     # Une seule langue : un seul jeu de modèles, plus de porte de parité.
@@ -199,13 +207,19 @@ case "${LANGUE}" in
     en) rm -rf templates/fr ; rm -f README.en.md ;;
 esac
 
+# Le vocabulaire OUTILLÉ suit le même arbitrage que les artefacts générés
+# (ADR-0015) : figer la langue ici, c'est décider ce que les portes
+# reconnaîtront — « ACTIVE » et « conforme », ou « ACTIVE » et « compliant ».
+# En « fr-en », les deux formes restent acceptées.
+sed_inplace "s/^LEXIQUE_LANGUE=.*/LEXIQUE_LANGUE=\"\${LEXIQUE_LANGUE:-${LANGUE}}\"/" tools/lexique.sh
+
 if [ "${LANGUE}" = "fr" ]; then
     modeles="templates/fr/"
 else
     modeles="templates/fr/ (et templates/en/)"
 fi
 
-echo "4/11 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
+echo "4/12 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
 rm -f spec/01-besoins/besoins.md
 rm -f spec/02-exigences/*.md
 if [ "${LANGUE}" = "en" ]; then
@@ -260,7 +274,7 @@ Aucune question ouverte à ce jour.
 EOF
 fi
 
-echo "5/11 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
+echo "5/12 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
 rm -f docs/adr/0*.md
 sed -n '1,/^## Index/p' docs/adr/README.md > docs/adr/README.md.tmp
 cat >> docs/adr/README.md.tmp <<EOF
@@ -273,7 +287,7 @@ consultables dans son dépôt d'origine.
 EOF
 mv docs/adr/README.md.tmp docs/adr/README.md
 
-echo "6/11 — Registre des décisions réinitialisé"
+echo "6/12 — Registre des décisions réinitialisé"
 if [ "${LANGUE}" = "en" ]; then
     cat > docs/decisions/registre.md <<'EOF'
 # Decision register
@@ -303,7 +317,7 @@ Aucune décision enregistrée à ce jour.
 EOF
 fi
 
-echo "7/11 — Arbitrage du cycle de vie des issues : ${CYCLE}"
+echo "7/12 — Arbitrage du cycle de vie des issues : ${CYCLE}"
 # [impl->req~issues-flux-avancement~2]
 # L'arbitrage s'applique (formulaires) puis se consigne au registre du projet
 # (ADR-0013) — y compris quand c'est le défaut : un arbitrage non consigné
@@ -338,7 +352,7 @@ awk -v row="| D-$(date +%Y-%m)-01 | $(date +%Y-%m-%d) | ${decision_cycle} | ${re
 ' docs/decisions/registre.md > docs/decisions/registre.md.tmp
 mv docs/decisions/registre.md.tmp docs/decisions/registre.md
 
-echo "8/11 — CHANGELOG et VERSION réinitialisés"
+echo "8/12 — CHANGELOG et VERSION réinitialisés"
 if [ "${LANGUE}" = "en" ]; then
     cat > CHANGELOG.md <<EOF
 # Changelog
@@ -372,10 +386,10 @@ EOF
 fi
 printf '0.1.0\n' > VERSION
 
-echo "9/11 — LICENSE au nom du porteur"
+echo "9/12 — LICENSE au nom du porteur"
 sed_inplace "s/^Copyright (c) .*/Copyright (c) ${annee} ${PORTEUR}/" LICENSE
 
-echo "10/11 — README réécrits pour ${NOM}"
+echo "10/12 — README réécrits pour ${NOM}"
 if [ "${LANGUE}" = "en" ]; then
     cat > README.md <<EOF
 # ${NOM}
@@ -419,9 +433,33 @@ EOF
     fi
 fi
 
-echo "11/11 — Vérification finale (traçabilité + cohérence)"
-sh tools/oft.sh trace
-sh tools/checks.sh
+echo "11/12 — Artefacts documentaires réinitialisés"
+# Fiches du gabarit retirées, artefacts DÉRIVÉS régénérés puis indexés. Les
+# indexer est nécessaire : la porte anti-dérive compare le résultat de la
+# régénération à l'index, et un artefact hérité du gabarit y ferait échouer
+# la première vérification du projet.
+# Fiches du gabarit : feuille de route, audit ET revues de code. Une revue
+# porte sur un diff qui n'existe pas dans le projet instancié ; la garder lui
+# ferait hériter de constats qui ne le concernent pas.
+rm -f docs/todo/todo-*.md docs/audit/*.md docs/revues/SUIVI.md
+find docs/revues -name '*.md' ! -name 'README.md' ! -name 'SUIVI.md' -exec rm -f {} +
+# Les procédures de vérification manuelle du gabarit couvrent des exigences
+# qui viennent d'être retirées : les garder laisserait des items orphelins.
+# Le README du répertoire, lui, explique le dispositif et reste.
+find docs/verification-manuelle -name '*.md' ! -name 'README.md' -exec rm -f {} +
+# templates/forge/ est CONSERVÉ : c'est du matériel post-instanciation, au
+# même titre que templates/orchestrators/ et templates/bootstrap.d/. Le
+# supprimer priverait le projet instancié de ce que req~automatismes-forge~1
+# promet de lui fournir — il devrait aller le rechercher dans le gabarit
+# (constat de revue n° 5).
+sh tools/todo.sh --ecrire   >/dev/null
+sh tools/revues.sh --ecrire >/dev/null
+sh tools/audit.sh --ecrire  >/dev/null
+sh tools/badges.sh --ecrire >/dev/null
+git add docs/todo docs/audit docs/revues docs/badges >/dev/null 2>&1 || true
+
+echo "12/12 — Vérification finale (traçabilité + cohérence)"
+sh tools/ci.sh --rapide
 
 cat <<EOF
 

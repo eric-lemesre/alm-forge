@@ -38,6 +38,10 @@ main.
 | [9. Gouvernance des agents](09-gouvernance-agents.md) | AGENTS.md, adaptateurs, règles vérifiées |
 | [10. Sécurité continue](10-securite-continue.md) | STRIDE léger, vulnérabilités et exceptions, SBOM, porte anti-secrets |
 | [11. Cycle de vie des issues](11-cycle-de-vie-issues.md) | État/attente/acte, flux Spec/Orga/réalisation, triage et priorités, fins de vie |
+| [12. Feuille de route](12-feuille-de-route.md) | Fiches de chantier, statuts, index dérivé |
+| [13. Statuts de spécification](13-statuts-de-specification.md) | Le commutateur qui commande le dénominateur des taux |
+| [14. Audit de réalisation](14-audit-de-realisation.md) | Le livré tient-il l'exigence — le générateur compte, l'humain juge |
+| [15. Cadrage des nouvelles fonctionnalités](15-cadrage-des-nouvelles-fonctionnalites.md) | L'amont du circuit : de la demande éparse à la proposition |
 
 ## Principes transverses
 
@@ -53,5 +57,11 @@ main.
    l'issue porte la coordination, le relevé porte la décision, la matrice de
    traçabilité porte la vérification. Ne pas les mélanger.
 5. **On ne réécrit pas l'histoire** : ADR accepté, relevé figé, question
-   ouverte résolue restent en l'état ; on les remplace ou on les complète par
-   addendum daté.
+   ouverte résolue, section de journal publiée restent en l'état ; on les
+   remplace ou on les complète par addendum daté.
+6. **La présence n'est pas la vérité.** La traçabilité mesure qu'un maillon
+   existe (ch. 4) ; l'audit mesure qu'il fait ce qu'il annonce (ch. 14). Les
+   deux sont nécessaires, et aucun ne remplace l'autre.
+7. **Un index ou un tableau de bord se dérive, il ne se tient pas.** Tout
+   artefact qui recopie une information qui vit ailleurs finit par mentir :
+   il se génère, et la porte anti-dérive interdit de le retoucher (R8).

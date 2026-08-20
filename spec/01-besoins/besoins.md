@@ -87,3 +87,21 @@ travaillés par des agents différents : aucune règle ne doit dépendre d'un
 outil de génération particulier.
 
 Needs: req
+
+## Documentation soumise au même régime que le code
+
+`feat~documentation-verifiee~1`
+
+Sur un projet dont les décisions, les exigences et la méthode vivent dans le
+dépôt, la documentation DOIT être vérifiée par des contrôles qui échouent :
+liens qui atteignent leur cible, index dérivés de leur source, tableaux de
+bord régénérés, badges sans dépendance externe.
+
+Rationale:
+Besoin exprimé le 2026-08-20 après l'inventaire comparé avec ergonomia. Un
+lien mort, un index périmé ou un statut qui ment ne cassent aucun test : ils
+égarent un lecteur, et lui font croire qu'une fonctionnalité ou une décision
+existe. Sur un dépôt où la documentation EST une partie du produit, c'est un
+défaut de premier ordre.
+
+Needs: req

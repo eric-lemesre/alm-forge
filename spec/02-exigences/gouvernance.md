@@ -1,5 +1,8 @@
 # Exigences — domaine gouvernance
 
+**Statut : ACTIVE** — domaine acté le 2026-08-20 (D-2026-08-16). Le statut commande
+le dénominateur des taux d'audit et de classification (méthode, ch. 13).
+
 ## Contrat d'agents unique et agnostique
 
 `req~gouvernance-agents~1`
@@ -21,7 +24,7 @@ Critères d'acceptation :
 Covers:
 - feat~gouvernance-agnostique~1
 
-Needs: dsn, impl
+Needs: dsn, impl, mtest
 
 ## Templates bilingues
 
@@ -35,7 +38,7 @@ vérifiée mécaniquement.
 Covers:
 - feat~gouvernance-agnostique~1
 
-Needs: dsn, impl
+Needs: dsn, impl, utest
 
 ## Instanciation outillée
 
@@ -206,7 +209,7 @@ Critères d'acceptation :
 Covers:
 - feat~gouvernance-agnostique~1
 
-Needs: dsn, impl
+Needs: dsn, impl, utest
 
 ## Nettoyage outillé du dépôt local
 
@@ -253,6 +256,36 @@ DOIT être vérifiée mécaniquement avant publication.
 Covers:
 - feat~cadre-de-decision~1
 
-Needs: impl
+Needs: impl, utest
 
+## Lexique du vocabulaire outillé
 
+`req~lexique-outille~1`
+
+Les termes que les portes reconnaissent — statuts, niveaux normatifs,
+verdicts, gravités, étiquettes de forge, commandes de consultation — DOIVENT
+être déclarés en français et en anglais dans un lexique unique dont les portes
+sont clientes, et le jeu retenu DOIT être figé par le choix de langue de
+l'instanciation. Aucune porte NE DOIT écrire un de ces termes en dur.
+
+Rationale:
+L'arbitrage de langue de l'ADR-0009 ne portait que sur les artefacts GÉNÉRÉS ;
+le vocabulaire que les contrôles LISENT restait français, ce qui imposait la
+langue du gabarit à tout projet instancié dès lors qu'une porte cherchait
+« ACTIVE » ou « à-tester ». Un terme identique dans les deux langues se
+déclare quand même, pour que le contrôle de complétude le voie et que la
+porte passe malgré tout par le lexique.
+
+Critères d'acceptation :
+
+- Étant donné une instanciation en français, quand une porte lit un terme
+  d'état, alors seule la forme française est reconnue.
+- Étant donné une instanciation en anglais, quand un artefact porte un terme
+  resté français, alors la porte concernée échoue.
+- Étant donné une instanciation bilingue, quand un artefact porte l'une ou
+  l'autre forme, alors la porte l'accepte.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: dsn, impl, utest

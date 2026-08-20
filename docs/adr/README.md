@@ -70,3 +70,6 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0012](0012-detecter-les-secrets-avec-gitleaks.md) | Détecter les secrets avec gitleaks, bloquant en CI, signalant en local | Accepté |
 | [0013](0013-cycle-de-vie-issues-arbitre-a-l-instanciation.md) | Rendre le cycle de vie des issues arbitrable à l'instanciation | Accepté |
 | [0014](0014-bootstrap-consenti-et-modulaire.md) | Rendre le bootstrap consenti, modulaire et auto-installant | Accepté |
+| [0015](0015-lexique-du-vocabulaire-outille.md) | Rassembler le vocabulaire outillé dans un lexique bilingue | Accepté |
+| [0016](0016-audit-de-realisation-distinct-de-la-tracabilite.md) | Séparer l'audit de réalisation de la traçabilité | Accepté |
+| [0017](0017-perimetre-de-la-porte-constate.md) | Constater le périmètre de la porte plutôt que le déclarer | Accepté |

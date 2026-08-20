@@ -3,6 +3,10 @@
 **Dépôt-gabarit ALM : du besoin exprimé aux tests mécanisés, agnostique du
 langage et de l'agent.**
 
+![version](docs/badges/version.svg)
+![exigences](docs/badges/exigences.svg)
+![licence](docs/badges/licence.svg)
+
 [English summary](README.en.md)
 
 alm-forge instancie en quelques minutes un projet où chaque ligne de code sait
@@ -35,18 +39,30 @@ Chaque relation est déclarée dans les fichiers et vérifiée par l'outil : une
 exigence sans test, un tag vers un identifiant inexistant ou une décision
 manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 
+À cette chaîne s'ajoute une seconde question, que la traçabilité ne pose
+jamais : **le livré fait-il ce que l'exigence dit ?** C'est l'audit de
+réalisation (`docs/audit/`) — verdicts écrits à la main, comptabilité générée.
+La traçabilité mesure la présence, l'audit mesure la vérité ; un tag de
+complaisance passe la première et échoue au second.
+
 ## Arborescence
 
 | Chemin | Contenu |
 | --- | --- |
-| `docs/methode/` | La méthode, 9 chapitres normatifs |
+| `docs/methode/` | La méthode, 15 chapitres normatifs |
 | `docs/adr/` | Registre des décisions d'architecture |
 | `docs/decisions/` | Relevés de séance et registre chronologique |
+| `docs/audit/` | Audit de réalisation : le livré tient-il l'exigence |
+| `docs/verification-manuelle/` | Procédures `mtest` — ce qu'aucune porte ne juge |
+| `docs/todo/` | Feuille de route (index dérivé des fiches) |
+| `docs/revues/` | Revues de code et leur suivi consolidé |
 | `spec/01-besoins/` | Expressions de besoin (items feat) |
 | `spec/02-exigences/` | Exigences EARS (items req) |
 | `spec/open-questions.md` | Registre des blocages en attente d'arbitrage |
 | `templates/fr/`, `templates/en/` | Modèles d'artefacts bilingues |
-| `tools/` | Les portes qualité (scripts POSIX autonomes) |
+| `tools/` | Les portes qualité (scripts POSIX autonomes) — point d'entrée `ci.sh` |
+| `tools/lexique.sh` | Le vocabulaire outillé, fr/en, figé à l'instanciation |
+| `templates/forge/` | Automatismes d'issues prêts à câbler (non câblés ici) |
 | `Taskfile.yml`, `.githooks/` | Façade d'orchestration (interchangeable, ADR-0007) et hooks |
 | `.github/workflows/ci.yml`, `.gitlab-ci.yml` | Les mêmes portes en CI — façades par forge (ADR-0010) |
 | `examples/demo-multi-langages/` | Chaîne complète en Python, Rust et shell |
@@ -83,12 +99,17 @@ manquante font échouer le commit et la CI. Aucune matrice tenue à la main.
 
 | Commande | Effet |
 | --- | --- |
+| `task ci` | **Tout ce que la CI exécute** — voie constatée d'après le changement réel |
 | `task setup` | Accueil après clone : bootstrap + hooks + portes |
 | `task bootstrap` | Dépendances, flux consenti : socle + modules du projet (`tools/bootstrap.d/`) |
 | `task trace` | Traçabilité complète (échoue si un maillon manque) |
 | `task report` | Rapport HTML navigable dans `build/` |
-| `task check` | Cohérence : ADR acceptés, parité des templates, version |
-| `task ci` | Tout ce que la CI exécute |
+| `task check` | Cohérence : ADR, parité des templates, version, index, lexique |
+| `task liens` | Intégrité des liens internes de la documentation |
+| `task audit` | Périmètre de l'audit de réalisation (`-- --squelette <domaine>`) |
+| `task derive` | Anti-dérive des artefacts générés |
+| `task regen` | Régénère feuille de route, suivi de revue, audit, badges |
+| `task issues` | Conformité des issues (hors porte : réseau requis) |
 | `task adr-new -- titre` | ADR suivant depuis le modèle |
 | `task hooks` | Installe les hooks git |
 | `task clean` | Nettoie les artefacts locaux (`-- --all` : cache d'outillage inclus) |

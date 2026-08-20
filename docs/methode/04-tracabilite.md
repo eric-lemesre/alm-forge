@@ -83,6 +83,35 @@ de `Taskfile.yml` comme façade par défaut : son extension le rend scannable
 | `task trace` (ou `sh tools/oft.sh trace`) | vérification complète, liste les défauts, code retour non nul si échec |
 | `task report` (ou `sh tools/oft.sh report`) | rapport HTML navigable dans `build/tracabilite.html` |
 
+## La porte, et son périmètre constaté
+
+La traçabilité n'est qu'une porte parmi d'autres. Le point d'entrée unique est
+`tools/ci.sh` : ce qu'il exécute est exactement ce que la CI exécute, sur les
+deux forges (ADR-0010).
+
+| Porte | Ce qu'elle refuse |
+| --- | --- |
+| `oft.sh` | un maillon manquant dans la chaîne besoin → test |
+| `checks.sh` | parité des modèles, ADR sans vérification, version hors journal, index d'ADR incomplet, façades CI désalignées, lexique incomplet |
+| `liens.sh` | un lien interne qui ne mène nulle part |
+| `statuts.sh` | un statut de domaine absent, non acté, ou divergent de l'index |
+| `classification.sh` | une exigence sans niveau normatif, ou de niveau DOIT sans vérification |
+| `releves.sh` | un relevé sans décision consignée, une décision hors registre |
+| `journaux.sh` | une section de version publiée réécrite après son tag |
+| `todo.sh`, `revues.sh`, `audit.sh`, `badges.sh` | une fiche mal formée, un tableau de bord périmé |
+| `derive.sh` | un artefact généré retouché à la main, ou non versionné |
+| `secrets.sh` | un secret dans l'historique ou dans l'index |
+
+**Le périmètre est constaté, jamais déclaré** (ADR-0017). `tools/perimetre.sh`
+lit le changement réel — commits depuis la base de fusion, index, arbre de
+travail **et fichiers non suivis** — et impose la voie complète au moindre
+doute. La voie `docs` n'allège que les tests d'outillage, qui créent chacun des
+dépôts git jetables ; aucune porte documentaire n'est jamais sautée.
+
+Le hook pre-commit force la voie documentaire (`tools/ci.sh --rapide`) : un
+hook trop lent finit contourné, et une porte contournée ne protège personne.
+La porte complète reste due avant de proposer le travail.
+
 Le périmètre scanné est défini une seule fois dans `tools/oft.sh` (hooks et CI
 exécutent le même script). `templates/` en est exclu : les modèles contiennent
 des exemples d'identifiants qui ne doivent pas devenir des items.
@@ -97,7 +126,21 @@ des exemples d'identifiants qui ne doivent pas devenir des items.
   câblée » avec raison et échéance.
 - **Contrôle no-op** : un contrôle de dérive qui compare un fichier jamais
   généré passe toujours. Vérifier le cas d'échec d'une porte fait partie de sa
-  mise en place.
+  mise en place. Forme la plus fréquente : l'artefact généré **non versionné**
+  — la régénération l'écrit, la comparaison ne voit rien, la porte est verte.
+  D'où le double contrôle de `tools/derive.sh` : suivi par git, *puis*
+  comparé.
+- **Agrégat recalculé ailleurs** : deux outils qui comptent la même chose
+  finissent par ne plus compter pareil, et rien ne dit lequel se trompe. Un
+  chiffre a **une** source ; qui en a besoin la consulte, ne la recalcule pas.
+  Corollaire pratique : un état d'avancement se **calcule** à partir des
+  artefacts, il ne se saisit jamais à la main — un état saisi est un second
+  chiffre en puissance.
+- **Porte muette par changement de langue** : une porte qui cherche un terme
+  écrit en dur (« ACTIVE », « conforme », « à-tester ») ne trouve plus rien
+  dans un dépôt instancié dans l'autre langue — et ne signale rien, puisqu'elle
+  ne trouve rien. C'est pourquoi tout terme lu par une porte vient du lexique
+  (ADR-0015).
 - **Outillage aveugle à son environnement** : un chemin d'artefact de build
   codé en dur (`./target`, `node_modules/.bin`…) dans une recette, un script
   ou une CI casse — ou pire, devient silencieusement sans effet — dès qu'un
