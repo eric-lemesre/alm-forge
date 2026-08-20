@@ -1,0 +1,21 @@
+# Audit — gouvernance
+
+Miroir de [`spec/02-exigences/gouvernance.md`](../../spec/02-exigences/gouvernance.md).
+Verdicts écrits à la main ; le tableau de bord est généré (méthode, ch. 14).
+
+| Exigence | Verdict | Preuve / écart |
+| --- | --- | --- |
+| `req~gouvernance-agents~1` | conforme | `AGENTS.md` (R0-R8, chacune avec son moyen de vérification) ; `CLAUDE.md` est un adaptateur-pointeur sans règle propre ; procédure `mtest~contrat-prevaut~1` |
+| `req~bilinguisme-templates~1` | conforme | `templates/fr/` et `templates/en/`, 10 modèles de part et d'autre ; porte de parité dans `tools/checks.sh`, éprouvée par `tools/checks-test.sh` |
+| `req~instanciation-outillee~1` | conforme | `tools/init.sh` (11 étapes, deux gardes) ; `tools/init-test.sh` couvre les trois branches de langue et le refus de double exécution |
+| `req~onboarding-outille~2` | conforme | `tools/setup.sh`, `tools/bootstrap.sh` et ses modules `tools/bootstrap.d/` ; `tools/setup-test.sh` et `tools/bootstrap-test.sh` couvrent l'idempotence et le refus sans accord |
+| `req~politique-attribution-agents~2` | conforme | bloc à marqueurs de `tools/hooks/commit-msg.sh`, les trois politiques appliquées par `tools/init.sh` ; cas d'échec dans `tools/socle-test.sh` (trailer absent, responsable absent) |
+| `req~politique-langue~1` | conforme | `tools/init.sh` étape 3 ; `tools/init-test.sh` vérifie les trois branches |
+| `req~portabilite-forges~1` | conforme | les deux façades délèguent à `tools/ci.sh` ; leur alignement est vérifié par `tools/checks.sh` et éprouvé par `tools/checks-test.sh` |
+| `req~nettoyage-outille~1` | conforme | `tools/clean.sh` à chemins déclarés ; `tools/clean-test.sh` couvre l'idempotence et la préservation du versionné |
+| `req~versionnement-release~1` | conforme | contrôle VERSION ↔ CHANGELOG dans `tools/checks.sh`, éprouvé par `tools/checks-test.sh` ; `tools/journaux.sh` y ajoute l'intangibilité des sections publiées |
+| `req~lexique-outille~1` | conforme | `tools/lexique.sh` (42 termes, deux formes chacun) ; complétude vérifiée par `tools/checks.sh` ; effet réel du réglage éprouvé par `tools/gouvernance-test.sh` (verdict français refusé en langue `en`) |
+
+## Écarts ouverts
+
+- Aucun.

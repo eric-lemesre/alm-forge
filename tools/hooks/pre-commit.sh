@@ -14,11 +14,15 @@ if [ "${ALM_SKIP_HOOKS:-0}" = "1" ]; then
     exit 0
 fi
 
-echo "Porte locale 1/3 — traçabilité (OpenFastTrace)"
-sh "${ROOT}/tools/oft.sh" trace
+# Voie documentaire forcée : traçabilité, cohérence et portes documentaires,
+# soit quelques secondes. Les tests d'outillage — une dizaine de dépôts git
+# jetables — restent dus avant de proposer le travail : « sh tools/ci.sh ».
+# Un hook trop lent finit contourné, et une porte contournée ne protège
+# personne.
+sh "${ROOT}/tools/ci.sh" --rapide
 
-echo "Porte locale 2/3 — contrôles de cohérence"
-sh "${ROOT}/tools/checks.sh"
-
-echo "Porte locale 3/3 — détection de secrets (fichiers indexés)"
+echo "Porte locale — détection de secrets (fichiers indexés)"
 sh "${ROOT}/tools/secrets.sh" staged
+
+echo
+echo "Rappel : « sh tools/ci.sh » avant de proposer le travail (tests d'outillage compris)." 

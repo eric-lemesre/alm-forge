@@ -1,5 +1,8 @@
 # Exigences — domaine sécurité
 
+**Statut : ACTIVE** — domaine acté le 2026-08-20 (D-2026-08-16). Le statut commande
+le dénominateur des taux d'audit et de classification (méthode, ch. 13).
+
 ## Détection des secrets dans les contributions
 
 `req~detection-secrets~1`
@@ -61,4 +64,4 @@ Critères d'acceptation :
 Covers:
 - feat~gouvernance-agnostique~1
 
-Needs: impl
+Needs: impl, mtest

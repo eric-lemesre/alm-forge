@@ -1,6 +1,7 @@
 # [impl->req~porte-ci~1]
-# La CI rejoue exactement les portes locales : même script, même périmètre
-# (tools/oft.sh et tools/checks.sh sont le point unique de vérité, R7).
+# La CI rejoue exactement les portes locales : elle délègue à tools/ci.sh,
+# point unique de vérité des étapes (R7, ADR-0010). Aucune étape ne se
+# déclare ici : ce qui tourne en CI est ce qui tourne sur le poste.
 # Actions épinglées par SHA de commit (chaîne d'approvisionnement).
 name: ci
 
@@ -30,29 +31,12 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Traçabilité (OpenFastTrace)
-        run: tools/oft.sh trace
-
-      - name: Contrôles de cohérence
-        run: tools/checks.sh
-
-      - name: Porte anti-secrets (gitleaks)
-        run: tools/secrets.sh scan
-
-      - name: Test de la porte anti-secrets
-        run: tools/secrets-test.sh
-
-      - name: Test du script d'instanciation
-        run: tools/init-test.sh
-
-      - name: Test du parcours d'accueil
-        run: tools/setup-test.sh
-
-      - name: Test du bootstrap consenti
-        run: tools/bootstrap-test.sh
-
-      - name: Test du nettoyage
-        run: tools/clean-test.sh
+      # Point d'entrée UNIQUE : la CI n'a pas sa propre liste d'étapes.
+      # tools/ci.sh constate le périmètre et emprunte la voie qui convient
+      # (ADR-0017) ; l'historique complet du checkout ci-dessus lui donne la
+      # base de fusion sans laquelle il retomberait toujours en voie complète.
+      - name: Portes
+        run: tools/ci.sh
 
       - name: Rapport HTML de traçabilité
         if: always()

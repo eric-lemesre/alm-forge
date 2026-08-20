@@ -5,6 +5,91 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- **Transposition des mécaniques ALM d'ergonomia** (D-2026-08-13 à
+  D-2026-08-16), avec leur vocabulaire rendu bilingue. Seize mécaniques
+  éprouvées sur un dépôt vivant et absentes de la fondation, chacune motivée
+  par un défaut réellement constaté.
+
+- **Lexique du vocabulaire outillé** (ADR-0015, req~lexique-outille~1) :
+  `tools/lexique.sh` déclare en français et en anglais les 42 termes que les
+  portes reconnaissent — statuts, niveaux normatifs, verdicts, gravités,
+  étiquettes de forge, commandes de consultation. `tools/init.sh --langue`
+  fige le jeu ; aucune porte n'écrit plus un de ces mots en dur. Referme
+  l'écart laissé par l'ADR-0009, qui ne portait que sur les artefacts
+  générés : une porte cherchant « ACTIVE » ou « conforme » devenait muette —
+  sans erreur — dans un dépôt instancié en anglais.
+
+- **Audit de réalisation** (ADR-0016, req~audit-de-realisation~1) : porte
+  distincte de la traçabilité, qui pose la question que celle-ci ne pose
+  jamais — le livré fait-il ce que l'exigence dit ? Une fiche par domaine dans
+  `docs/audit/`, verdicts écrits à la main, tableau de bord généré, plafond
+  d'exigences non examinées à 0. Le générateur compte, l'humain juge.
+
+- **Périmètre de la porte constaté** (ADR-0017, req~perimetre-constate~1) :
+  `tools/perimetre.sh` déduit la voie du changement réel — commits, index,
+  arbre **et fichiers non suivis** — et impose la voie complète au moindre
+  doute ; `tools/ci.sh` devient le point d'entrée unique dont les quatre
+  façades (Task, just, GitHub, GitLab) ne font que déléguer.
+
+- **Six portes documentaires** : intégrité des liens internes
+  (req~integrite-liens~1), anti-dérive des artefacts générés — qui outille
+  enfin la règle R8 (req~anti-derive-generes~1), statuts de domaine
+  (req~statut-specification~1), relevés de séance et registre
+  (req~releves-de-decision~1), journaux et intangibilité des sections
+  publiées (req~journaux-depot-et-logiciel~1), classification des exigences
+  (req~classification-exigences~1).
+
+- **Feuille de route, suivi de revue et badges dérivés**
+  (req~feuille-de-route-outillee~1, req~suivi-constats-revue~1,
+  req~badges-autonomes~1) : trois artefacts générés au lieu d'être tenus à la
+  main. Le suivi de revue mécanise au passage la règle du chapitre 7 —
+  la porte refuse désormais un constat de sévérité haute sans verdict.
+
+- **Coordination des issues outillée** : `tools/issues.sh` contrôle la
+  conformité au cycle de vie, délibérément **hors porte** (réseau et session
+  requis, req~conformite-issues~1) ; `templates/forge/` fournit les cinq
+  automatismes prêts à câbler pour GitHub et GitLab, déclarés non câblés dans
+  le gabarit avec leur raison (req~automatismes-forge~1).
+
+- **Quatre chapitres de méthode** : 12 (feuille de route), 13 (statuts de
+  spécification), 14 (audit de réalisation), 15 (cadrage des nouvelles
+  fonctionnalités) ; compléments aux chapitres 4 (liste des portes,
+  aiguillage, deux nouveaux anti-patterns), 7 (suivi consolidé) et 8 (NEWS ⟂
+  CHANGELOG, sections closes, campagne de non-régression aux versions
+  mineures).
+
+- **Modèles bilingues** `roadmap-card.md` et `audit-sheet.md`.
+
+### Modifié
+
+- **Dette révélée et résorbée.** La porte de classification a montré que 19
+  exigences sur 25 étaient de niveau DOIT **sans aucune vérification
+  déclarée** — dont les trois contrôles historiques de `tools/checks.sh`, qui
+  n'avaient jamais été éprouvés sur leur cas d'échec (R3). Le taux passe de
+  24 % à 100 % : `tools/checks-test.sh` et `tools/socle-test.sh` couvrent ce
+  qui est mécanisable, `docs/verification-manuelle/` porte les douze
+  procédures `mtest` de ce qui ne l'est pas.
+- `tools/checks.sh` : trois contrôles ajoutés — complétude de l'index des ADR
+  et sa réciproque, alignement des façades CI, complétude du lexique.
+- Hook pre-commit : rejoue la voie documentaire complète (`tools/ci.sh
+  --rapide`) au lieu de trois portes ; la voie complète reste due avant de
+  proposer le travail.
+- `tools/init.sh` : fige la langue du lexique, retire les procédures et fiches
+  du gabarit, régénère et indexe les artefacts dérivés (12 étapes).
+- Contrat d'agents : R8 outillée, deux règles ajoutées (R9 vocabulaire au
+  lexique, R10 vérification déclarée pour tout DOIT), trois interdits
+  explicites.
+
+### Connu
+
+- **Écart d'audit ouvert** : `req~cycle-de-vie-exigence~1` réclame un statut
+  par exigence (brouillon → proposée → … → vérifiée) ; le dépôt n'a jamais eu
+  que le statut de **domaine**. Écart révélé par la mise en place de l'audit,
+  présent depuis la fondation. À arbitrer — réviser l'exigence, ou outiller le
+  statut par exigence — par consultation, pas par correction silencieuse.
+
 ### Modifié
 
 - Bootstrap consenti, modulaire et auto-installant (ADR-0014,

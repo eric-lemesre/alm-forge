@@ -1,5 +1,8 @@
 # Exigences — domaine ingénierie des exigences
 
+**Statut : ACTIVE** — domaine acté le 2026-08-20 (D-2026-08-16). Le statut commande
+le dénominateur des taux d'audit et de classification (méthode, ch. 13).
+
 ## Expression du besoin formalisée
 
 `req~expression-du-besoin~1`
@@ -17,7 +20,7 @@ Critères d'acceptation :
 Covers:
 - feat~ingenierie-des-exigences~1
 
-Needs: impl
+Needs: impl, mtest
 
 ## Rédaction selon EARS
 
@@ -36,7 +39,7 @@ préparent directement les tests mécanisés.
 Covers:
 - feat~ingenierie-des-exigences~1
 
-Needs: dsn, impl
+Needs: dsn, impl, utest, mtest
 
 ## Cycle de vie des exigences
 
@@ -55,7 +58,7 @@ Critères d'acceptation :
 Covers:
 - feat~ingenierie-des-exigences~1
 
-Needs: impl
+Needs: impl, mtest
 
 ## Questions ouvertes en cas de blocage
 
@@ -74,4 +77,4 @@ décision est tracée.
 Covers:
 - feat~ingenierie-des-exigences~1
 
-Needs: impl
+Needs: impl, mtest

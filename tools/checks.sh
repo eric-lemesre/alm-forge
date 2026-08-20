@@ -77,6 +77,77 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
+# [impl->req~registre-adr~1]
+# Tout ADR a sa ligne dans l'index, et réciproquement. Même dérive que tout
+# index tenu à la main : il finit par ignorer les décisions récentes, et une
+# décision qu'on ne trouve plus est une décision qu'on rouvre.
+if [ -f docs/adr/README.md ]; then
+    index_fail=0
+    for f in docs/adr/[0-9]*.md; do
+        [ -e "${f}" ] || continue
+        base="${f##*/}"
+        if ! grep -Fq "(${base})" docs/adr/README.md; then
+            echo "ÉCHEC : ${base} absent de l'index docs/adr/README.md" >&2
+            index_fail=1
+        fi
+    done
+    # Réciproque : une ligne d'index qui renvoie vers un ADR inexistant.
+    for cite in $(grep -oE '\]\([0-9]{4}-[a-z0-9-]+\.md\)' docs/adr/README.md | \
+                  sed -e 's/^](//' -e 's/)$//'); do
+        if [ ! -f "docs/adr/${cite}" ]; then
+            echo "ÉCHEC : index des ADR — renvoie vers un fichier absent : ${cite}" >&2
+            index_fail=1
+        fi
+    done
+    if [ "${index_fail}" -eq 0 ]; then
+        echo "ok — index des ADR complet"
+    else
+        FAILURES=$((FAILURES + 1))
+    fi
+fi
+
+# [impl->req~portabilite-forges~1]
+# Les façades CI exécutent la MÊME liste d'étapes (ADR-0010). Une étape
+# ajoutée d'un seul côté produit exactement ce que la portabilité promet
+# d'éviter : un verdict qui dépend de l'hébergeur.
+if [ -f .github/workflows/ci.yml ] && [ -f .gitlab-ci.yml ]; then
+    # Les scripts invoqués, dans l'ordre, de part et d'autre.
+    # Seules les lignes de COMMANDE comptent : une mention en prose dans un
+    # commentaire n'est pas une étape (faux positif de la première rédaction).
+    etapes_gh="$(sed -n 's/^[ \t-]*run:[ \t]*\(sh \)\{0,1\}\(tools\/.*\)$/\2/p' \
+                     .github/workflows/ci.yml || true)"
+    etapes_gl="$(sed -n 's/^[ \t]*-[ \t]*\(sh \)\{0,1\}\(tools\/.*\)$/\2/p' \
+                     .gitlab-ci.yml || true)"
+    if [ "${etapes_gh}" = "${etapes_gl}" ]; then
+        echo "ok — façades CI GitHub et GitLab alignées"
+    else
+        echo "ÉCHEC : les façades CI n'exécutent pas les mêmes étapes." >&2
+        echo "  GitHub : ${etapes_gh}" >&2
+        echo "  GitLab : ${etapes_gl}" >&2
+        FAILURES=$((FAILURES + 1))
+    fi
+fi
+
+# [impl->req~lexique-outille~1]
+# Complétude du lexique : tout terme déclaré porte ses deux formes. Un terme
+# dont la forme anglaise manque ferait taire une porte dans un dépôt
+# anglophone, sans erreur — le pire des symptômes.
+if [ -f tools/lexique.sh ]; then
+    . ./tools/lexique.sh
+    lex_fail=0
+    for cle in $(lex_cles); do
+        if [ -z "$(lex_fr "${cle}")" ] || [ -z "$(lex_en "${cle}")" ]; then
+            echo "ÉCHEC : lexique — terme incomplet : ${cle}" >&2
+            lex_fail=1
+        fi
+    done
+    if [ "${lex_fail}" -eq 0 ]; then
+        echo "ok — lexique complet dans les deux langues"
+    else
+        FAILURES=$((FAILURES + 1))
+    fi
+fi
+
 if [ "${FAILURES}" -gt 0 ]; then
     echo "${FAILURES} contrôle(s) en échec." >&2
     exit 1

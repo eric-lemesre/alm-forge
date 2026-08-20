@@ -22,6 +22,18 @@ mesurent la vérité.
   mécanique si outillables, sinon dans le contrat d'agents, avec référence à la
   revue d'origine en commentaire de la règle.
 
+## Le suivi consolidé des constats
+
+<!-- [impl->req~suivi-constats-revue~1] -->
+
+Les constats vivent dispersés, une fiche par branche dans `docs/revues/` ;
+passée la fusion, plus personne ne les rouvre. `tools/revues.sh --ecrire`
+les rassemble dans `docs/revues/SUIVI.md`, généré et protégé par l'anti-dérive.
+
+La règle « sévérité haute corrigée avant fusion » n'est plus une phrase : la
+porte **échoue** tant qu'un constat de sévérité haute n'a pas de verdict. Un
+rejet motivé est une réponse valable — ce qui est refusé, c'est le silence.
+
 ## Recette
 
 - La recette confronte le livrable aux **critères d'acceptation** des exigences

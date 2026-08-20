@@ -188,18 +188,80 @@ pas la priorité : la priorité dit *quand* traiter, l'enjeu dit *quelle
 cérémonie* appliquer — un sujet `P3` et structurant est précisément la
 combinaison la plus dangereuse à traiter à la légère.
 
-## Automatismes — non câblés dans le gabarit
+## Familles : qualifier sans créer un second état
 
-Les automatismes utiles (cocher la liste de consultation sur `/vu` et la
-réinitialiser quand le texte change, fermer « non planifiée » à la pose d'une
-sortie, rappeler les recettes dormantes) vivent côté forge : le gabarit,
-agnostique de la forge (ADR-0010), les documente sans les câbler.
+Les préfixes `bug:` et `feat:` (empruntés aux Conventional Commits, et
+volontairement non traduits) qualifient la **nature** d'une demande —
+`bug:régression`, `bug:données`, `feat:à-spécifier` — sans jamais dire où elle
+en est. Ce sont des entraves ou des qualificatifs cumulables, pas des états.
 
-**Portes non câblées** (R7) — raison : elles dépendent de l'API de la forge
-retenue ; échéance : à l'instanciation, si le projet retient le circuit de
-consultation outillé. Le projet qui les câble teste chaque automatisme sur son
-cas d'échec (R3) et respecte le sens unique du socle : l'automatisme signale
-et reflète, il n'arbitre pas.
+La question se pose naturellement après l'introduction d'un espace de noms
+d'arbitrage pour les spécifications : faut-il le même pour les anomalies et
+les demandes ? La réponse tient à ce que cet espace réglait réellement. Une
+spécification ne produit pas du logiciel mais **une décision** : entre « on en
+discute » et « c'est décidé », il y a une étape que la chaîne d'avancement
+ordinaire ne portait pas. Les anomalies et les demandes, elles, suivent déjà
+cette chaîne de bout en bout — leur ajouter un espace de noms d'état
+dupliquerait ce qui existe.
+
+D'où la règle : **une famille qualifie, elle ne positionne pas**. Un
+qualificatif qui commence à répondre à « où en est-on ? » est un état
+déguisé — et deux systèmes d'état sur une même issue, c'est la garantie qu'ils
+divergeront.
+
+Créer une famille demande une justification chiffrée : combien d'issues
+existantes en relèvent ? Un jeu d'étiquettes qui grossit sans que personne ne
+filtre dessus est un coût de saisie sans contrepartie.
+
+## Automatismes — fournis prêts à câbler, non câblés dans le gabarit
+
+<!-- [impl->req~automatismes-forge~1] -->
+
+Les automatismes de coordination vivent côté forge. Le gabarit les **fournit**
+dans [`templates/forge/`](../../templates/forge/README.md) — logique unique en
+POSIX sh, façades de déclenchement pour GitHub et GitLab (ADR-0007, ADR-0010),
+vocabulaire pris au lexique (ADR-0015) — et ne les **câble pas**.
+
+| Automatisme | Déclencheur | Effet |
+| --- | --- | --- |
+| lecture | commentaire `/vu` sur une consultation | coche la case du lecteur, le désassigne |
+| retombée | fusion modifiant un document consulté | décoche les lectures, réassigne, commente le comparatif |
+| à clôturer | liste de vérification complétée | pose l'étiquette de clôture, prévient l'auteur |
+| dormantes | planification hebdomadaire | rappelle les recettes sans activité |
+| fermeture | pose d'une sortie négative | ferme en « non planifiée » |
+
+**Portes non câblées** (R7) — raison : elles écrivent sur les issues d'une
+forge, donc exigent une API, un jeton et des droits que le gabarit n'a pas ;
+leur cas d'échec ne peut être éprouvé que sur un dépôt vivant. Échéance : à
+l'instanciation, si le projet retient le circuit de consultation outillé.
+
+Le projet qui les câble teste chaque automatisme sur son cas d'échec (R3) et
+respecte le sens unique du socle : **l'automatisme dérive l'état depuis
+l'acte, jamais l'inverse, et signale sans décider**. L'étiquette de clôture
+n'est jamais posée à la main — elle reflète l'état d'une liste ; et la poser
+ne ferme rien, la clôture revenant à l'auteur.
+
+Deux pièges vécus, à connaître avant de câbler : la retombée des lectures doit
+**exclure les documents de procédure** (cités par le gabarit d'issue, ils
+faisaient retomber toutes les consultations à la fois), et un rappel ne doit
+pas **se rappeler lui-même** — son propre commentaire rafraîchit l'activité de
+l'issue, ce qui est précisément la garde qui l'empêche de boucler.
+
+## Conformité des issues — un rapport, pas une porte
+
+<!-- [impl->req~conformite-issues~1] -->
+
+`tools/issues.sh` confronte les issues ouvertes au cycle de vie ci-dessus :
+étiquette d'état unique, assignation présente quand une attente existe,
+sortie négative jamais laissée sur une issue ouverte.
+
+Il est **délibérément hors de la porte de vérification**. Il appelle l'API de
+la forge, donc dépend du réseau et d'une session authentifiée — exactement ce
+que les portes évitent pour rester reproductibles sur un poste déconnecté. Il
+sert la revue de triage, pas l'intégration continue : la porte vérifie le
+dépôt, pas la conformité organisationnelle des issues. Sans session, il
+s'interrompt avec un message explicite et ne fait échouer aucune
+vérification.
 
 ## Arbitrer les défauts à l'instanciation
 

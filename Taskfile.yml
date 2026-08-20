@@ -35,12 +35,37 @@ tasks:
       - sh tools/secrets.sh scan
 
   ci:
-    desc: Tout ce que la CI exécute
+    desc: "Tout ce que la CI exécute (voie constatée) : task ci [-- --complet|--rapide]"
     cmds:
-      - task: trace
-      - task: check
-      - task: secrets
-      - 'echo "CI locale : OK."'
+      - sh tools/ci.sh {{.CLI_ARGS}}
+
+  liens:
+    desc: Intégrité des liens internes de la documentation
+    cmds:
+      - sh tools/liens.sh
+
+  audit:
+    desc: "Périmètre de l'audit de réalisation : task audit [-- --ecrire|--squelette <domaine>]"
+    cmds:
+      - sh tools/audit.sh {{.CLI_ARGS}}
+
+  derive:
+    desc: Anti-dérive des artefacts générés
+    cmds:
+      - sh tools/derive.sh
+
+  regen:
+    desc: Régénère tous les artefacts dérivés (feuille de route, suivi, audit, badges)
+    cmds:
+      - sh tools/todo.sh --ecrire
+      - sh tools/revues.sh --ecrire
+      - sh tools/audit.sh --ecrire
+      - sh tools/badges.sh --ecrire
+
+  issues:
+    desc: "Conformité des issues au cycle de vie (hors porte : réseau requis)"
+    cmds:
+      - sh tools/issues.sh
 
   hooks:
     desc: Installe les hooks git du dépôt
