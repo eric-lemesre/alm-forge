@@ -42,7 +42,7 @@ Covers:
 
 ## Le cycle de vie d'une exigence est respecté
 
-`mtest~cycle-de-vie-exigence~1`
+`mtest~cycle-de-vie-exigence~2`
 
 **Geste** — prendre les exigences dont la révision a été incrémentée depuis la
 version précédente et vérifier que chaque incrément était nécessaire (le sens
@@ -52,7 +52,7 @@ a changé, pas seulement la formulation) et que les sites tagués ont suivi.
 morte. Une exigence remplacée renvoie vers celle qui la remplace.
 
 Covers:
-- req~cycle-de-vie-exigence~1
+- req~cycle-de-vie-exigence~2
 
 ## Les questions ouvertes sont vivantes
 

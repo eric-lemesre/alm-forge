@@ -73,3 +73,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0015](0015-lexique-du-vocabulaire-outille.md) | Rassembler le vocabulaire outillé dans un lexique bilingue | Accepté |
 | [0016](0016-audit-de-realisation-distinct-de-la-tracabilite.md) | Séparer l'audit de réalisation de la traçabilité | Accepté |
 | [0017](0017-perimetre-de-la-porte-constate.md) | Constater le périmètre de la porte plutôt que le déclarer | Accepté |
+| [0018](0018-statut-de-cycle-de-vie-porte-par-l-exigence.md) | Porter le statut de cycle de vie au niveau de l'exigence | Accepté |

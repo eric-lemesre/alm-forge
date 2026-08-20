@@ -1,5 +1,6 @@
 #!/bin/sh
 # [utest->req~statut-specification~1]
+# [utest->req~cycle-de-vie-exigence~2]
 # [utest->req~releves-de-decision~1]
 # [utest->req~classification-exigences~1]
 # [utest->req~format-exigence-ears~1]
@@ -38,6 +39,8 @@ prepare() {
 ## Une exigence
 
 `req~exigence-de-demonstration~1`
+
+**Statut : approuvée**
 
 Le dépôt DOIT porter une exigence de démonstration.
 
@@ -138,6 +141,40 @@ sed '/D-2026-01-01/d' "${D}/docs/decisions/registre.md" > "${D}/x" && \
     mv "${D}/x" "${D}/docs/decisions/registre.md"
 cas_echec statuts "domaine ACTIVE non acté"
 
+echo "gouvernance-test — statuts : exigence sans ligne de statut"
+prepare
+sed '/^\*\*Statut : approuvée\*\*$/d' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+cas_echec statuts "exigence sans statut déclaré"
+
+echo "gouvernance-test — statuts : statut d AVANCEMENT déclaré à la main"
+# Le refus qui donne son sens au partage déclaré/calculé (ADR-0018) : un
+# « vérifiée » saisi se périme au premier remaniement, sans rien signaler.
+prepare
+sed 's/^\*\*Statut : approuvée\*\*$/**Statut : vérifiée**/' \
+    "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+cas_echec statuts "statut calculé écrit à la main"
+
+echo "gouvernance-test — statuts : exigence approuvée dans un domaine NON actif"
+# La règle qui empêche les deux axes de diverger.
+prepare
+sed 's/^\*\*Statut : ACTIVE\*\*.*$/**Statut : PROPOSITION** — pas encore actée./' \
+    "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+sed 's/| ACTIVE |/| PROPOSITION |/' "${D}/spec/02-exigences/README.md" > "${D}/y" && \
+    mv "${D}/y" "${D}/spec/02-exigences/README.md"
+cas_echec statuts "approbation dans un domaine en proposition"
+
+echo "gouvernance-test — statuts : un brouillon sort du dénominateur"
+prepare
+sed 's/^\*\*Statut : approuvée\*\*$/**Statut : brouillon**/' \
+    "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+# L exigence sort du périmètre de l audit : la fiche qui la juge encore vise
+# donc une exigence hors dénominateur, et la porte doit le dire.
+cas_echec audit "audit d une exigence sortie du dénominateur"
+
 echo "gouvernance-test — relevés : section de décisions vide"
 prepare
 printf '# Séance du 2026-01-01\n\n## Relevé de décisions\n\n' \
@@ -181,6 +218,8 @@ cat > "${D}/spec/02-exigences/domaine.md" <<'EOF'
 ## Une exigence
 
 `req~exigence-de-demonstration~1`
+
+**Statut : approuvée**
 
 Le dépôt porte une exigence de démonstration.
 

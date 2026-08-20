@@ -1,10 +1,19 @@
 # Requirements — {{ domain }} domain
 
+**Status: PROPOSED** — becomes ACTIVE when a register decision enacts it.
+
 <!-- Goes into spec/02-exigences/. One file per functional domain. -->
 
 ## {{ Readable requirement title }}
 
 `req~kebab-name~1`
+
+**Status: draft**
+
+<!-- Declared: draft · proposed · approved · rejected · deprecated.
+     NEVER declared: "implemented" and "verified" — they are COMPUTED from the
+     coverage actually present, and the gate refuses them if written by hand.
+     A requirement is only approved within an active domain (ADR-0018). -->
 
 {{ EARS phrasing with SHALL / SHOULD / MAY normative level:
 - Ubiquitous: The system SHALL …

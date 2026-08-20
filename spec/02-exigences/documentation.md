@@ -11,6 +11,8 @@ soumettent au même régime que le code — des contrôles qui échouent.
 
 `req~integrite-liens~1`
 
+**Statut : approuvée**
+
 Tout lien Markdown relatif de la documentation DOIT atteindre un fichier
 suivi par le gestionnaire de versions, et toute ancre citée DOIT correspondre
 à un titre existant du fichier visé. Le contrôle DOIT ignorer les liens
@@ -45,6 +47,8 @@ Needs: impl, utest
 
 `req~feuille-de-route-outillee~1`
 
+**Statut : approuvée**
+
 Chaque fiche de feuille de route DOIT porter une ligne de statut au
 vocabulaire du lexique, et l'index des fiches DOIT être généré depuis
 celles-ci plutôt que tenu à la main.
@@ -70,6 +74,8 @@ Needs: impl, utest
 ## Suivi consolidé des constats de revue
 
 `req~suivi-constats-revue~1`
+
+**Statut : approuvée**
 
 Les constats des revues de code DOIVENT être consolidés en un tableau de bord
 unique généré depuis les fiches, et aucun constat de sévérité haute NE DOIT
@@ -98,6 +104,8 @@ Needs: impl, utest
 ## Badges autonomes, sans service tiers
 
 `req~badges-autonomes~1`
+
+**Statut : approuvée**
 
 Les badges d'état affichés par la documentation DOIVENT être générés et
 versionnés localement, sans appel réseau ni service tiers, et dériver de

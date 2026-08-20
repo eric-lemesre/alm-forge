@@ -7,6 +7,31 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Écart d'audit tranché : le statut de cycle de vie est porté par
+  l'EXIGENCE** (ADR-0018, D-2026-08-17, `req~cycle-de-vie-exigence~2`).
+  L'arbitrage a retenu de tenir l'exigence et de l'outiller plutôt que de
+  l'abaisser au niveau du domaine — celui-ci mêle des exigences approuvées mais
+  non réalisées et d'autres livrées et prouvées, granularité trop grossière
+  pour la question posée.
+
+  Le statut se lit sur **deux parts** : déclarée (brouillon · proposée ·
+  approuvée · rejetée · dépréciée), qui relève du jugement, et **calculée**
+  (implémentée · vérifiée), dérivée des tags et des items de couverture
+  réellement présents. La porte **refuse** qu'un statut d'avancement soit écrit
+  à la main : un avancement saisi se périme au premier remaniement sans rien
+  signaler, et un tableau affichant « vérifiée » pour une exigence que plus
+  aucun test ne couvre inspire d'autant plus confiance qu'il donne un chiffre.
+
+  Le statut de **domaine** subsiste sur un axe orthogonal — il dit si le
+  document est arbitré, non où en est une réalisation. Une règle mécanisée
+  empêche les deux axes de diverger : une exigence n'est approuvée que dans un
+  domaine actif. Le dénominateur des taux passe à la granularité de
+  l'exigence : approuvée et au-delà comptent, le reste non.
+
+  Les 39 exigences portent leur statut ; l'avancement calculé s'établit à
+  **39 implémentées, 39 vérifiées**. Chapitre 13 réécrit sur les deux axes,
+  modèles d'exigence bilingues complétés, quatre cas d'échec ajoutés.
+
 - **Transposition des mécaniques ALM d'ergonomia** (D-2026-08-13 à
   D-2026-08-16), avec leur vocabulaire rendu bilingue. Seize mécaniques
   éprouvées sur un dépôt vivant et absentes de la fondation, chacune motivée
@@ -142,11 +167,11 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Connu
 
-- **Écart d'audit ouvert** : `req~cycle-de-vie-exigence~1` réclame un statut
-  par exigence (brouillon → proposée → … → vérifiée) ; le dépôt n'a jamais eu
-  que le statut de **domaine**. Écart révélé par la mise en place de l'audit,
-  présent depuis la fondation. À arbitrer — réviser l'exigence, ou outiller le
-  statut par exigence — par consultation, pas par correction silencieuse.
+- **Aucun écart d'audit ouvert.** Le seul qui l'était —
+  `req~cycle-de-vie-exigence~1`, révélé par la mise en place de l'audit et
+  présent depuis la fondation — a été tranché le jour même (ADR-0018) : il est
+  refermé, et son historique est conservé dans
+  `docs/audit/ingenierie-exigences.md`.
 
 ### Modifié
 

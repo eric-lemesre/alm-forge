@@ -1,5 +1,6 @@
 #!/bin/sh
 # [impl->req~statut-specification~1]
+# [impl->req~cycle-de-vie-exigence~2]
 # Statuts des domaines de spécification — le COMMUTATEUR de couverture.
 #
 # Un statut n'est pas une décoration : il commande le dénominateur. ACTIVE
@@ -9,10 +10,25 @@
 # — en-tête et index qui divergent, domaine déclaré ACTIVE sans décision qui
 # l'acte, exigences comptées d'un domaine jamais validé.
 #
-# Trois invariants, transposés d'ergonomia (doc 03 §6) :
+# DEUX AXES ORTHOGONAUX, à ne jamais confondre (ADR-0018) :
+#   - le statut du DOMAINE dit si le document est arbitré ;
+#   - le statut de l'EXIGENCE dit où en est sa réalisation.
+# Un domaine actif contient des exigences approuvées mais non réalisées et
+# d'autres livrées et prouvées : les compter ensemble revient à ne plus rien
+# pouvoir dire de l'avancement.
+#
+# Invariants du domaine, transposés d'ergonomia (doc 03 §6) :
 #   1. chaque domaine porte UN statut, pris au lexique ;
 #   2. un domaine ACTIVE est adossé à une décision du registre ;
 #   3. l'index des domaines et les en-têtes disent la même chose.
+#
+# Invariants de l'exigence (ADR-0018) :
+#   4. chaque exigence porte un statut DÉCLARÉ, pris au lexique ;
+#   5. les statuts d'AVANCEMENT ne se déclarent jamais : ils se calculent
+#      depuis les tags réellement posés — un « vérifiée » écrit à la main est
+#      un chiffre faux qui inspire d'autant plus confiance qu'il est affiché ;
+#   6. une exigence n'est approuvée que dans un domaine actif — c'est ce qui
+#      empêche les deux axes de diverger en silence.
 #
 #   sh tools/statuts.sh
 #
@@ -105,8 +121,102 @@ if [ -f "${INDEX}" ]; then
     done
 fi
 
+# --- Statuts des exigences (ADR-0018) ---------------------------------------
+# Tags de couverture réellement posés dans le dépôt, tous types aval confondus.
+# C'est la seule source de l'avancement : ce que le dépôt PROUVE, pas ce qu'une
+# ligne affirme.
+TAGS="$(git grep -hoE '\[(impl|utest|itest|stest|mtest)->req~[a-z0-9-]+~[0-9]+\]' \
+        2>/dev/null || true)"
+
+# La couverture ne passe pas QUE par des tags : une procédure de vérification
+# manuelle est un ITEM qui déclare « Covers: req~… ». L'ignorer ferait passer
+# pour non vérifiées les exigences que la méthode couvre justement à la main
+# — le contraire du but (méthode, ch. 5).
+COUVERTURES="$(awk '
+    /^`(mtest|dsn|utest|itest|stest)~[a-z0-9-]+~[0-9]+`[ \t]*$/ {
+        type = $0; sub(/~.*/, "", type); gsub(/`/, "", type); item_type = type; next
+    }
+    /^Covers:/ { dans = 1; next }
+    dans && /^- / { id = $0; sub(/^- /, "", id); print item_type "\t" id; next }
+    dans && NF == 0 { dans = 0 }
+' $(git ls-files 'docs/**/*.md' 'spec/**/*.md' 2>/dev/null) 2>/dev/null || true)"
+
+a_tag() {   # a_tag <identifiant> <types séparés par |>
+    printf '%s\n' "${TAGS}" | grep -qE "\[($2)->$1\]" && return 0
+    printf '%s\n' "${COUVERTURES}" | grep -qE "^($2)	$1\$"
+}
+
+nb_approuvees=0; nb_implementees=0; nb_verifiees=0; nb_autres=0
+
+for f in ${FICHIERS}; do
+    dom="${f##*/}"; dom="${dom%.md}"
+    dom_actif=0
+    lex_est SPEC_ACTIVE "$(statut_de "${f}")" && dom_actif=1
+
+    # Chaque exigence et la ligne de statut qui la suit.
+    exigences="$(awk '
+        /^`req~[a-z0-9-]+~[0-9]+`[ \t]*$/ {
+            id = $0; gsub(/`/, "", id); gsub(/[ \t]/, "", id); attente = 1; next
+        }
+        attente && /^\*\*/ {
+            st = $0
+            sub(/^[^:]*:[ \t]*/, "", st); sub(/\*\*[ \t]*$/, "", st)
+            gsub(/[ \t]+$/, "", st)
+            print id "\t" st "\t" FNR
+            attente = 0; next
+        }
+        attente && NF > 0 { print id "\t\t" FNR; attente = 0 }
+    ' "${f}")"
+
+    for entree in ${exigences}; do
+        id="${entree%%	*}"
+        reste="${entree#*	}"
+        statut="${reste%%	*}"
+        ligne="${reste##*	}"
+
+        # 4. statut déclaré, au vocabulaire.
+        if [ -z "${statut}" ]; then
+            echo "ÉCHEC : ${f}:${ligne} — ${id} : pas de ligne « **$(lex SECTION_STATUT) : …** »." >&2
+            echo "        Déclarés : $(lex EXIGENCE_BROUILLON) | $(lex EXIGENCE_PROPOSEE) | $(lex EXIGENCE_APPROUVEE) | $(lex EXIGENCE_REJETEE) | $(lex EXIGENCE_DEPRECIEE)" >&2
+            FAILURES=$((FAILURES + 1))
+            continue
+        fi
+
+        # 5. un statut d'avancement ne se déclare pas.
+        if lex_est EXIGENCE_IMPLEMENTEE "${statut}" || lex_est EXIGENCE_VERIFIEE "${statut}"; then
+            echo "ÉCHEC : ${f}:${ligne} — ${id} déclare « ${statut} », qui se CALCULE." >&2
+            echo "        Un avancement saisi se périme au premier remaniement, sans rien signaler." >&2
+            FAILURES=$((FAILURES + 1))
+            continue
+        fi
+
+        if lex_est EXIGENCE_APPROUVEE "${statut}"; then
+            # 6. compatibilité avec l'axe du domaine.
+            if [ "${dom_actif}" -eq 0 ]; then
+                echo "ÉCHEC : ${f}:${ligne} — ${id} est approuvée dans un domaine non actif." >&2
+                FAILURES=$((FAILURES + 1))
+                continue
+            fi
+            nb_approuvees=$((nb_approuvees + 1))
+            # Avancement CALCULÉ.
+            if a_tag "${id}" "impl"; then
+                nb_implementees=$((nb_implementees + 1))
+                a_tag "${id}" "utest|itest|stest|mtest" && nb_verifiees=$((nb_verifiees + 1))
+            fi
+        elif lex_est EXIGENCE_BROUILLON "${statut}" || lex_est EXIGENCE_PROPOSEE "${statut}" \
+          || lex_est EXIGENCE_REJETEE "${statut}" || lex_est EXIGENCE_DEPRECIEE "${statut}"; then
+            nb_autres=$((nb_autres + 1))
+        else
+            echo "ÉCHEC : ${f}:${ligne} — ${id} : statut hors lexique « ${statut} »." >&2
+            FAILURES=$((FAILURES + 1))
+        fi
+    done
+done
+
 if [ "${FAILURES}" -gt 0 ]; then
     echo "${FAILURES} défaut(s) de statut." >&2
     exit 1
 fi
-echo "Statuts des domaines : OK."
+echo "Statuts : OK — domaines conformes ; ${nb_approuvees} exigence(s) approuvée(s)"
+printf '  avancement calculé : %s implémentée(s), %s vérifiée(s)' "${nb_implementees}" "${nb_verifiees}"
+[ "${nb_autres}" -eq 0 ] && echo "." || echo " ; ${nb_autres} hors dénominateur."

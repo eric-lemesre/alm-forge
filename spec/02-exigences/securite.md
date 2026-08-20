@@ -7,6 +7,8 @@ le dénominateur des taux d'audit et de classification (méthode, ch. 13).
 
 `req~detection-secrets~1`
 
+**Statut : approuvée**
+
 Si un secret (clé d'API, jeton, mot de passe, clé privée) est présent dans une
 contribution, alors les portes DOIVENT le détecter et refuser la contribution
 en CI ; le hook local DOIT effectuer la même détection sur les fichiers
@@ -38,6 +40,8 @@ Needs: dsn, impl, utest
 ## Cadre de sécurité continue
 
 `req~securite-continue~1`
+
+**Statut : approuvée**
 
 Le dépôt DOIT fournir un cadre de sécurité continue documenté et outillable :
 modélisation légère des menaces (STRIDE) exigée pour les exigences de niveau
