@@ -1,7 +1,7 @@
 # 2. Exigences
 
 <!-- [impl->req~format-exigence-ears~1] -->
-<!-- [impl->req~cycle-de-vie-exigence~1] -->
+<!-- [impl->req~cycle-de-vie-exigence~2] -->
 
 Une exigence est un contrat vérifiable entre le besoin et la réalisation.
 Format acté par l'[ADR-0004](../adr/0004-rediger-les-exigences-selon-ears.md) :

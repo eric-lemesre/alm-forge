@@ -48,9 +48,13 @@ FICHIERS="$(git ls-files 'spec/02-exigences/*.md' 2>/dev/null | \
 # shellcheck disable=SC2086 — découpe en mots voulue.
 awk -v doit="$(lex NORM_DOIT)" \
     -v devrait="$(lex NORM_DEVRAIT)" \
-    -v peut="$(lex NORM_PEUT)" '
+    -v peut="$(lex NORM_PEUT)" \
+    -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" '
 function solder(   niveau, teste) {
     if (id == "") return
+    # Dénominateur : les exigences approuvées (ADR-0018). Un brouillon n’a pas
+    # à porter un niveau de vérification : ce n’est pas encore un engagement.
+    if (statut !~ ("^" approuvee "$")) { id = ""; enonce = ""; needs = ""; statut = ""; return }
     niveau = ""
     # L’ordre compte : une exigence qui dit DOIT et DEVRAIT dans le même
     # énoncé est de niveau DOIT — le plus contraignant l’emporte.
@@ -77,7 +81,7 @@ function solder(   niveau, teste) {
         }
     }
     if (teste) mecanisees[niveau]++
-    id = ""; enonce = ""; needs = ""
+    id = ""; enonce = ""; needs = ""; statut = ""
 }
 
 FNR == 1 { solder(); fichier = FILENAME }
@@ -87,8 +91,19 @@ FNR == 1 { solder(); fichier = FILENAME }
     solder()
     id = $0; gsub(/`/, "", id); gsub(/[ \t]/, "", id)
     dans_enonce = 1
+    attente_statut = 1
     next
 }
+
+# Ligne de statut, juste sous l’identifiant.
+attente_statut && /^\*\*/ {
+    statut = $0
+    sub(/^[^:]*:[ \t]*/, "", statut); sub(/\*\*[ \t]*$/, "", statut)
+    gsub(/[ \t]+$/, "", statut)
+    attente_statut = 0
+    next
+}
+attente_statut && NF > 0 { attente_statut = 0 }
 
 id == "" { next }
 

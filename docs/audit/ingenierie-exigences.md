@@ -6,16 +6,19 @@ Miroir de [`spec/02-exigences/ingenierie-exigences.md`](../../spec/02-exigences/
 | --- | --- | --- |
 | `req~expression-du-besoin~1` | conforme | `spec/01-besoins/besoins.md` (6 besoins, chacun avec rationale et `Needs: req`) ; modèles `need.md` fr/en ; procédure `mtest~besoin-capture-intention~1` |
 | `req~format-exigence-ears~1` | conforme | méthode ch. 2 ; niveau normatif vérifié mécaniquement par `tools/classification.sh` ; la clarté relève de `mtest~redaction-ears~1` |
-| `req~cycle-de-vie-exigence~1` | écart | **aucune exigence ne porte de statut individuel.** Le dépôt ne connaît que le statut de DOMAINE (`tools/statuts.sh`, méthode ch. 13). La seconde moitié de l'énoncé — la révision de l'identifiant change quand le fond change — est bien tenue et vérifiée par OpenFastTrace |
+| `req~cycle-de-vie-exigence~2` | conforme | statut déclaré sur chacune des 39 exigences, avancement CALCULÉ depuis les tags et les items de couverture (`tools/statuts.sh`) ; les trois refus — statut absent, statut d'avancement déclaré, approbation dans un domaine non actif — sont éprouvés par `tools/gouvernance-test.sh` ; ADR-0018 |
 | `req~questions-ouvertes~1` | conforme | `spec/open-questions.md`, méthode ch. 6, modèles `open-question.md` fr/en ; procédure `mtest~questions-ouvertes-vivantes~1` |
 
 ## Écarts ouverts
 
-- `req~cycle-de-vie-exigence~1` — l'énoncé réclame un statut par exigence
-  (brouillon → proposée → approuvée → implémentée → vérifiée) ; le dépôt n'en
-  a jamais eu. Écart **révélé par la mise en place de l'audit**, pas par une
-  régression : il existait depuis la fondation sans que rien ne le signale.
-  Deux issues possibles, à arbitrer : réviser l'exigence pour porter le statut
-  au niveau du domaine — ce que la pratique a spontanément adopté — ou
-  outiller le statut par exigence. À trancher par consultation, pas par
-  correction silencieuse.
+- Aucun.
+
+## Écarts refermés
+
+- `req~cycle-de-vie-exigence~1` → **révision 2**, écart tranché le 2026-08-20
+  (D-2026-08-17, ADR-0018). L'arbitrage a retenu de **tenir l'exigence et de
+  l'outiller** plutôt que de l'abaisser au niveau du domaine : le domaine est
+  une granularité trop grossière pour la question posée, puisqu'il mêle des
+  exigences approuvées mais non réalisées et d'autres livrées et prouvées.
+  La révision 2 apporte ce que l'énoncé initial ne disait pas — le vocabulaire,
+  le partage déclaré/calculé, et l'articulation avec le statut de domaine.

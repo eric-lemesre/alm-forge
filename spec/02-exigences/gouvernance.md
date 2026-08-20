@@ -7,6 +7,8 @@ le dénominateur des taux d'audit et de classification (méthode, ch. 13).
 
 `req~gouvernance-agents~1`
 
+**Statut : approuvée**
+
 Le dépôt DOIT porter un contrat de gouvernance unique (AGENTS.md) faisant
 autorité sur toute consigne de session, applicable à tout agent humain ou IA,
 listant des règles non négociables chacune adossée à un moyen de vérification.
@@ -30,6 +32,8 @@ Needs: dsn, impl, mtest
 
 `req~bilinguisme-templates~1`
 
+**Statut : approuvée**
+
 Les modèles d'artefacts (ADR, besoin, exigence, question ouverte, relevé de
 décision, revue de code) DOIVENT être fournis en français et en anglais, avec
 les mêmes noms de fichiers dans les deux arborescences ; la parité DOIT être
@@ -43,6 +47,8 @@ Needs: dsn, impl, utest
 ## Instanciation outillée
 
 `req~instanciation-outillee~1`
+
+**Statut : approuvée**
 
 Quand un projet est instancié depuis le gabarit, le dépôt DOIT fournir un
 script d'initialisation qui personnalise l'identité du projet (nom, porteur),
@@ -72,6 +78,8 @@ Needs: impl, utest
 ## Onboarding outillé des contributeurs
 
 `req~onboarding-outille~2`
+
+**Statut : approuvée**
 
 Quand un contributeur clone un projet issu du gabarit, le dépôt DOIT fournir
 un script d'accueil idempotent qui vérifie les prérequis du socle, exécute le
@@ -121,6 +129,8 @@ Needs: dsn, impl, utest
 
 `req~politique-attribution-agents~2`
 
+**Statut : approuvée**
+
 Quand un projet est instancié depuis le gabarit, la politique de mention de
 l'IA dans les commits (obligatoire, autorisée ou interdite) DOIT être arbitrée
 par l'instanciateur et appliquée mécaniquement par le hook commit-msg. Si
@@ -156,6 +166,8 @@ Needs: dsn, impl, utest
 
 `req~politique-langue~1`
 
+**Statut : approuvée**
+
 Quand un projet est instancié depuis le gabarit, la langue du dépôt (fr, en ou
 fr-en) DOIT être arbitrée par l'instanciateur : les artefacts générés et le
 jeu de modèles conservé suivent ce choix, et la porte de parité des templates
@@ -187,6 +199,8 @@ Needs: dsn, impl, utest
 
 `req~portabilite-forges~1`
 
+**Statut : approuvée**
+
 Les portes qualité DOIVENT être exécutables sans aucune forge (scripts locaux
 et hooks git), et le dépôt DOIT fournir des configurations d'intégration
 continue de délégation pure pour GitHub et GitLab, exécutant les mêmes étapes
@@ -214,6 +228,8 @@ Needs: dsn, impl, utest
 ## Nettoyage outillé du dépôt local
 
 `req~nettoyage-outille~1`
+
+**Statut : approuvée**
 
 Le dépôt DOIT fournir un mécanisme de nettoyage local idempotent qui supprime
 les artefacts générés du socle (rapports ; cache d'outillage sur demande
@@ -249,6 +265,8 @@ Needs: impl, utest
 
 `req~versionnement-release~1`
 
+**Statut : approuvée**
+
 Le dépôt DOIT être versionné en SemVer avec un journal des changements au
 format Keep a Changelog ; la cohérence entre le fichier VERSION et le journal
 DOIT être vérifiée mécaniquement avant publication.
@@ -261,6 +279,8 @@ Needs: impl, utest
 ## Lexique du vocabulaire outillé
 
 `req~lexique-outille~1`
+
+**Statut : approuvée**
 
 Les termes que les portes reconnaissent — statuts, niveaux normatifs,
 verdicts, gravités, étiquettes de forge, commandes de consultation — DOIVENT

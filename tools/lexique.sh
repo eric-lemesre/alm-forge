@@ -122,6 +122,23 @@ lex_def SPEC_ACTIVE      "ACTIVE"      "ACTIVE"
 lex_def SPEC_OBSOLETE    "OBSOLÈTE"    "OBSOLETE"
 
 # ---------------------------------------------------------------------------
+# Cycle de vie d'une EXIGENCE (méthode, ch. 13) — à ne pas confondre avec le
+# statut d'un DOMAINE ci-dessus : celui-ci dit si le document est arbitré,
+# celui-là où en est la réalisation d'une exigence donnée.
+#
+# Les cinq premiers se DÉCLARENT : ils relèvent du jugement. Les deux derniers
+# se CALCULENT depuis la couverture réelle et ne s'écrivent jamais à la main —
+# un avancement saisi est un chiffre faux en puissance (ch. 4).
+# ---------------------------------------------------------------------------
+lex_def EXIGENCE_BROUILLON   "brouillon" "draft"
+lex_def EXIGENCE_PROPOSEE    "proposée"  "proposed"
+lex_def EXIGENCE_APPROUVEE   "approuvée" "approved"
+lex_def EXIGENCE_REJETEE     "rejetée"   "rejected"
+lex_def EXIGENCE_DEPRECIEE   "dépréciée" "deprecated"
+lex_def EXIGENCE_IMPLEMENTEE "implémentée" "implemented"
+lex_def EXIGENCE_VERIFIEE    "vérifiée"    "verified"
+
+# ---------------------------------------------------------------------------
 # Niveaux normatifs — EARS (méthode, ch. 2). Le pluriel compte : une exigence
 # rédigée « les portes DOIVENT » doit être classée comme « DOIT ».
 # ---------------------------------------------------------------------------

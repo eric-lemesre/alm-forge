@@ -1,10 +1,22 @@
 # Exigences — domaine {{ domaine }}
 
-<!-- À placer dans spec/02-exigences/. Un fichier par domaine fonctionnel. -->
+**Statut : PROPOSITION** — passe ACTIVE quand une décision du registre l'acte.
+
+<!-- À placer dans spec/02-exigences/. Un fichier par domaine fonctionnel.
+     Le statut ci-dessus est celui du DOMAINE : il dit si le document est
+     arbitré. Celui de chaque exigence, ci-dessous, dit où en est SA
+     réalisation. Deux axes, deux questions (ADR-0018). -->
 
 ## {{ Titre lisible de l'exigence }}
 
 `req~nom-en-kebab~1`
+
+**Statut : brouillon**
+
+<!-- Déclarés : brouillon · proposée · approuvée · rejetée · dépréciée.
+     JAMAIS déclarés : « implémentée » et « vérifiée » — ils se CALCULENT
+     depuis la couverture réellement posée, et la porte refuse qu'on les
+     écrive. Une exigence n'est approuvée que dans un domaine actif. -->
 
 {{ Formulation EARS avec niveau normatif DOIT / DEVRAIT / PEUT :
 - Ubiquitaire : Le système DOIT …

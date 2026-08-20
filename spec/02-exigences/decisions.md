@@ -10,6 +10,8 @@ Niveaux normatifs : DOIT / DEVRAIT / PEUT.
 
 `req~registre-adr~1`
 
+**Statut : approuvée**
+
 Le dépôt DOIT fournir un registre d'ADR : un répertoire dédié, une charte
 (cycle de vie, numérotation continue, immuabilité des ADR acceptés) et un
 modèle prêt à remplir.
@@ -29,6 +31,8 @@ Needs: dsn, impl, utest
 ## Section Vérification obligatoire
 
 `req~adr-verification~1`
+
+**Statut : approuvée**
 
 Lorsqu'un ADR passe au statut « Accepté », le dépôt DOIT vérifier mécaniquement
 qu'il comporte une section « Vérification » décrivant comment on sait que la
@@ -52,6 +56,8 @@ Needs: impl, utest
 ## Statut des domaines de spécification
 
 `req~statut-specification~1`
+
+**Statut : approuvée**
 
 Chaque domaine de spécification DOIT porter un statut au vocabulaire du
 lexique ; un domaine actif DOIT être adossé à une décision du registre, et
@@ -80,6 +86,8 @@ Needs: impl, utest
 ## Relevés de séance et registre
 
 `req~releves-de-decision~1`
+
+**Statut : approuvée**
 
 Tout relevé de séance DOIT porter une section de décisions non vide et non
 laissée à l'état de gabarit ; toute décision citée dans un relevé DOIT figurer
@@ -112,6 +120,8 @@ Needs: impl, utest
 ## Journal du dépôt et journal du logiciel
 
 `req~journaux-depot-et-logiciel~1`
+
+**Statut : approuvée**
 
 Le journal du dépôt et le journal du logiciel DOIVENT être distincts dès lors
 que le projet livre un logiciel, et toute section de version publiée DOIT être

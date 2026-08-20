@@ -73,11 +73,23 @@ fi
 # le réel ne contrôle plus rien.
 PLAFOND_NON_EXAMINEES=0
 
-# Exigences définies : « `req~nom~n` » seul sur sa ligne (méthode, ch. 4).
+# Exigences AUDITABLES : définies (« `req~nom~n` » seul sur sa ligne, méthode
+# ch. 4) ET approuvées. Une exigence encore en brouillon ou en proposition n'a
+# pas à être jugée sur sa réalisation — l'auditer reviendrait à reprocher à un
+# texte en cours d'écriture de n'être pas encore livré (ADR-0018).
 exigences_du_domaine() {
-    awk '/^`req~[a-z0-9-]+~[0-9]+`[ \t]*$/ {
-            id = $0; gsub(/`/, "", id); gsub(/[ \t]/, "", id); print id
-         }' "$1"
+    awk -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" '
+        /^`req~[a-z0-9-]+~[0-9]+`[ \t]*$/ {
+            id = $0; gsub(/`/, "", id); gsub(/[ \t]/, "", id); attente = 1; next
+        }
+        attente && /^\*\*/ {
+            st = $0; sub(/^[^:]*:[ \t]*/, "", st); sub(/\*\*[ \t]*$/, "", st)
+            gsub(/[ \t]+$/, "", st)
+            if (st ~ ("^" approuvee "$")) print id
+            attente = 0; next
+        }
+        attente && NF > 0 { attente = 0 }
+    ' "$1"
 }
 
 # Lignes du tableau d'audit : identifiant en colonne 1, verdict en colonne 2.

@@ -11,6 +11,8 @@ réduit — en consignant son arbitrage au registre des décisions du projet.
 
 `req~issues-etat-attente-acte~2`
 
+**Statut : approuvée**
+
 Sur une issue, les trois artefacts de coordination DOIVENT garder des rôles
 distincts et jamais échangés : l'étiquette porte l'**état** (où en est
 l'issue), l'assignation porte l'**attente** (de qui le prochain geste dépend),
@@ -51,6 +53,8 @@ Needs: dsn, impl, mtest
 ## Trois flux, une taxonomie d'avancement — défaut arbitrable
 
 `req~issues-flux-avancement~2`
+
+**Statut : approuvée**
 
 Quand un projet est instancié depuis le gabarit, les flux de coordination et
 le jeu d'étiquettes DOIVENT être arbitrés par l'instanciateur — adoption,
@@ -100,6 +104,8 @@ Needs: dsn, impl, mtest
 
 `req~issues-triage-priorites~2`
 
+**Statut : approuvée**
+
 Quand un projet est instancié depuis le gabarit, la grille de triage DOIT
 être arbitrée par l'instanciateur et consignée au registre des décisions du
 projet. Si aucun choix explicite n'est exprimé, alors le défaut du gabarit
@@ -141,6 +147,8 @@ Needs: dsn, impl, mtest
 
 `req~conformite-issues~1`
 
+**Statut : approuvée**
+
 Le dépôt DEVRAIT fournir un contrôle de conformité des issues ouvertes au
 cycle de vie déclaré — étiquette d'état unique, assignation présente quand
 une attente existe, sortie négative motivée. Ce contrôle NE DOIT PAS être
@@ -168,6 +176,8 @@ Needs: impl, mtest
 ## Automatismes de forge
 
 `req~automatismes-forge~1`
+
+**Statut : approuvée**
 
 Les automatismes de coordination — accusé de lecture d'une consultation,
 retombée des lectures quand le document consulté change, pose de l'étiquette

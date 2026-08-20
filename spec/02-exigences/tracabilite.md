@@ -7,6 +7,8 @@ le dénominateur des taux d'audit et de classification (méthode, ch. 13).
 
 `req~tracabilite-outillee~1`
 
+**Statut : approuvée**
+
 La chaîne besoin → exigence → conception → implémentation → test DOIT être
 vérifiée par un outil indépendant du langage qui échoue (code retour non nul)
 dès qu'un maillon manque : exigence sans couverture, couverture pointant un
@@ -28,6 +30,8 @@ Needs: dsn, impl, utest
 
 `req~porte-ci~1`
 
+**Statut : approuvée**
+
 Lorsqu'un commit est poussé ou qu'une pull request est ouverte, la CI DOIT
 rejouer la traçabilité et les contrôles de cohérence, et DOIT échouer si l'un
 d'eux échoue. Toute porte documentée DOIT être câblée dans la CI, ou marquée
@@ -45,6 +49,8 @@ Needs: impl, mtest
 ## Garde-fous locaux
 
 `req~garde-fous-locaux~1`
+
+**Statut : approuvée**
 
 Le dépôt DOIT fournir des hooks git (pre-commit, commit-msg) reproduisant les
 portes de la CI en local : traçabilité, contrôles de cohérence, format des
@@ -67,6 +73,8 @@ Needs: impl, utest
 
 `req~tests-mecanises~1`
 
+**Statut : approuvée**
+
 Chaque exigence testable DOIT être couverte par au moins un test automatisé
 tagué avec son identifiant, au niveau approprié (unitaire, intégration,
 système). Les exigences non automatisables DOIVENT être couvertes par une
@@ -83,6 +91,8 @@ Needs: impl, mtest
 
 `req~exemple-multilangage~1`
 
+**Statut : approuvée**
+
 Le dépôt DOIT contenir un exemple exécutant la chaîne complète (besoin,
 exigences, décision, implémentations, tests tagués) dans au moins trois
 langages différents, pour démontrer l'agnosticisme du dispositif et servir de
@@ -96,6 +106,8 @@ Needs: impl, utest
 ## Périmètre de la porte constaté
 
 `req~perimetre-constate~1`
+
+**Statut : approuvée**
 
 Le périmètre de vérification DOIT être déduit du changement réel — commits
 depuis la base de fusion, index, arbre de travail et fichiers non suivis — et
@@ -127,6 +139,8 @@ Needs: dsn, impl, utest
 
 `req~anti-derive-generes~1`
 
+**Statut : approuvée**
+
 Tout artefact généré DOIT être régénéré puis comparé à sa version versionnée
 par une porte, et cette porte DOIT vérifier au préalable que l'artefact est
 suivi par le gestionnaire de versions.
@@ -154,6 +168,8 @@ Needs: impl, utest
 ## Classification des exigences
 
 `req~classification-exigences~1`
+
+**Statut : approuvée**
 
 Toute exigence DOIT porter un niveau normatif explicite dans son énoncé, et
 toute exigence de niveau le plus contraignant DOIT déclarer un niveau de
@@ -187,6 +203,8 @@ Needs: impl, utest
 ## Audit de réalisation
 
 `req~audit-de-realisation~1`
+
+**Statut : approuvée**
 
 Le dépôt DOIT porter un audit de réalisation distinct de la traçabilité, où
 chaque exigence d'un domaine actif reçoit un verdict écrit à la main —
