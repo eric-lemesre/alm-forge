@@ -125,13 +125,22 @@ EX="${ROOT}/examples/demo-multi-langages/src/notify.sh"
 if [ ! -f "${EX}" ]; then
     echo "ÉCHEC : exemple shell absent : ${EX}" >&2
     fail=1
+elif ! command -v bash >/dev/null 2>&1; then
+    echo "  (bash absent — implémentation shell de l'exemple non exécutée)"
 else
-    sortie="$(sh -c ". '${EX}'; notifier 'tâche' 3 1")"
+    # L'exemple déclare bash (`set -o pipefail`, `local`) : c'est son droit —
+    # le gabarit est agnostique du langage, et cet exemple démontre justement
+    # des langages réels. L'invoquer avec « sh » le casse là où /bin/sh n'est
+    # pas bash : « Illegal option -o pipefail ». Défaut attrapé par la CI
+    # (ubuntu, /bin/sh → dash) après être passé en local — la preuve, s'il en
+    # fallait une, qu'un test doit invoquer l'interpréteur que son sujet
+    # déclare, pas celui du script qui le teste.
+    sortie="$(bash -c ". '${EX}'; notifier 'tâche' 3 1")"
     case "${sortie}" in
         "[OK] tâche (3 s)") ;;
         *) echo "ÉCHEC : sortie inattendue de l'exemple : « ${sortie} »" >&2 ; fail=1 ;;
     esac
-    sortie_ko="$(sh -c ". '${EX}'; notifier 'tâche' 3 0")"
+    sortie_ko="$(bash -c ". '${EX}'; notifier 'tâche' 3 0")"
     case "${sortie_ko}" in
         "[ÉCHEC] tâche (3 s)") ;;
         *) echo "ÉCHEC : l'échec n'est pas signalé distinctement : « ${sortie_ko} »" >&2 ; fail=1 ;;
