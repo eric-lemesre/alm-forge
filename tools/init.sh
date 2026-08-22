@@ -156,7 +156,7 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          tools/setup.sh tools/setup-test.sh \
          tools/clean.sh tools/clean-test.sh \
          tools/secrets.sh tools/secrets-test.sh \
-         .github/workflows/ci.yml .gitlab-ci.yml \
+         .github/workflows/*.yml .gitlab-ci.yml \
          .github/ISSUE_TEMPLATE/*.yml .gitlab/issue_templates/*.md; do
     [ -f "${f}" ] || continue
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \
