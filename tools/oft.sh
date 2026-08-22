@@ -34,6 +34,17 @@ require_java() {
     }
 }
 
+# Empreinte SHA-256 portable : shasum (macOS, Git pour Windows) ou sha256sum
+# (Linux minimal, runners CI). Un appel `shasum` en dur casse sur la plupart
+# des images Linux minimales — remontée d'un projet instancié.
+sha256_of() {
+    if command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$1"
+    else
+        sha256sum "$1"
+    fi
+}
+
 fetch_jar() {
     if [ ! -f "${JAR}" ]; then
         mkdir -p "${ROOT}/.cache"
@@ -43,7 +54,7 @@ fetch_jar() {
     fi
     # L'empreinte est vérifiée à chaque exécution : un jar altéré ou corrompu
     # doit échouer bruyamment, jamais tracer en silence.
-    set -- $(shasum -a 256 "${JAR}")
+    set -- $(sha256_of "${JAR}")
     if [ "$1" != "${OFT_SHA256}" ]; then
         echo "ERREUR : empreinte SHA-256 du jar OpenFastTrace invalide (${JAR})." >&2
         echo "Supprimez le fichier et relancez pour retélécharger." >&2
