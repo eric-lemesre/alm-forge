@@ -459,7 +459,10 @@ sh tools/badges.sh --ecrire >/dev/null
 git add docs/todo docs/audit docs/revues docs/badges >/dev/null 2>&1 || true
 
 echo "12/12 — Vérification finale (traçabilité + cohérence)"
-sh tools/ci.sh --rapide
+# Environnement assaini (défense en profondeur, en plus de la primauté de
+# l'argument dans ci.sh) : un CI_COMPLET hérité de la CI appelante ne doit
+# jamais transformer cette vérification documentaire en voie complète.
+CI_COMPLET=0 sh tools/ci.sh --rapide
 
 cat <<EOF
 
