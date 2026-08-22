@@ -43,6 +43,22 @@
 11. Porter le verdict d'audit des exigences touchées (`docs/audit/`) : la
     traçabilité dit que le maillon existe, l'audit dit qu'il tient.
 
+### Sous-agents — déléguer l'exploration, garder la rédaction
+
+Quand l'outillage de l'assistant propose des sous-agents, les utiliser
+lorsque c'est pertinent, pour préserver le contexte de la session
+(convention éprouvée sur un projet instancié) :
+
+- **Déléguer** les tâches d'**exploration** : fouille large du dépôt,
+  recherches documentaires, analyses transverses dont seule la conclusion
+  importe — le sous-agent lit beaucoup, ne rapporte que l'essentiel.
+- **Garder en direct** les **éditions normatives**, où la précision du texte
+  prime : exigences et items OpenFastTrace, messages de commit — déléguer
+  obligerait à transmettre les textes exacts et coûterait plus qu'éditer
+  directement.
+- Les sous-agents lancés en parallèle le sont **en un seul envoi** ; on ne
+  relance pas soi-même une recherche déjà déléguée.
+
 ## 3. Commandes
 
 L'orchestrateur est une façade interchangeable (ADR-0007) : la logique vit

@@ -36,6 +36,17 @@ plateforme() {
     echo "${_os}_${_arch}"
 }
 
+# Empreinte SHA-256 portable : shasum (macOS, Git pour Windows) ou sha256sum
+# (Linux minimal, runners CI). Un appel `shasum` en dur casse sur la plupart
+# des images Linux minimales — remontée d'un projet instancié.
+sha256_of() {
+    if command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$1"
+    else
+        sha256sum "$1"
+    fi
+}
+
 obtenir_gitleaks() {
     # 1. binaire épinglé déjà en cache ;
     if [ -x "${BIN}" ]; then return 0; fi
@@ -48,7 +59,7 @@ obtenir_gitleaks() {
     echo "Téléchargement de gitleaks ${GL_VERSION} (${_pf})…" >&2
     curl -fsSL -o "${ROOT}/.cache/${_archive}" \
         "https://github.com/gitleaks/gitleaks/releases/download/v${GL_VERSION}/${_archive}" || return 1
-    set -- $(shasum -a 256 "${ROOT}/.cache/${_archive}")
+    set -- $(sha256_of "${ROOT}/.cache/${_archive}")
     if [ "$1" != "${_sha}" ]; then
         echo "ERREUR : empreinte SHA-256 de l'archive gitleaks invalide." >&2
         rm -f "${ROOT}/.cache/${_archive}"

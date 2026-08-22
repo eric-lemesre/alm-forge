@@ -33,7 +33,12 @@ case "${1:-}" in
     "") ;;
     *) echo "Usage : sh tools/ci.sh [--complet | --rapide]" >&2 ; exit 2 ;;
 esac
-[ "${CI_COMPLET:-0}" != "1" ] || FORCE="complet"
+# L'ARGUMENT EXPLICITE PRIME sur l'environnement. Sans cette garde, un
+# CI_COMPLET=1 hérité re-force en voie complète le « ci.sh --rapide » que
+# lance la vérification finale d'init.sh — la voie complète relance
+# init-test, qui relance ci.sh : récursion infinie constatée à la remontée
+# (un niveau toutes les ~9 s, plus de 700 processus avant l'arrêt manuel).
+[ -n "${FORCE}" ] || [ "${CI_COMPLET:-0}" != "1" ] || FORCE="complet"
 
 if [ -n "${FORCE}" ]; then
     voie="${FORCE}"

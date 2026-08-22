@@ -209,6 +209,48 @@ if ! porte; then
     fail=1
 fi
 
+echo "liens-test — ancre GitHub d'un titre à tiret cadratin et sigle parenthésé"
+# GitHub retire la ponctuation typographique et transforme chaque espace en
+# tiret sans fusion : « ## 2. AI Act — obligations (SIGLE) » donne l'ancre
+# « #2-ai-act--obligations-sigle ». L'ancienne slug() gardait le cadratin,
+# fusionnait les espaces et avalait « (SIGLE) » : faux positif systématique.
+prepare
+cat > "${TMP}/depot/docs/cible.md" <<'EOF'
+# Document
+
+## 2. AI Act — obligations (SIGLE)
+
+Contenu.
+EOF
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+[Obligations](docs/cible.md#2-ai-act--obligations-sigle)
+EOF
+commit
+if ! porte; then
+    echo "ÉCHEC : faux positif sur l'ancre GitHub d'un titre à tiret cadratin" >&2
+    fail=1
+fi
+
+echo "liens-test — la même ancre mal orthographiée doit toujours échouer"
+prepare
+cat > "${TMP}/depot/docs/cible.md" <<'EOF'
+# Document
+
+## 2. AI Act — obligations (SIGLE)
+EOF
+cat > "${TMP}/depot/README.md" <<'EOF'
+# Accueil
+
+[Obligations](docs/cible.md#2-ai-act-obligations)
+EOF
+commit
+if porte; then
+    echo "ÉCHEC : ancre inexistante non signalée après l'alignement GitHub" >&2
+    fail=1
+fi
+
 if [ "${fail}" -ne 0 ]; then
     echo "liens-test : ÉCHEC." >&2
     exit 1

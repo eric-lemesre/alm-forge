@@ -105,12 +105,20 @@ function slug(s,    t) {
     t = s
     gsub(/`/, "", t)                       # code inline
     gsub(/\*\*|\*|__|_/, "", t)            # emphase
-    gsub(/\[|\]/, "", t)                   # liens dans les titres
-    gsub(/\([^)]*\)/, "", t)               #   … et leur cible
+    gsub(/\]\([^)]*\)/, "", t)             # cible des liens dans les titres
+    gsub(/\[|\]/, "", t)                   #   … et leurs crochets
     t = tolower(t)
     gsub(/[!"#$%&'"'"'()*+,.\/:;<=>?@\\^{|}~]/, "", t)
+    # Ponctuation typographique française : GitHub la retire aussi. Remontée
+    # depuis un projet instancié dont les titres emploient le tiret cadratin
+    # (« 01 — Gestion… ») : sans cette ligne, chaque ancre vers eux est un
+    # faux positif — et un contenu parenthésé non-lien (« (SIGLE) ») était
+    # avalé par la règle précédente, alors que GitHub le garde.
+    gsub(/—|–|«|»|…|'"'"'/, "", t)
     gsub(/^[ \t]+|[ \t]+$/, "", t)
-    gsub(/[ \t]+/, "-", t)
+    # Chaque espace devient UN tiret, sans fusion : GitHub transforme les
+    # espaces un à un (« act — obligations » → « act--obligations »).
+    gsub(/[ \t]/, "-", t)
     return t
 }
 

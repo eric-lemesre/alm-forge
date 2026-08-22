@@ -10,6 +10,12 @@ on:
     branches: [main]
   pull_request:
 
+# Un push qui en remplace un autre annule la CI devenue caduque : le verdict
+# utile est celui du dernier état, pas celui d'un état déjà réécrit.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 # Moindre privilège : lecture seule — aucun job n'écrit dans le dépôt.
 permissions:
   contents: read
@@ -30,6 +36,15 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+
+      # Cache de l'outillage téléchargé (jar OpenFastTrace, binaire gitleaks) :
+      # les empreintes SHA-256 restent vérifiées à chaque exécution — le cache
+      # évite le re-téléchargement, jamais la vérification. Clé versionnée :
+      # changer une version d'outil invalide le cache.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .cache
+          key: outillage-oft-4.9.0-gitleaks-8.30.1
 
       # Point d'entrée UNIQUE : la CI n'a pas sa propre liste d'étapes.
       # tools/ci.sh constate le périmètre et emprunte la voie qui convient
