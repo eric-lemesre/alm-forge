@@ -24,7 +24,15 @@ instancier() {
     shift
     cp -R "${ROOT}/." "${_dest}/"
     rm -rf "${_dest}/.git" "${_dest}/build"
+    # Commit initial obligatoire : un vrai clone (ou un dépôt « Use this
+    # template ») a un index peuplé, et les générateurs le consultent via
+    # « git ls-files ». Sans ce commit l'index est vide et le test resterait
+    # aveugle aux fichiers hérités du gabarit supprimés mais non désindexés
+    # par init.sh (cas constaté : awk fatal sur todo-0001).
     (cd "${_dest}" && git init -q &&
+        git add -A &&
+        git -c user.name="Init Test" -c user.email="init-test@example.invalid" \
+            -c commit.gpgsign=false commit -q -m "gabarit: état initial" &&
         sh tools/init.sh --nom projet-test --porteur "Porteuse Test" --force "$@")
 }
 

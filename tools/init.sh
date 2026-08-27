@@ -206,6 +206,16 @@ case "${LANGUE}" in
     fr) rm -rf templates/en ; rm -f README.en.md ;;
     en) rm -rf templates/fr ; rm -f README.en.md ;;
 esac
+if [ "${LANGUE}" = "en" ]; then
+    # La documentation lie les modèles par leur chemin (docs/adr/README.md,
+    # méthode ch. 12 et 14…) : sans réécriture, ces liens meurent avec
+    # templates/fr/ et la porte d'intégrité des liens refuse la vérification
+    # finale. La parité des templates garantit les mêmes noms de fichiers.
+    find docs -name '*.md' -exec sh -c '
+        for f; do
+            sed "s|templates/fr/|templates/en/|g" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+        done' _ {} +
+fi
 
 # Le vocabulaire OUTILLÉ suit le même arbitrage que les artefacts générés
 # (ADR-0015) : figer la langue ici, c'est décider ce que les portes
@@ -213,11 +223,11 @@ esac
 # En « fr-en », les deux formes restent acceptées.
 sed_inplace "s/^LEXIQUE_LANGUE=.*/LEXIQUE_LANGUE=\"\${LEXIQUE_LANGUE:-${LANGUE}}\"/" tools/lexique.sh
 
-if [ "${LANGUE}" = "fr" ]; then
-    modeles="templates/fr/"
-else
-    modeles="templates/fr/ (et templates/en/)"
-fi
+case "${LANGUE}" in
+    fr)    modeles="templates/fr/" ;;
+    en)    modeles="templates/en/" ;;
+    fr-en) modeles="templates/fr/ (et templates/en/)" ;;
+esac
 
 echo "4/12 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
 rm -f spec/01-besoins/besoins.md
@@ -286,8 +296,23 @@ Aucun ADR à ce jour. Les décisions fondatrices du gabarit alm-forge restent
 consultables dans son dépôt d'origine.
 EOF
 mv docs/adr/README.md.tmp docs/adr/README.md
+# La documentation de méthode cite ces ADR fondateurs par lien relatif ; les
+# cibles viennent d'être retirées, et la porte d'intégrité des liens ferait
+# échouer la vérification finale. On honore la promesse ci-dessus (« restent
+# consultables dans son dépôt d'origine ») : chaque lien relatif vers un ADR
+# du gabarit devient une URL absolue vers alm-forge — classée externe par
+# tools/liens.sh dans le projet instancié, donc hors de son périmètre.
+for f in docs/methode/*.md; do
+    [ -f "${f}" ] || continue
+    sed 's|](\.\./adr/0|](https://github.com/eric-lemesre/alm-forge/blob/main/docs/adr/0|g' \
+        "${f}" > "${f}.tmp" && mv "${f}.tmp" "${f}"
+done
 
 echo "6/12 — Registre des décisions réinitialisé"
+# Les relevés archivés du gabarit partent avec son registre : un relevé qui
+# cite des décisions absentes du registre réinitialisé ferait échouer la
+# porte des relevés (même logique que pour les fiches de revue et d'audit).
+find docs/decisions -name '*.md' ! -name 'registre.md' -exec rm -f {} +
 if [ "${LANGUE}" = "en" ]; then
     cat > docs/decisions/registre.md <<'EOF'
 # Decision register
@@ -452,6 +477,12 @@ find docs/verification-manuelle -name '*.md' ! -name 'README.md' -exec rm -f {} 
 # supprimer priverait le projet instancié de ce que req~automatismes-forge~1
 # promet de lui fournir — il devrait aller le rechercher dans le gabarit
 # (constat de revue n° 5).
+# Les générateurs découvrent leurs fiches par « git ls-files », qui interroge
+# l'INDEX : les suppressions ci-dessus (et celles des étapes précédentes —
+# spécification, ADR) doivent y être enregistrées d'abord, sinon awk tente de
+# lire des fichiers disparus de l'arbre de travail et l'instanciation échoue
+# (cas constaté : todo-0001 du gabarit, awk fatal dans un vrai clone).
+git add -A >/dev/null 2>&1 || true
 sh tools/todo.sh --ecrire   >/dev/null
 sh tools/revues.sh --ecrire >/dev/null
 sh tools/audit.sh --ecrire  >/dev/null
