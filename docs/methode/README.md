@@ -42,6 +42,7 @@ main.
 | [13. Statuts de spécification](13-statuts-de-specification.md) | Le commutateur qui commande le dénominateur des taux |
 | [14. Audit de réalisation](14-audit-de-realisation.md) | Le livré tient-il l'exigence — le générateur compte, l'humain juge |
 | [15. Cadrage des nouvelles fonctionnalités](15-cadrage-des-nouvelles-fonctionnalites.md) | L'amont du circuit : de la demande éparse à la proposition |
+| [16. Validation des écrans](16-validation-des-ecrans.md) | Trois étages mécanisés ; l'humain garde le veto et le goût |
 
 ## Principes transverses
 
