@@ -10,6 +10,7 @@ Verdicts écrits à la main ; le tableau de bord est généré (méthode, ch. 14
 | `req~instanciation-outillee~1` | conforme | `tools/init.sh` (11 étapes, deux gardes) ; `tools/init-test.sh` couvre les trois branches de langue et le refus de double exécution |
 | `req~onboarding-outille~2` | conforme | `tools/setup.sh`, `tools/bootstrap.sh` et ses modules `tools/bootstrap.d/` ; `tools/setup-test.sh` et `tools/bootstrap-test.sh` couvrent l'idempotence et le refus sans accord |
 | `req~politique-attribution-agents~2` | conforme | bloc à marqueurs de `tools/hooks/commit-msg.sh`, les trois politiques appliquées par `tools/init.sh` ; cas d'échec dans `tools/socle-test.sh` (trailer absent, responsable absent) |
+| `req~coherence-choix-instanciation~1` | conforme | `tools/init.sh` propage le choix d'attribution à AGENTS.md, CONTRIBUTING.md et au registre des décisions ; `tools/socle-test.sh` et `tools/checks-test.sh` lisent la porte installée au lieu de supposer le défaut ; `tools/init-test.sh` [C] et [E] jouent les tests du dépôt produit et échouaient sur les trois défauts avant correction |
 | `req~politique-langue~1` | conforme | `tools/init.sh` étape 3 ; `tools/init-test.sh` vérifie les trois branches |
 | `req~portabilite-forges~1` | conforme | les deux façades délèguent à `tools/ci.sh` ; leur alignement est vérifié par `tools/checks.sh` et éprouvé par `tools/checks-test.sh` |
 | `req~nettoyage-outille~1` | conforme | `tools/clean.sh` à chemins déclarés ; `tools/clean-test.sh` couvre l'idempotence et la préservation du versionné |

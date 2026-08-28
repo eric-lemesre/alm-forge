@@ -130,6 +130,33 @@ if ! (cd "${TE}" && sh tools/hooks/commit-msg.sh msg-attr) 2>/dev/null; then
     fail=1
 fi
 
+# [utest->req~coherence-choix-instanciation~1]
+# Le hook seul ne suffit pas : ce qui manquait était la propagation du choix
+# aux TEXTES et aux TESTS du dépôt produit. Trois constats, chacun sur son
+# cas d'échec réel — tous trois observés sur un dépôt instancié avant que
+# l'exigence de cohérence n'existe.
+if grep -q 'la politique R0 (`IA:`' "${TE}/AGENTS.md"; then
+    echo "ÉCHEC [E] : AGENTS.md prescrit encore le trailer IA que le hook refuse" >&2
+    fail=1
+fi
+if grep -q 'trailer `IA:` obligatoire' "${TE}/CONTRIBUTING.md"; then
+    echo "ÉCHEC [E] : CONTRIBUTING.md annonce le défaut du gabarit et non le choix" >&2
+    fail=1
+fi
+if ! (cd "${TE}" && sh tools/socle-test.sh) >/dev/null 2>&1; then
+    echo "ÉCHEC [E] : les tests d'outillage du dépôt produit échouent sous interdiction" >&2
+    fail=1
+fi
+if find "${TE}/docs/decisions" -name '*.md' ! -name 'README.md' ! -name 'registre.md' \
+        | grep -q .; then
+    echo "ÉCHEC [E] : un relevé du gabarit subsiste alors que le registre est réécrit" >&2
+    fail=1
+fi
+if ! (cd "${TE}" && sh tools/releves.sh) >/dev/null 2>&1; then
+    echo "ÉCHEC [E] : la porte des relevés échoue sur un dépôt fraîchement instancié" >&2
+    fail=1
+fi
+
 echo "init-test [C] — langue fr uniquement"
 instancier "${TC}" --langue fr
 if [ -d "${TC}/templates/en" ] || [ -f "${TC}/README.en.md" ]; then
@@ -137,6 +164,14 @@ if [ -d "${TC}/templates/en" ] || [ -f "${TC}/README.en.md" ]; then
 fi
 if grep -q "parite-templates:debut" "${TC}/tools/checks.sh"; then
     echo "ÉCHEC [C] : la porte de parité aurait dû être retirée" >&2 ; fail=1
+fi
+# [utest->req~coherence-choix-instanciation~1]
+# Retirer la porte sans neutraliser son test laissait la voie complète rouge
+# à la naissance du projet : le test exigeait une porte que l'instanciation
+# venait de supprimer.
+if ! (cd "${TC}" && sh tools/checks-test.sh) >/dev/null 2>&1; then
+    echo "ÉCHEC [C] : les tests d'outillage échouent sur un dépôt monolingue" >&2
+    fail=1
 fi
 (cd "${TC}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
     echo "ÉCHEC [C] : portes non vertes en langue fr" >&2 ; fail=1

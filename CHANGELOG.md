@@ -7,6 +7,19 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Cohérence du dépôt produit avec les choix d'instanciation**
+  (`req~coherence-choix-instanciation~1`). Un choix qui retire ou modifie une
+  porte doit désormais se propager aux textes normatifs et aux tests
+  d'outillage du dépôt produit. Trois défauts constatés sur un dépôt réel :
+  une instanciation « mentions interdites » livrait une boucle de travail
+  réclamant le trailer `IA:` que son propre hook refuse — contrat inapplicable
+  dès le premier commit — un dépôt monolingue héritait d'un test exigeant la
+  porte de parité des modèles que l'instanciation venait de retirer, et le
+  registre des décisions réécrit laissait subsister des relevés citant des
+  décisions absentes. `tools/init.sh` propage, `tools/socle-test.sh` et
+  `tools/checks-test.sh` lisent la porte installée, et `tools/init-test.sh`
+  joue désormais les tests du dépôt produit — ce qui aurait attrapé les trois.
+
 - **Écart d'audit tranché : le statut de cycle de vie est porté par
   l'EXIGENCE** (ADR-0018, D-2026-08-17, `req~cycle-de-vie-exigence~2`).
   L'arbitrage a retenu de tenir l'exigence et de l'outiller plutôt que de

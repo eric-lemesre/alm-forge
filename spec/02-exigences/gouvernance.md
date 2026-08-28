@@ -309,3 +309,46 @@ Covers:
 - feat~gouvernance-agnostique~1
 
 Needs: dsn, impl, utest
+
+## Cohérence du dépôt produit avec les choix d'instanciation
+
+`req~coherence-choix-instanciation~1`
+
+**Statut : approuvée**
+
+Quand un choix d'instanciation retire, remplace ou modifie une porte, alors
+les textes normatifs du dépôt produit et les tests d'outillage qui portent sur
+cette porte DOIVENT refléter ce choix. Aucun texte NE DOIT prescrire ce qu'une
+porte refuse, et aucun test d'outillage NE DOIT supposer le comportement par
+défaut du gabarit plutôt que celui effectivement installé.
+
+Rationale:
+L'exigence de politique d'attribution n'obligeait que le hook, et l'exigence
+de politique de langue que le retrait de la porte de parité. L'une et l'autre
+étaient tenues, et le dépôt produit était pourtant incohérent : un projet
+instancié en « interdite » recevait une boucle de travail réclamant le trailer
+`IA:` que son propre hook refuse — donc un contrat inapplicable dès le premier
+commit — et un projet monolingue recevait un test exigeant une porte de parité
+que l'instanciation venait de retirer, donc une voie complète rouge à la
+naissance. Le défaut n'est ni dans le hook ni dans le retrait : il est dans ce
+que personne n'exigeait de propager. Un test qui suppose le défaut du gabarit
+n'échoue pas une fois sur un cas particulier — il échoue toujours, et un
+contrôle qui échoue toujours finit désactivé aussi sûrement qu'un contrôle qui
+passe toujours finit ignoré (R3).
+
+Critères d'acceptation :
+
+- Étant donné le choix « interdite », quand le dépôt produit est inspecté,
+  alors aucun texte normatif ne prescrit le trailer `IA:`.
+- Étant donné le choix « interdite », quand les tests d'outillage du dépôt
+  produit sont exécutés, alors ils passent.
+- Étant donné le choix d'une langue unique, quand les tests d'outillage du
+  dépôt produit sont exécutés, alors ils passent malgré le retrait de la porte
+  de parité.
+- Étant donné une instanciation quelconque, quand le registre des décisions
+  est réécrit, alors aucun relevé citant les décisions retirées ne subsiste.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest

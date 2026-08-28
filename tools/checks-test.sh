@@ -62,12 +62,21 @@ if ! porte; then
     fail=1
 fi
 
-echo "checks-test — parité des templates rompue : la porte doit échouer"
-prepare
-rm -f "${D}/templates/en/adr.md"
-if porte; then
-    echo "ÉCHEC : modèle anglais manquant non signalé" >&2
-    fail=1
+# [impl->req~coherence-choix-instanciation~1]
+# Contrôle CONDITIONNEL : un dépôt instancié dans une seule langue n'a qu'un
+# jeu de modèles, et init.sh retire alors le bloc correspondant de checks.sh.
+# Le test constate donc sa présence avant de l'éprouver — sans quoi il exige
+# une porte absente et échoue sur un dépôt sain.
+if grep -q 'parite-templates:debut' tools/checks.sh; then
+    echo "checks-test — parité des templates rompue : la porte doit échouer"
+    prepare
+    rm -f "${D}/templates/en/adr.md"
+    if porte; then
+        echo "ÉCHEC : modèle anglais manquant non signalé" >&2
+        fail=1
+    fi
+else
+    echo "checks-test — parité des modèles : porte absente (dépôt monolingue), cas ignoré"
 fi
 
 echo "checks-test — ADR accepté sans section Vérification : la porte doit échouer"

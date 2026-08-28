@@ -85,39 +85,91 @@ commit_avec() {
     (cd "${D}" && git -c user.name=t -c user.email=t@t commit -q -m "$1" >/dev/null 2>&1)
 }
 
+# [impl->req~coherence-choix-instanciation~1]
+# La politique de mention de l'IA est un choix d'instanciation (ADR-0011) :
+# les assertions SUIVENT le hook installé, elles ne supposent jamais le
+# défaut. Un test qui affirme le contraire de la règle n'échoue pas une fois,
+# il échoue toujours — et finit désactivé.
+if grep -q 'co-authored-by' tools/hooks/commit-msg.sh; then
+    POLITIQUE=interdite
+elif grep -q 'politique-attribution:debut' tools/hooks/commit-msg.sh; then
+    POLITIQUE=obligatoire
+else
+    POLITIQUE=autorisee
+fi
+echo "socle-test — hooks : politique de mention de l'IA constatée = ${POLITIQUE}"
+
 echo "socle-test — hooks : sujet non conventionnel, le commit doit être refusé"
 prepare_hooks
-if commit_avec "ajout de trucs
-
-IA: aucune"; then
+if commit_avec "ajout de trucs"; then
     echo "ÉCHEC : sujet de commit non conventionnel accepté" >&2
     fail=1
 fi
 
-echo "socle-test — hooks : déclaration d'IA manquante, le commit doit être refusé"
-prepare_hooks
-if commit_avec "chore: un sujet conventionnel"; then
-    echo "ÉCHEC : commit sans déclaration d'usage de l'IA accepté" >&2
-    fail=1
-fi
-
-echo "socle-test — hooks : IA déclarée sans responsable, le commit doit être refusé"
-prepare_hooks
-if commit_avec "chore: un sujet conventionnel
-
-IA: un outil"; then
-    echo "ÉCHEC : usage d'IA sans responsable humain accepté" >&2
-    fail=1
-fi
-
-echo "socle-test — hooks : commit conforme, le commit doit passer"
-prepare_hooks
-if ! commit_avec "chore: un sujet conventionnel
+case "${POLITIQUE}" in
+    interdite)
+        echo "socle-test — hooks : trailer IA présent, le commit doit être refusé"
+        prepare_hooks
+        if commit_avec "chore: un sujet conventionnel
 
 IA: aucune"; then
-    echo "ÉCHEC : un commit conforme est refusé" >&2
-    fail=1
-fi
+            echo "ÉCHEC : trailer IA accepté sous une politique d'interdiction" >&2
+            fail=1
+        fi
+
+        echo "socle-test — hooks : co-auteur généré, le commit doit être refusé"
+        prepare_hooks
+        if commit_avec "chore: un sujet conventionnel
+
+Co-authored-by: Un Outil <outil@example.org>"; then
+            echo "ÉCHEC : co-auteur généré accepté sous une politique d'interdiction" >&2
+            fail=1
+        fi
+
+        echo "socle-test — hooks : commit conforme, le commit doit passer"
+        prepare_hooks
+        if ! commit_avec "chore: un sujet conventionnel
+
+Responsable: Porteur Test"; then
+            echo "ÉCHEC : un commit conforme est refusé" >&2
+            fail=1
+        fi
+        ;;
+    obligatoire)
+        echo "socle-test — hooks : déclaration d'IA manquante, le commit doit être refusé"
+        prepare_hooks
+        if commit_avec "chore: un sujet conventionnel"; then
+            echo "ÉCHEC : commit sans déclaration d'usage de l'IA accepté" >&2
+            fail=1
+        fi
+
+        echo "socle-test — hooks : IA déclarée sans responsable, le commit doit être refusé"
+        prepare_hooks
+        if commit_avec "chore: un sujet conventionnel
+
+IA: un outil"; then
+            echo "ÉCHEC : usage d'IA sans responsable humain accepté" >&2
+            fail=1
+        fi
+
+        echo "socle-test — hooks : commit conforme, le commit doit passer"
+        prepare_hooks
+        if ! commit_avec "chore: un sujet conventionnel
+
+IA: aucune"; then
+            echo "ÉCHEC : un commit conforme est refusé" >&2
+            fail=1
+        fi
+        ;;
+    autorisee)
+        echo "socle-test — hooks : commit sans mention, le commit doit passer"
+        prepare_hooks
+        if ! commit_avec "chore: un sujet conventionnel"; then
+            echo "ÉCHEC : un commit sans mention est refusé alors qu'elle est facultative" >&2
+            fail=1
+        fi
+        ;;
+esac
 
 # --- Exemple multi-langage ---------------------------------------------------
 echo "socle-test — exemple : l'implémentation shell produit le format attendu"

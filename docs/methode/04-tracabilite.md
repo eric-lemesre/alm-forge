@@ -130,6 +130,18 @@ des exemples d'identifiants qui ne doivent pas devenir des items.
   — la régénération l'écrit, la comparaison ne voit rien, la porte est verte.
   D'où le double contrôle de `tools/derive.sh` : suivi par git, *puis*
   comparé.
+- **Test qui suppose le défaut** : le symétrique du no-op, et il se voit
+  encore moins. Un test d'outillage qui affirme le comportement livré par
+  défaut, alors qu'un choix d'instanciation l'a changé, n'échoue pas une fois
+  sur un cas particulier — il échoue **toujours**, dès le premier jour du
+  projet produit, et un contrôle qui échoue toujours finit désactivé aussi
+  sûrement qu'un contrôle qui passe toujours finit ignoré. Constaté deux fois
+  sur un même dépôt instancié : le test des hooks exigeait qu'un commit
+  portant `IA: aucune` soit accepté quand la politique retenue l'interdit, et
+  le test de cohérence exigeait une porte de parité des modèles que le choix
+  d'une langue unique venait de retirer. La règle qui en découle : **un test
+  lit ce qui est installé, il ne suppose jamais le défaut**, et un choix qui
+  retire une porte retire ou neutralise son test dans le même geste.
 - **Agrégat recalculé ailleurs** : deux outils qui comptent la même chose
   finissent par ne plus compter pareil, et rien ne dit lequel se trompe. Un
   chiffre a **une** source ; qui en a besoin la consulte, ne la recalcule pas.
