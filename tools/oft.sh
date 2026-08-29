@@ -18,7 +18,11 @@ JAR="${ROOT}/.cache/openfasttrace-${OFT_VERSION}.jar"
 # contiennent des identifiants d'exemple qui ne doivent pas devenir des items.
 # Les chemins absents sont filtrés à l'exécution : un projet instancié peut
 # retirer une langue (ADR-0009) ou une forge (ADR-0010) sans casser la porte.
-INPUTS="spec docs examples tools .github .gitlab .gitlab-ci.yml AGENTS.md README.md README.en.md CONTRIBUTING.md CHANGELOG.md Taskfile.yml"
+# « src » est le répertoire du code de RÉALISATION du produit. Le gabarit n'en
+# a pas — il ne réalise rien — mais tout projet instancié en aura un, et sans
+# lui au périmètre ses exigences resteraient orphelines sans qu'on sache
+# pourquoi. Manque constaté sur un projet instancié.
+INPUTS="spec docs examples src tools .github .gitlab .gitlab-ci.yml AGENTS.md README.md README.en.md CONTRIBUTING.md CHANGELOG.md Taskfile.yml"
 
 scan_inputs() {
     SCAN=""
