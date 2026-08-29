@@ -74,6 +74,32 @@ entrée justifiée de `.gitleaks.toml`, jamais par la désactivation. En cas de
 vrai secret déjà poussé : le **révoquer immédiatement** (la réécriture
 d'historique ne « rattrape » rien — le secret a été exposé), puis nettoyer.
 
+## La porte des données
+
+Le dépôt porte le **modèle** des données, jamais les données. `tools/donnees.sh`
+refuse trois choses, toutes lues sur le contenu et non sur un nom de fichier :
+
+1. **un export versionné** — archive, tableur, sauvegarde ;
+2. **un SQL porteur de données** — insertions ou copie depuis l'entrée
+   standard. Seuls les schémas sont admis. C'est le cas le plus insidieux :
+   nom, extension et emplacement sont légitimes, et seules les lignes
+   trahissent l'extrait de production ;
+3. **un chemin de partage réseau qualifié** — `\\serveur.domaine\…`. Ce n'est
+   pas une donnée, mais cela renseigne sur l'infrastructure d'une
+   organisation, et cela arrive au dépôt par le même chemin que le reste :
+   recopié d'un code existant que l'on documente.
+
+Le `.gitignore` accompagne la porte sans la remplacer : il ne protège que du
+geste distrait, n'empêche ni un ajout forcé ni le suivi d'un fichier déjà
+versionné, et ne dit rien de ce qu'un fichier porte.
+
+**Jeux d'essai.** Un projet qui a besoin de SQL porteur de données déclare
+leurs chemins dans le bloc `fixtures` de la porte, en vérification de sa
+propre décision. La règle de mise en place vaut (R3) : après avoir déclaré un
+chemin, y placer un fichier et vérifier que la porte passe, puis placer le
+même fichier ailleurs et vérifier qu'elle échoue. Un chemin trop large —
+`src`, `.` — rouvre la porte en grand sans que rien ne le dise.
+
 ## Références
 
 - STRIDE, pipeline sécurisé, gestion des vulnérabilités :

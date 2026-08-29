@@ -39,6 +39,19 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   `task ci` sanctionne, `task setup` renseigne. Exigence NOUVELLE plutôt que
   révision de `req~onboarding-outille~2`, qui est tenue.
 
+- **Porte des données** (`req~donnees-hors-depot~1`). Le dépôt porte le modèle
+  des données, jamais les données. `tools/donnees.sh` refuse un export
+  versionné, un SQL porteur de données — seuls les schémas sont admis — et un
+  chemin de partage réseau qualifié par un nom de serveur et un domaine. Les
+  trois refus se lisent sur le CONTENU : un `.gitignore` ne protège que du
+  geste distrait, il n'empêche ni un ajout forcé ni le suivi d'un fichier déjà
+  versionné. Le cas le plus insidieux est celui qu'aucun nom ne trahit — un
+  SQL au bon endroit, sous une extension légitime, dont seules les lignes
+  d'insertion révèlent l'extrait de production. Un bloc `fixtures` permet à un
+  projet de déclarer ses jeux d'essai ; le test vérifie que la déclaration ne
+  couvre pas plus que son chemin. Constaté sur un projet instancié, où le
+  chemin d'un partage interne avait suivi la documentation d'un code existant.
+
 ### Corrigé
 
 - **L'outillage d'instanciation se retire lui-même**

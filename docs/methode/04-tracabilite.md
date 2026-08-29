@@ -101,6 +101,7 @@ deux forges (ADR-0010).
 | `todo.sh`, `revues.sh`, `audit.sh`, `badges.sh` | une fiche mal formée, un tableau de bord périmé |
 | `derive.sh` | un artefact généré retouché à la main, ou non versionné |
 | `secrets.sh` | un secret dans l'historique ou dans l'index |
+| `donnees.sh` | un export versionné, un SQL porteur de données, un chemin de partage réseau qualifié |
 
 **Toutes les portes de la voie sont jouées, puis un bilan est rendu**
 (ADR-0019). Le lanceur ne s'arrête pas à la première en échec : il les joue

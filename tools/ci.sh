@@ -105,6 +105,7 @@ etape "audit"              sh tools/audit.sh
 etape "badges"             sh tools/badges.sh
 etape "anti-dérive"        sh tools/derive.sh
 etape "secrets"            sh tools/secrets.sh scan
+etape "données"            sh tools/donnees.sh
 
 # Forme explicite plutôt que « [ … ] && bilan » : sous « set -e », un test
 # faux en tête d'une liste ET est exempté, mais la règle est assez subtile
@@ -118,6 +119,7 @@ fi
 # git jetables : c'est la partie coûteuse, et la raison d'être de l'aiguillage.
 etape "test — lanceur"           sh tools/ci-test.sh
 etape "test — anti-secrets"      sh tools/secrets-test.sh
+etape "test — données"           sh tools/donnees-test.sh
 etape "test — liens"             sh tools/liens-test.sh
 etape "test — périmètre"         sh tools/perimetre-test.sh
 etape "test — anti-dérive"       sh tools/derive-test.sh
