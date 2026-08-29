@@ -57,7 +57,7 @@ conformité de papier, où le dépôt affirme des vérifications qu'il n'exécut
 pas.
 
 Covers:
-- req~porte-ci~1
+- req~porte-ci~2
 
 ## La pyramide de tests dit la vérité
 

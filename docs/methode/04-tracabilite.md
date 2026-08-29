@@ -92,7 +92,7 @@ deux forges (ADR-0010).
 | Porte | Ce qu'elle refuse |
 | --- | --- |
 | `oft.sh` | un maillon manquant dans la chaîne besoin → test |
-| `checks.sh` | parité des modèles, ADR sans vérification, version hors journal, index d'ADR incomplet, façades CI désalignées, lexique incomplet |
+| `checks.sh` | parité des modèles, ADR sans vérification, version hors journal, index d'ADR incomplet, façades CI désalignées, lexique incomplet, référence pendante depuis une façade ou le contrat |
 | `liens.sh` | un lien interne qui ne mène nulle part |
 | `statuts.sh` | un statut de domaine absent, non acté, ou divergent de l'index |
 | `classification.sh` | une exigence sans niveau normatif, ou de niveau DOIT sans vérification |
@@ -101,6 +101,14 @@ deux forges (ADR-0010).
 | `todo.sh`, `revues.sh`, `audit.sh`, `badges.sh` | une fiche mal formée, un tableau de bord périmé |
 | `derive.sh` | un artefact généré retouché à la main, ou non versionné |
 | `secrets.sh` | un secret dans l'historique ou dans l'index |
+
+**Toutes les portes de la voie sont jouées, puis un bilan est rendu**
+(ADR-0019). Le lanceur ne s'arrête pas à la première en échec : il les joue
+toutes, les nomme toutes avec leur verdict, et sort en erreur en annonçant
+combien ont échoué. Le motif tient en une phrase : une porte légitimement
+rouge — une traçabilité qui attend la réalisation d'exigences déjà écrites —
+masquerait sinon l'état de toutes celles qui la suivent, et rien dans la
+sortie ne distinguerait une porte non jouée d'une porte absente.
 
 **Le périmètre est constaté, jamais déclaré** (ADR-0017). `tools/perimetre.sh`
 lit le changement réel — commits depuis la base de fusion, index, arbre de

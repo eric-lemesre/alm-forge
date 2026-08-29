@@ -5,7 +5,7 @@ Miroir de [`spec/02-exigences/tracabilite.md`](../../spec/02-exigences/tracabili
 | Exigence | Verdict | Preuve / écart |
 | --- | --- | --- |
 | `req~tracabilite-outillee~1` | conforme | `tools/oft.sh` (jar épinglé par empreinte) ; `tools/socle-test.sh` prouve l'échec sur exigence orpheline **et** le retour au vert une fois le maillon posé |
-| `req~porte-ci~1` | conforme | les deux façades délèguent à `tools/ci.sh` ; seuls les automatismes de forge sont non câblés, avec raison et échéance (méthode ch. 11) ; procédure `mtest~portes-cablees~1` |
+| `req~porte-ci~2` | conforme | les deux façades délèguent à `tools/ci.sh`, qui joue toutes les portes de la voie et rend un bilan (ADR-0019) ; `tools/ci-test.sh` éprouve l'invariant sur son cas d'échec ; seuls les automatismes de forge sont non câblés, avec raison et échéance (méthode ch. 11) ; procédure `mtest~portes-cablees~1` |
 | `req~garde-fous-locaux~1` | conforme | `.githooks/` et `tools/hooks/` ; le pre-commit rejoue la voie documentaire, le contournement `ALM_SKIP_HOOKS=1` est explicite et bruyant ; `tools/socle-test.sh` couvre trois refus et un passage |
 | `req~tests-mecanises~1` | conforme | 100 % des exigences DOIT déclarent une vérification (`tools/classification.sh`) ; les non automatisables sont couvertes par `docs/verification-manuelle/` ; la vérité des tags relève de `mtest~pyramide-tests~1` |
 | `req~exemple-multilangage~1` | conforme | `examples/demo-multi-langages/` — Python, Rust, shell, chaîne complète et tests tagués ; l'implémentation shell est exécutée par `tools/socle-test.sh` |

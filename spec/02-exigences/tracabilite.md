@@ -28,7 +28,7 @@ Needs: dsn, impl, utest
 
 ## Porte d'intégration continue
 
-`req~porte-ci~1`
+`req~porte-ci~2`
 
 **Statut : approuvée**
 
@@ -37,14 +37,35 @@ rejouer la traçabilité et les contrôles de cohérence, et DOIT échouer si l'
 d'eux échoue. Toute porte documentée DOIT être câblée dans la CI, ou marquée
 explicitement « non câblée » avec sa raison et son échéance.
 
+Le lanceur DOIT jouer toutes les portes de la voie retenue, quel qu'ait été le
+verdict des précédentes, et DOIT rendre un bilan les nommant toutes avec leur
+verdict.
+
 Rationale:
 Contre-exemple observé sur wallos-rs : des portes déclarées dans le contrat de
 gouvernance mais absentes du workflow créent une conformité illusoire.
 
+Un lanceur qui s'arrête à la première porte rouge produit la même illusion par
+un autre chemin : les portes suivantes ne sont pas absentes du workflow, elles
+n'ont simplement pas été jouées, et rien dans la sortie ne distingue les deux
+cas. Le défaut est d'autant plus durable que la première porte est
+LÉGITIMEMENT rouge — une traçabilité qui attend la réalisation d'exigences
+déjà écrites l'est pendant des semaines. Constaté sur un projet instancié :
+deux tests d'outillage étaient cassés depuis l'origine derrière une
+traçabilité rouge, et le sont restés jusqu'à ce qu'on joue les portes une à
+une à la main.
+
+Critères d'acceptation :
+
+- Étant donné un dépôt dont deux portes non consécutives échouent, quand le
+  lanceur est exécuté, alors les deux figurent au bilan comme en échec.
+- Étant donné ce même dépôt, quand le lanceur est exécuté, alors les portes
+  saines y figurent comme telles et le code de retour est non nul.
+
 Covers:
 - feat~tracabilite-mecanisee~1
 
-Needs: impl, mtest
+Needs: impl, utest, mtest
 
 ## Garde-fous locaux
 

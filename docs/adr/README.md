@@ -74,3 +74,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0016](0016-audit-de-realisation-distinct-de-la-tracabilite.md) | Séparer l'audit de réalisation de la traçabilité | Accepté |
 | [0017](0017-perimetre-de-la-porte-constate.md) | Constater le périmètre de la porte plutôt que le déclarer | Accepté |
 | [0018](0018-statut-de-cycle-de-vie-porte-par-l-exigence.md) | Porter le statut de cycle de vie au niveau de l'exigence | Accepté |
+| [0019](0019-jouer-toutes-les-portes-et-rendre-un-bilan.md) | Jouer toutes les portes et rendre un bilan | Accepté |
