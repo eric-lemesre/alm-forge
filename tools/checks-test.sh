@@ -50,6 +50,10 @@ EOF
         > "${D}/.github/workflows/ci.yml"
     printf 'portes:\n  script:\n    - tools/ci.sh\n' > "${D}/.gitlab-ci.yml"
     cp "${ROOT}/tools/lexique.sh" "${D}/tools/"
+    # Les deux façades CI ci-dessus appellent tools/ci.sh : le contrôle des
+    # références pendantes exige que la cible existe. Un talon suffit — il
+    # n'est jamais exécuté.
+    printf '#!/bin/sh\nexit 0\n' > "${D}/tools/ci.sh"
     printf '1.2.3\n' > "${D}/VERSION"
     printf '# Journal\n\n## [1.2.3] - 2026-01-01\n\n### Ajouté\n\n- Rien.\n' > "${D}/CHANGELOG.md"
 }
@@ -64,7 +68,7 @@ fi
 
 # [impl->req~coherence-choix-instanciation~1]
 # Contrôle CONDITIONNEL : un dépôt instancié dans une seule langue n'a qu'un
-# jeu de modèles, et init.sh retire alors le bloc correspondant de checks.sh.
+# jeu de modèles, et l'instanciation retire alors le bloc correspondant.
 # Le test constate donc sa présence avant de l'éprouver — sans quoi il exige
 # une porte absente et échoue sur un dépôt sain.
 if grep -q 'parite-templates:debut' tools/checks.sh; then
@@ -117,6 +121,21 @@ prepare
 printf '    - tools/porte-supplementaire.sh\n' >> "${D}/.gitlab-ci.yml"
 if porte; then
     echo "ÉCHEC : étape présente sur une seule forge non signalée" >&2
+    fail=1
+fi
+
+echo "checks-test — façade citant un script absent : la porte doit échouer"
+# Cas d'échec du contrôle posé par ADR-0003. Le défaut visé est la RÉFÉRENCE
+# pendante, pas un nom de fichier particulier : une façade qui appelle un
+# script retiré ou renommé ne se voit qu'à l'exécution, donc en CI et jamais
+# en revue.
+prepare
+printf 'portes:\n  script:\n    - tools/ci.sh\n    - sh tools/porte-disparue.sh\n' \
+    > "${D}/.gitlab-ci.yml"
+printf 'name: ci\njobs:\n  portes:\n    steps:\n      - name: Portes\n        run: tools/ci.sh\n      - name: Portes\n        run: sh tools/porte-disparue.sh\n' \
+    > "${D}/.github/workflows/ci.yml"
+if porte; then
+    echo "ÉCHEC : façade citant un script absent non signalée" >&2
     fail=1
 fi
 

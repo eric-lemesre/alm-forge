@@ -13,7 +13,7 @@ FAILURES=0
 # --- parite-templates:debut ---
 # [impl->req~bilinguisme-templates~1]
 # Parité des templates fr/en : mêmes noms de fichiers des deux côtés.
-# Bloc retiré par tools/init.sh quand une seule langue est conservée
+# Bloc retiré à l'instanciation quand une seule langue est conservée
 # (ADR-0009) ; ne pas déplacer les marqueurs.
 parity_fail=0
 for f in templates/fr/*.md; do
@@ -165,6 +165,33 @@ for f in tools/*.sh templates/forge/tools/*.sh; do
 done
 if [ "${syntaxe_fail}" -eq 0 ]; then
     echo "ok — tous les scripts sont analysables par sh"
+else
+    FAILURES=$((FAILURES + 1))
+fi
+
+# Aucune référence pendante depuis une façade ou depuis le contrat de dépôt
+# (ADR-0003). Une façade qui appelle un script absent ne se voit qu'à
+# l'exécution — donc en CI, jamais en revue — et le contrat, lui, documente
+# alors une commande qui échoue. Le contrôle porte sur la RÉFÉRENCE et non sur
+# un nom de fichier : il attrape aussi bien le script retiré sans ses amarres
+# que le script renommé dont une façade continue de parler.
+pendantes=0
+for f in tools/ci.sh Taskfile.yml AGENTS.md .gitlab-ci.yml .github/workflows/*.yml \
+         templates/orchestrators/*; do
+    [ -f "${f}" ] || continue
+    # Le motif exige que « tools/ » ne soit pas précédé d'un caractère de
+    # chemin : sans cette garde, « templates/forge/tools/x.sh » produirait la
+    # référence « tools/x.sh », qui n'existe pas — un faux positif.
+    for cite in $(grep -oE '(^|[^/[:alnum:]_.-])tools/[A-Za-z0-9_.-]+\.sh' "${f}" \
+                  | sed 's#^.*\(tools/\)#\1#' | sort -u); do
+        [ -f "${cite}" ] || {
+            echo "ÉCHEC : ${f} cite un script absent : ${cite}" >&2
+            pendantes=$((pendantes + 1))
+        }
+    done
+done
+if [ "${pendantes}" -eq 0 ]; then
+    echo "ok — aucune référence pendante depuis les façades ni le contrat"
 else
     FAILURES=$((FAILURES + 1))
 fi
