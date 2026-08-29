@@ -46,7 +46,7 @@ Needs: dsn, impl, utest
 
 ## Instanciation outillée
 
-`req~instanciation-outillee~1`
+`req~instanciation-outillee~2`
 
 **Statut : approuvée**
 
@@ -57,10 +57,25 @@ couverture dans les documents conservés), réinitialise le journal des
 changements, la version, la licence et les registres, et laisse la traçabilité
 et les contrôles de cohérence verts.
 
+Ce script DOIT se retirer lui-même, ainsi que son test et toutes les
+références que les façades et le contrat de dépôt lui font, en dernier geste
+de l'instanciation.
+
 Rationale:
 GitHub n'effectue aucune substitution de variables à la création depuis un
 template : sans script, la personnalisation est une checklist manuelle,
 incomplète par construction (licence, registres et tags oubliés).
+
+Le retrait de l'outillage était jusqu'ici proposé en fin de message, comme une
+option, après cinq autres étapes — c'est-à-dire jamais fait. Deux conséquences
+ont été constatées sur un projet instancié. Le test d'instanciation rejoue le
+script sur des copies du dépôt DEVENU projet, qui porte sa propre
+spécification et son propre code : les tags de couverture de ce code
+deviennent orphelins dans le dépôt produit, et la porte échoue pour une raison
+qui ne dit rien de la qualité du travail. Et le script laissé en place reste
+destructeur — il efface la spécification, les ADR et le registre des décisions
+— tout en étant documenté au contrat et exposé par une commande de la façade.
+Une option qui doit être prise à chaque fois n'est pas une option.
 
 Critères d'acceptation :
 
@@ -69,6 +84,9 @@ Critères d'acceptation :
   retirés, la licence porte le porteur, et la traçabilité passe.
 - Étant donné un dépôt déjà initialisé, quand le script est relancé sans
   forçage, alors il refuse d'agir.
+- Étant donné une copie du gabarit, quand le script a terminé, alors ni lui ni
+  son test ne subsistent, et aucune façade ni le contrat de dépôt ne les cite
+  plus.
 
 Covers:
 - feat~gouvernance-agnostique~1

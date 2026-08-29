@@ -7,7 +7,7 @@ Verdicts écrits à la main ; le tableau de bord est généré (méthode, ch. 14
 | --- | --- | --- |
 | `req~gouvernance-agents~1` | conforme | `AGENTS.md` (R0-R8, chacune avec son moyen de vérification) ; `CLAUDE.md` est un adaptateur-pointeur sans règle propre ; procédure `mtest~contrat-prevaut~1` |
 | `req~bilinguisme-templates~1` | conforme | `templates/fr/` et `templates/en/`, 10 modèles de part et d'autre ; porte de parité dans `tools/checks.sh`, éprouvée par `tools/checks-test.sh` |
-| `req~instanciation-outillee~1` | conforme | `tools/init.sh` (11 étapes, deux gardes) ; `tools/init-test.sh` couvre les trois branches de langue et le refus de double exécution |
+| `req~instanciation-outillee~2` | conforme | `tools/init.sh` (13 étapes, deux gardes) ; `tools/init-test.sh` couvre les trois branches de langue, le refus de double exécution, et le retrait de l'outillage avec ses amarres |
 | `req~onboarding-outille~2` | conforme | `tools/setup.sh`, `tools/bootstrap.sh` et ses modules `tools/bootstrap.d/` ; `tools/setup-test.sh` et `tools/bootstrap-test.sh` couvrent l'idempotence et le refus sans accord |
 | `req~politique-attribution-agents~2` | conforme | bloc à marqueurs de `tools/hooks/commit-msg.sh`, les trois politiques appliquées par `tools/init.sh` ; cas d'échec dans `tools/socle-test.sh` (trailer absent, responsable absent) |
 | `req~coherence-choix-instanciation~1` | conforme | `tools/init.sh` propage le choix d'attribution à AGENTS.md, CONTRIBUTING.md et au registre des décisions ; `tools/socle-test.sh` et `tools/checks-test.sh` lisent la porte installée au lieu de supposer le défaut ; `tools/init-test.sh` [C] et [E] jouent les tests du dépôt produit et échouaient sur les trois défauts avant correction |

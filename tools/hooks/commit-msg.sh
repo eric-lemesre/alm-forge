@@ -25,7 +25,7 @@ fi
 # [impl->req~politique-attribution-agents~2]
 # R0 — diligence (politique par défaut, ADR-0011) : chaque commit déclare
 # l'usage de l'IA, tout usage déclaré exige un responsable humain, la
-# relecture est recommandée. tools/init.sh remplace ou retire ce bloc selon
+# relecture est recommandée. L'instanciation remplace ou retire ce bloc selon
 # l'arbitrage d'instanciation ; ne pas déplacer les marqueurs.
 if ! grep -q '^IA: ' "${MSG_FILE}"; then
     echo "ERREUR : déclaration d'usage de l'IA manquante (R0, diligence)." >&2

@@ -1,5 +1,5 @@
 #!/bin/sh
-# [utest->req~instanciation-outillee~1]
+# [utest->req~instanciation-outillee~2]
 # [utest->req~politique-attribution-agents~2]
 # [utest->req~politique-langue~1]
 # Test mécanisé du script d'instanciation : exécute tools/init.sh sur des
@@ -93,12 +93,32 @@ fi
 (cd "${TA}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
     echo "ÉCHEC [A] : portes non vertes après instanciation" >&2 ; fail=1
 }
+# L'outillage d'instanciation se retire lui-même, avec toutes ses amarres.
+# Le laisser en place rendait la porte du dépôt produit rouge dès sa première
+# réalisation taguée, et gardait un script destructeur documenté au contrat.
+for f in tools/init.sh tools/init-test.sh; do
+    if [ -e "${TA}/${f}" ]; then
+        echo "ÉCHEC [A] : ${f} subsiste dans le dépôt produit" >&2 ; fail=1
+    fi
+done
+for f in tools/ci.sh Taskfile.yml AGENTS.md templates/orchestrators/justfile; do
+    if [ -f "${TA}/${f}" ] && grep -q 'tools/init\.sh' "${TA}/${f}"; then
+        echo "ÉCHEC [A] : ${f} cite encore l'outillage d'instanciation retiré" >&2 ; fail=1
+    fi
+done
+
+# Les gardes d'entrée du script se testent sur un exemplaire REMIS EN PLACE :
+# sans ce geste, les deux assertions qui suivent passeraient parce que le
+# fichier est absent — un contrôle qui ne contrôle rien, exactement ce que R3
+# interdit. La garde, elle, lit l'état du dépôt et non sa propre présence.
+cp "${ROOT}/tools/init.sh" "${TA}/tools/init.sh"
 if (cd "${TA}" && sh tools/init.sh --nom x --porteur y </dev/null) 2>/dev/null; then
     echo "ÉCHEC [A] : init.sh a accepté de tourner deux fois sans --force" >&2 ; fail=1
 fi
 if (cd "${TA}" && sh tools/init.sh --nom x --porteur y --cycle-issues nimporte --force </dev/null) 2>/dev/null; then
     echo "ÉCHEC [A] : init.sh a accepté une valeur invalide pour --cycle-issues" >&2 ; fail=1
 fi
+rm -f "${TA}/tools/init.sh"
 
 echo "init-test [B] — mentions autorisées, sans obligation"
 instancier "${TB}" --attribution-agents autorisee

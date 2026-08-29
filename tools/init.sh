@@ -1,5 +1,5 @@
 #!/bin/sh
-# [impl->req~instanciation-outillee~1]
+# [impl->req~instanciation-outillee~2]
 # Script d'instanciation du gabarit : personnalise l'identité du projet,
 # applique les arbitrages de l'instanciateur (attribution des agents,
 # ADR-0011 ; langue, ADR-0009 ; cycle de vie des issues, ADR-0013) et retire
@@ -128,6 +128,22 @@ if [ "${FORCE}" -ne 1 ]; then
     esac
 fi
 
+retirer_bloc() {
+    # Supprime tout bloc — au sens des paragraphes séparés par une ligne vide
+    # — qui cite le motif donné. Les façades d'orchestration déclarent une
+    # cible par paragraphe : c'est la découpe qui leur convient, et elle ne
+    # dépend d'aucun libellé, donc elle survit à une reformulation.
+    _motif="$1"
+    _fichier="$2"
+    [ -f "${_fichier}" ] || return 0
+    awk -v motif="${_motif}" '
+        { bloc = bloc $0 "\n" }
+        NF == 0 { if (index(bloc, motif) == 0) printf "%s", bloc; bloc = ""; next }
+        END { if (index(bloc, motif) == 0) printf "%s", bloc }
+    ' "${_fichier}" > "${_fichier}.tmp"
+    mv "${_fichier}.tmp" "${_fichier}"
+}
+
 sed_inplace() {
     # sed -i n'est pas portable (BSD/macOS) : réécriture via fichier temporaire.
     _expr="$1"
@@ -138,24 +154,16 @@ sed_inplace() {
 
 annee="$(date +%Y)"
 
-echo "1/12 — Retrait des tags de couverture du gabarit dans les documents conservés"
+echo "1/13 — Retrait des tags de couverture du gabarit dans les documents conservés"
+# L'outillage est balayé par MOTIF et non par énumération. La liste explicite
+# qu'il y avait ici oubliait tout script ajouté au gabarit après elle : le tag
+# survivait alors dans le dépôt produit, y devenait un item orphelin, et la
+# traçabilité du projet naissait rouge sans que son porteur puisse deviner
+# pourquoi. Constaté à l'ajout de tools/ci-test.sh.
 for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
          docs/verification-manuelle/*.md \
-         tools/oft.sh tools/checks.sh tools/hooks/pre-commit.sh \
-         tools/lexique.sh tools/liens.sh tools/liens-test.sh \
-         tools/perimetre.sh tools/perimetre-test.sh tools/ci.sh \
-         tools/derive.sh tools/derive-test.sh tools/checks-test.sh \
-         tools/todo.sh tools/revues.sh tools/audit.sh tools/badges.sh \
-         tools/statuts.sh tools/releves.sh tools/journaux.sh \
-         tools/classification.sh tools/issues.sh \
-         tools/gouvernance-test.sh tools/socle-test.sh \
-         tools/hooks/commit-msg.sh tools/init.sh tools/init-test.sh \
-         tools/bootstrap.sh tools/bootstrap.d/*.sh tools/bootstrap-test.sh \
-         tools/install-git.sh tools/install-git.ps1 \
-         tools/setup.sh tools/setup-test.sh \
-         tools/clean.sh tools/clean-test.sh \
-         tools/secrets.sh tools/secrets-test.sh \
+         tools/*.sh tools/*.ps1 tools/hooks/*.sh tools/bootstrap.d/*.sh \
          .github/workflows/*.yml .gitlab-ci.yml \
          .github/ISSUE_TEMPLATE/*.yml .gitlab/issue_templates/*.md; do
     [ -f "${f}" ] || continue
@@ -165,7 +173,7 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
     mv "${f}.tmp" "${f}"
 done
 
-echo "2/12 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
+echo "2/13 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
 # [impl->req~politique-attribution-agents~2]
 if [ "${ATTRIBUTION}" != "obligatoire" ]; then
     # Le bloc livré par défaut (déclaration obligatoire) est retiré…
@@ -207,7 +215,7 @@ FINHOOK
         ;;
 esac
 
-echo "3/12 — Langue du dépôt : ${LANGUE}"
+echo "3/13 — Langue du dépôt : ${LANGUE}"
 # [impl->req~politique-langue~1]
 if [ "${LANGUE}" != "fr-en" ]; then
     # Une seule langue : un seul jeu de modèles, plus de porte de parité.
@@ -243,7 +251,7 @@ case "${LANGUE}" in
     fr-en) modeles="templates/fr/ (et templates/en/)" ;;
 esac
 
-echo "4/12 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
+echo "4/13 — Spécification du gabarit retirée, squelette prêt pour vos besoins"
 rm -f spec/01-besoins/besoins.md
 rm -f spec/02-exigences/*.md
 if [ "${LANGUE}" = "en" ]; then
@@ -298,7 +306,7 @@ Aucune question ouverte à ce jour.
 EOF
 fi
 
-echo "5/12 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
+echo "5/13 — ADR du gabarit retirés, registre prêt pour votre ADR-0001"
 rm -f docs/adr/0*.md
 sed -n '1,/^## Index/p' docs/adr/README.md > docs/adr/README.md.tmp
 cat >> docs/adr/README.md.tmp <<EOF
@@ -322,7 +330,7 @@ for f in docs/methode/*.md; do
         "${f}" > "${f}.tmp" && mv "${f}.tmp" "${f}"
 done
 
-echo "6/12 — Registre des décisions réinitialisé"
+echo "6/13 — Registre des décisions réinitialisé"
 # Les relevés archivés du gabarit partent avec son registre : un relevé qui
 # cite des décisions absentes du registre réinitialisé ferait échouer la
 # porte des relevés (même logique que pour les fiches de revue et d'audit).
@@ -356,7 +364,7 @@ Aucune décision enregistrée à ce jour.
 EOF
 fi
 
-echo "7/12 — Arbitrage du cycle de vie des issues : ${CYCLE}"
+echo "7/13 — Arbitrage du cycle de vie des issues : ${CYCLE}"
 # [impl->req~issues-flux-avancement~2]
 # L'arbitrage s'applique (formulaires) puis se consigne au registre du projet
 # (ADR-0013) — y compris quand c'est le défaut : un arbitrage non consigné
@@ -391,7 +399,7 @@ awk -v row="| D-$(date +%Y-%m)-01 | $(date +%Y-%m-%d) | ${decision_cycle} | ${re
 ' docs/decisions/registre.md > docs/decisions/registre.md.tmp
 mv docs/decisions/registre.md.tmp docs/decisions/registre.md
 
-echo "8/12 — CHANGELOG et VERSION réinitialisés"
+echo "8/13 — CHANGELOG et VERSION réinitialisés"
 if [ "${LANGUE}" = "en" ]; then
     cat > CHANGELOG.md <<EOF
 # Changelog
@@ -425,10 +433,10 @@ EOF
 fi
 printf '0.1.0\n' > VERSION
 
-echo "9/12 — LICENSE au nom du porteur"
+echo "9/13 — LICENSE au nom du porteur"
 sed_inplace "s/^Copyright (c) .*/Copyright (c) ${annee} ${PORTEUR}/" LICENSE
 
-echo "10/12 — README réécrits pour ${NOM}"
+echo "10/13 — README réécrits pour ${NOM}"
 if [ "${LANGUE}" = "en" ]; then
     cat > README.md <<EOF
 # ${NOM}
@@ -472,7 +480,7 @@ EOF
     fi
 fi
 
-echo "11/12 — Artefacts documentaires réinitialisés"
+echo "11/13 — Artefacts documentaires réinitialisés"
 # Fiches du gabarit retirées, artefacts DÉRIVÉS régénérés puis indexés. Les
 # indexer est nécessaire : la porte anti-dérive compare le résultat de la
 # régénération à l'index, et un artefact hérité du gabarit y ferait échouer
@@ -510,7 +518,40 @@ sh tools/audit.sh --ecrire  >/dev/null
 sh tools/badges.sh --ecrire >/dev/null
 git add docs/todo docs/audit docs/revues docs/badges >/dev/null 2>&1 || true
 
-echo "12/12 — Vérification finale (traçabilité + cohérence)"
+echo "12/13 — Retrait de l'outillage d'instanciation, devenu sans objet"
+# L'instanciation a lieu une fois. Ce qui la sert n'a plus d'objet ensuite, et
+# le laisser coûte deux fois.
+#
+# D'abord le test : il rejoue ce script sur des copies du dépôt DEVENU projet,
+# qui porte alors sa propre spécification et son propre code de réalisation.
+# Ce script ne retire que les fichiers du gabarit — les exigences du projet
+# survivent dans le dépôt produit, et les tags de couverture de son code y
+# deviennent orphelins. La porte échoue donc pour une raison qui ne dit rien
+# de la qualité du travail, et qui empire à mesure que le projet écrit du
+# code.
+#
+# Ensuite ce script lui-même, qui est destructeur : « --force » efface la
+# spécification, les ADR et le registre des décisions, et réécrit le journal
+# des versions. Le laisser dans un dépôt vivant, documenté au contrat et
+# exposé par une commande de la façade, sans aucun usage légitime, c'est
+# garder une arme chargée dans un tiroir dont on a expliqué l'emplacement.
+#
+# Ce retrait était jusqu'ici PROPOSÉ en fin de message, comme une option,
+# après cinq autres étapes. Une option qui doit être prise à chaque fois n'en
+# est pas une.
+sed_inplace '/etape "test — instanciation"/d' tools/ci.sh
+retirer_bloc 'tools/init.sh' Taskfile.yml
+retirer_bloc 'tools/init.sh' templates/orchestrators/justfile
+# Contrat de dépôt : la SEULE ligne du tableau des commandes qui cite le
+# script. Un retrait par paragraphe emporterait le tableau entier.
+sed_inplace '/`sh tools\/init\.sh …`/d' AGENTS.md
+sed_inplace 's/(`init`, `setup`/(`setup`/' templates/orchestrators/README.md
+rm -f tools/init-test.sh
+# Ce script s'efface en dernier. Le shell garde le fichier ouvert par son
+# descripteur : le délier n'interrompt pas l'exécution en cours.
+rm -f tools/init.sh
+
+echo "13/13 — Vérification finale (traçabilité + cohérence)"
 # Environnement assaini (défense en profondeur, en plus de la primauté de
 # l'argument dans ci.sh) : un CI_COMPLET hérité de la CI appelante ne doit
 # jamais transformer cette vérification documentaire en voie complète.
@@ -526,6 +567,7 @@ ${ATTRIBUTION}, cycle de vie des issues : ${CYCLE}). Prochaines étapes :
   4. Choisir la façade        — garder Taskfile.yml, ou templates/orchestrators/
   5. Choisir la ou les forges — supprimer .github/ ou .gitlab*/ selon l'hébergeur
   6. Premier commit           — les hooks vérifient tout
-Optionnel : supprimer tools/init.sh, tools/init-test.sh et l'étape
-« instanciation » des façades CI, devenus inutiles.
+L'outillage d'instanciation s'est retiré : tools/init.sh, tools/init-test.sh
+et leurs références dans les façades et le contrat ont disparu. Cette
+instanciation ne se rejoue pas.
 EOF

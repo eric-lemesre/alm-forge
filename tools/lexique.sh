@@ -26,7 +26,7 @@
 # POSIX sh strict. Ce fichier ne s'exécute pas : il se source.
 
 # --- lexique-langue:debut ---
-# Figé par tools/init.sh selon --langue (ADR-0009) ; ne pas déplacer les
+# Figé à l'instanciation selon --langue (ADR-0009) ; ne pas déplacer les
 # marqueurs. Valeurs : fr | en | fr-en.
 LEXIQUE_LANGUE="${LEXIQUE_LANGUE:-fr-en}"
 # --- lexique-langue:fin ---

@@ -301,7 +301,8 @@ vérification.
 ## Arbitrer les défauts à l'instanciation
 
 L'arbitrage (ADR-0013) se rend à l'instanciation : l'option
-`--cycle-issues complet|reduit` de `tools/init.sh` applique le choix des flux
+L'option `--cycle-issues complet|reduit` de l'instanciation applique le choix
+des flux
 et le consigne au registre des décisions du projet — y compris quand c'est le
 défaut qui s'applique, comme pour la politique d'attribution (ADR-0011). Il
 porte sur :
