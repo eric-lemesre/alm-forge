@@ -7,6 +7,60 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Le lanceur joue toutes les portes et rend un bilan** (ADR-0019,
+  `req~porte-ci~2`). `tools/ci.sh` ne s'arrête plus à la première porte en
+  échec : il les joue toutes, les nomme toutes avec leur verdict, et sort en
+  erreur en annonçant combien ont échoué. Une porte LÉGITIMEMENT rouge — une
+  traçabilité qui attend la réalisation d'exigences déjà écrites — masquait
+  jusqu'ici l'état de toutes celles qui la suivaient, et rien dans la sortie
+  ne distinguait une porte non jouée d'une porte absente. Constaté sur un
+  projet instancié : deux tests d'outillage cassés depuis l'origine, dont l'un
+  depuis la fondation du gabarit, découverts en jouant les portes une à une à
+  la main. `tools/ci-test.sh` éprouve l'invariant — la liste des portes jouées
+  ne dépend pas de leurs verdicts — sans supposer un dépôt sain.
+
+- **Aucune référence pendante depuis une façade ou le contrat**
+  (`tools/checks.sh`). Une façade — `ci.sh`, `Taskfile.yml`, les deux façades
+  CI, le justfile — ou `AGENTS.md` qui appelle un script absent ne se voit
+  qu'à l'exécution, donc en CI et jamais en revue ; le contrat, lui, documente
+  alors une commande qui échoue. Le contrôle porte sur la RÉFÉRENCE et non sur
+  un nom de fichier, de sorte qu'il attrape aussi le script renommé. Cas
+  d'échec dans `tools/checks-test.sh` — dont le dépôt de synthèse a dû recevoir
+  un talon de `tools/ci.sh`, que ses deux façades CI appelaient déjà sans qu'il
+  existe.
+
+### Corrigé
+
+- **L'outillage d'instanciation se retire lui-même**
+  (`req~instanciation-outillee~2`). `tools/init.sh` supprime, en dernier geste,
+  son test, ses références dans les façades et le contrat, puis lui-même. Le
+  retrait était jusqu'ici PROPOSÉ en fin de message, comme une option, après
+  cinq autres étapes : une option qui doit être prise à chaque fois n'en est
+  pas une. Deux conséquences constatées sur un projet instancié — le test
+  rejouait le script sur un dépôt portant sa propre spécification et son propre
+  code, dont les tags de couverture devenaient orphelins dans le dépôt produit ;
+  et le script laissé en place restait destructeur tout en étant documenté au
+  contrat.
+
+- **`tools/derive-test.sh` ne laissait que le bloc « socle » neutralisé.** Le
+  fichier prévoit explicitement des cibles PROPRES AU PROJET après ce bloc ;
+  les laisser dans le dépôt de synthèse y faisait chercher des artefacts
+  inexistants, et le cas « artefact à jour, la porte doit passer » échouait dès
+  la première cible propre au projet. Invisible dans le gabarit, qui n'en a
+  aucune.
+
+- **`tools/gouvernance-test.sh` supposait la langue par défaut du gabarit.** Le
+  cas bilingue était écrit en dur et exigeait qu'un verdict d'audit anglais
+  soit accepté : vrai en « fr-en », faux dans tout dépôt instancié en « fr », où
+  la porte le refuse à bon droit. Même défaut que celui corrigé sur
+  `tools/socle-test.sh` par ADR-0002. L'assertion suit désormais la langue
+  constatée, avec un cas pour chacune des trois valeurs.
+
+- **`tools/oft.sh` n'avait aucun emplacement pour le code de réalisation.** Le
+  périmètre scanné ne connaissait que `examples/` et `tools/` ; `src/` s'y
+  ajoute. Le gabarit ne réalise rien, mais tout projet instancié le fait, et
+  ses exigences seraient restées orphelines sans qu'on sache pourquoi.
+
 - **Cohérence du dépôt produit avec les choix d'instanciation**
   (`req~coherence-choix-instanciation~1`). Un choix qui retire ou modifie une
   porte doit désormais se propager aux textes normatifs et aux tests
