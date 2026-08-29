@@ -344,19 +344,51 @@ prepare
 printf '2.0.0\n' > "${D}/VERSION"
 cas_echec badges "badge de version non régénéré"
 
-echo "gouvernance-test — lexique : en « fr-en », les DEUX formes sont acceptées"
-# Angle mort du test lui-même, trouvé en revue (constat n° 1) : le cas « en »
-# ci-dessous ne prouvait rien sur le mode bilingue, qui est pourtant le DÉFAUT
-# de l'instanciation. La porte n'acceptait alors que le français.
-prepare
-sed 's/| conforme |/| compliant |/' "${D}/docs/audit/domaine.md" > "${D}/x" && \
-    mv "${D}/x" "${D}/docs/audit/domaine.md"
-(cd "${D}" && sh tools/audit.sh --ecrire >/dev/null 2>&1 || true)
-if ! porte audit; then
-    echo "ÉCHEC : audit — un verdict anglais doit être accepté en langue « fr-en »" >&2
-    (cd "${D}" && sh tools/audit.sh 2>&1 | sed 's/^/        /') >&2
-    fail=1
-fi
+# La langue est un CHOIX D'INSTANCIATION (ADR-0009) : l'assertion doit suivre
+# le lexique installé, jamais supposer le défaut du gabarit. Écrit en dur sur
+# « fr-en », ce cas exigeait qu'un verdict anglais soit accepté — vrai ici,
+# faux dans tout dépôt instancié en « fr », où la porte le refuse à bon droit.
+# C'est le défaut corrigé sur socle-test par ADR-0002, resté sur celui-ci : un
+# test qui affirme le contraire de la règle installée n'échoue pas une fois,
+# il échoue toujours, et finit désactivé.
+LANGUE="$(. "${ROOT}/tools/lexique.sh"; echo "${LEXIQUE_LANGUE}")"
+echo "gouvernance-test — lexique : langue constatée = ${LANGUE}"
+
+case "${LANGUE}" in
+    fr-en)
+        echo "gouvernance-test — lexique : en « fr-en », les DEUX formes sont acceptées"
+        # Angle mort du test lui-même, trouvé en revue (constat n° 1) : le cas
+        # « en » ci-dessous ne prouvait rien sur le mode bilingue, qui est le
+        # DÉFAUT de l'instanciation. La porte n'acceptait alors que le français.
+        prepare
+        sed 's/| conforme |/| compliant |/' "${D}/docs/audit/domaine.md" > "${D}/x" && \
+            mv "${D}/x" "${D}/docs/audit/domaine.md"
+        (cd "${D}" && sh tools/audit.sh --ecrire >/dev/null 2>&1 || true)
+        if ! porte audit; then
+            echo "ÉCHEC : audit — un verdict anglais doit être accepté en langue « fr-en »" >&2
+            (cd "${D}" && sh tools/audit.sh 2>&1 | sed 's/^/        /') >&2
+            fail=1
+        fi
+        ;;
+    fr)
+        echo "gouvernance-test — lexique : en « fr », un verdict anglais doit être REFUSÉ"
+        prepare
+        sed 's/| conforme |/| compliant |/' "${D}/docs/audit/domaine.md" > "${D}/x" && \
+            mv "${D}/x" "${D}/docs/audit/domaine.md"
+        cas_echec audit "verdict anglais dans un dépôt francophone"
+        ;;
+    en)
+        echo "gouvernance-test — lexique : en « en », le verdict anglais est le seul admis"
+        prepare
+        sed 's/| conforme |/| compliant |/' "${D}/docs/audit/domaine.md" > "${D}/x" && \
+            mv "${D}/x" "${D}/docs/audit/domaine.md"
+        (cd "${D}" && sh tools/audit.sh --ecrire >/dev/null 2>&1 || true)
+        if ! porte audit; then
+            echo "ÉCHEC : audit — un verdict anglais doit être accepté en langue « en »" >&2
+            fail=1
+        fi
+        ;;
+esac
 
 echo "gouvernance-test — lexique : vocabulaire anglais avec --langue en"
 prepare

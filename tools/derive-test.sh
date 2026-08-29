@@ -16,12 +16,21 @@ D="${TMP}/depot"
 prepare() {
     rm -rf "${D}"
     mkdir -p "${D}/tools" "${D}/build"
-    # derive.sh, socle remplacé par une cible de synthèse : un générateur
-    # trivial et déterministe.
+    # derive.sh, TOUTES ses cibles remplacées par une seule de synthèse : un
+    # générateur trivial et déterministe.
+    #
+    # Ne neutraliser que le bloc « socle » ne suffit pas. Le fichier prévoit
+    # explicitement des cibles PROPRES AU PROJET après ce bloc ; les laisser
+    # dans le dépôt de synthèse y fait chercher des artefacts qui n'y existent
+    # pas, et le premier cas — « artefact à jour, la porte doit passer » —
+    # échoue pour une raison qui n'a rien à voir avec ce qu'il teste. Défaut
+    # invisible dans le gabarit, qui n'a aucune cible propre ; constaté sur un
+    # projet instancié dès sa première.
     awk '
-        /--- socle:debut ---/ { print; print "verifier \"sh tools/generer.sh\" genere.txt"; saute = 1; next }
-        /--- socle:fin ---/   { saute = 0 }
-        !saute { print }
+        /--- socle:debut ---/ { print; print "verifier \"sh tools/generer.sh\" genere.txt"; next }
+        /^verifier / { suite = ($0 ~ /\\$/); next }
+        suite        { suite = ($0 ~ /\\$/); next }
+        { print }
     ' "${ROOT}/tools/derive.sh" > "${D}/tools/derive.sh"
     cat > "${D}/tools/generer.sh" <<'EOF'
 #!/bin/sh
