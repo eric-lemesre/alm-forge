@@ -2,8 +2,9 @@
 # [utest->req~onboarding-outille~2]
 # [utest->req~accueil-informatif~1]
 # Test mécanisé du parcours d'accueil : exécute setup.sh sur une copie
-# temporaire et vérifie ses critères d'acceptation (hooks installés, portes
-# vertes, idempotence, échec du bootstrap sur prérequis manquant).
+# temporaire et vérifie ses critères d'acceptation : hooks installés, état des
+# portes RAPPORTÉ sans faire échouer l'accueil, idempotence, et échec du
+# bootstrap sur un prérequis manquant.
 # POSIX sh strict.
 set -eu
 
@@ -14,6 +15,10 @@ trap 'rm -rf "${TMP}"' EXIT INT TERM
 echo "setup-test — copie de travail dans ${TMP}"
 cp -R "${ROOT}/." "${TMP}/"
 rm -rf "${TMP}/.git" "${TMP}/build"
+# Un fichier d'identifiants local ne suit pas la copie : l'accueil n'en a
+# aucun besoin, et un tel fichier n'a rien à faire dans un répertoire
+# temporaire, fût-ce le temps d'une exécution.
+rm -f "${TMP}/.env"
 (cd "${TMP}" && git init -q && git add -A &&
     git -c user.name="Setup Test" -c user.email="setup-test@example.invalid" \
         -c commit.gpgsign=false commit -q -m "gabarit: état initial")
