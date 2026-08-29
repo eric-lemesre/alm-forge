@@ -93,6 +93,43 @@ Covers:
 
 Needs: impl, utest
 
+## Accueil informatif, jamais sanctionnant
+
+`req~accueil-informatif~1`
+
+**Statut : approuvée**
+
+Quand le script d'accueil rejoue les portes, il DOIT en rapporter l'état — en
+nommant celles qui échouent — et NE DOIT PAS faire de leur verdict un échec de
+l'accueil. Le verdict des portes reste porté par la porte elle-même.
+
+Rationale:
+Un dépôt dont la spécification précède la réalisation a des portes
+légitimement rouges : la traçabilité signale des maillons manquants tant que
+les exigences écrites attendent leur code. Faire échouer l'accueil sur ce
+verdict fait porter à un arrivant un défaut qui n'est pas le sien et qu'il ne
+peut pas corriger — son premier geste sur le dépôt échoue, et rien ne lui dit
+que c'est normal.
+
+Le silence serait pire que l'échec : un accueil qui ne dirait rien de l'état
+du dépôt laisserait croire qu'il est sain. D'où l'obligation de rapporter,
+symétrique de l'interdiction de sanctionner. Deux gestes, deux rôles :
+« task ci » sanctionne, « task setup » renseigne.
+
+Critères d'acceptation :
+
+- Étant donné un dépôt dont une porte échoue, quand le script d'accueil est
+  exécuté, alors il sort en succès.
+- Étant donné ce même dépôt, quand le script d'accueil est exécuté, alors sa
+  sortie annonce que des portes sont en échec.
+- Étant donné un dépôt dont toutes les portes passent, quand le script
+  d'accueil est exécuté, alors sa sortie l'annonce.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
 ## Onboarding outillé des contributeurs
 
 `req~onboarding-outille~2`

@@ -1,5 +1,6 @@
 #!/bin/sh
 # [impl->req~onboarding-outille~2]
+# [impl->req~accueil-informatif~1]
 # « Scripts to Rule Them All » — setup : accueillir un contributeur qui vient
 # de cloner. Dépendances (bootstrap), garde-fous, portes, puis orientation.
 # Idempotent : relançable sans dégât. POSIX sh strict.
@@ -16,11 +17,24 @@ git config core.hooksPath .githooks
 echo "Hooks installés (core.hooksPath = .githooks)."
 
 echo "Accueil 3/3 — état du dépôt (portes)"
-sh tools/oft.sh trace
-sh tools/checks.sh
+# L'accueil RENSEIGNE, il ne sanctionne pas. Un dépôt dont la spécification
+# précède la réalisation a des portes légitimement rouges ; en faire échouer
+# l'accueil ferait porter à un arrivant un défaut qui n'est pas le sien et
+# qu'il ne peut pas corriger. Le silence serait pire encore : la voie
+# documentaire complète est jouée, et son bilan nomme ce qui ne passe pas.
+# « task ci » sanctionne, « task setup » renseigne.
+if CI_COMPLET=0 sh tools/ci.sh --rapide; then
+    ETAT="toutes les portes documentaires passent."
+else
+    ETAT="des portes sont en ÉCHEC — voir le bilan ci-dessus, et « task ci »."
+fi
+
+cat <<EOF
+
+État du dépôt : ${ETAT}
+EOF
 
 cat <<'EOF'
-
 Poste prêt. Pour s'orienter :
   - AGENTS.md            — le contrat de travail (règles, boucle, commandes)
   - docs/methode/        — la méthode, du besoin aux tests mécanisés

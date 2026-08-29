@@ -12,8 +12,11 @@ task setup   # accueil complet : dépendances, hooks, portes, orientation
 
 (ou `sh tools/setup.sh` sans façade). Le script est idempotent ; il enchaîne
 `bootstrap` (socle + modules du projet, installation consentie des manquants —
-ADR-0014), l'installation
-des hooks et les portes. Détail des cibles : AGENTS.md §3.
+ADR-0014), l'installation des hooks, puis l'**état** des portes : il en
+rapporte le bilan et ne fait jamais de leur verdict un échec de l'accueil —
+un dépôt dont la spécification précède la réalisation a des portes
+légitimement rouges, et ce n'est pas à un arrivant de les porter. La sanction
+reste à `task ci`. Détail des cibles : AGENTS.md §3.
 
 Prérequis : git, un shell `sh` POSIX (fourni par Git sous Windows), curl,
 Java 17+ (pour OpenFastTrace, téléchargé automatiquement et vérifié par

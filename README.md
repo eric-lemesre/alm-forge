@@ -86,9 +86,10 @@ complaisance passe la première et échoue au second.
 3. Choisir l'orchestrateur : garder `Taskfile.yml` (défaut), le remplacer par
    la variante justfile de `templates/orchestrators/`, ou n'en garder aucun —
    les portes de `tools/` s'appellent aussi directement.
-4. `task setup` — accueil du poste : bootstrap, hooks, portes ; tout doit
-   être vert avant la première ligne. (Chaque contributeur suivant fait de
-   même après son clone.)
+4. `task setup` — accueil du poste : bootstrap, hooks, puis l'état des portes.
+   L'accueil **renseigne** : il rapporte le bilan sans jamais échouer dessus.
+   C'est `task ci` qui sanctionne. (Chaque contributeur suivant fait de même
+   après son clone.)
 5. Écrire votre premier besoin (`templates/fr/need.md`) et l'ADR-0001 de votre
    projet (`task adr-new -- …`).
 6. Étendre `tools/oft.sh` (périmètre scanné) et la CI aux répertoires de votre

@@ -29,6 +29,16 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   un talon de `tools/ci.sh`, que ses deux façades CI appelaient déjà sans qu'il
   existe.
 
+- **L'accueil renseigne, il ne sanctionne pas** (`req~accueil-informatif~1`).
+  `tools/setup.sh` joue désormais la voie documentaire complète et en rapporte
+  le bilan, sans faire du verdict des portes un échec de l'accueil. Un dépôt
+  dont la spécification précède la réalisation a des portes légitimement
+  rouges ; en faire échouer le premier geste d'un arrivant lui fait porter un
+  défaut qui n'est pas le sien et qu'il ne peut pas corriger. Le silence
+  serait pire : l'état est annoncé, et le bilan nomme les portes fautives.
+  `task ci` sanctionne, `task setup` renseigne. Exigence NOUVELLE plutôt que
+  révision de `req~onboarding-outille~2`, qui est tenue.
+
 ### Corrigé
 
 - **L'outillage d'instanciation se retire lui-même**
