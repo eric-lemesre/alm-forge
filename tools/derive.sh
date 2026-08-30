@@ -62,6 +62,7 @@ verifier "sh tools/audit.sh --ecrire"  docs/audit/README.md
 verifier "sh tools/badges.sh --ecrire" docs/badges/version.svg \
                                        docs/badges/exigences.svg \
                                        docs/badges/licence.svg
+verifier "sh tools/matrice.sh"         docs/tracabilite/matrice.md
 # --- socle:fin --------------------------------------------------------------
 
 # --- Point d'extension du projet instancié ----------------------------------

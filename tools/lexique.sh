@@ -195,6 +195,17 @@ lex_def JOURNAL_SECURITE   "Sécurité"   "Security"
 lex_def JOURNAL_DEPRECIE   "Déprécié"   "Deprecated"
 
 # ---------------------------------------------------------------------------
+# Classification des exigences (méthode, ch. 5) — étiquette de complétude
+# portée par tools/classification.sh : une exigence couverte, mais SOUS le
+# niveau de vérification que sa rigueur appelle (méthode, ch. 5 : « une
+# exigence bascule de mtest vers un niveau automatisé dès que c'est
+# techniquement possible »). Un état, donc un terme du lexique (R9) — même si
+# la phrase qui l'entoure reste, comme le reste de ce contrôle, un message de
+# diagnostic non traduit.
+# ---------------------------------------------------------------------------
+lex_def CLASSIFICATION_A_ELEVER "à élever" "to raise"
+
+# ---------------------------------------------------------------------------
 # Sections normatives lues par les portes.
 # ---------------------------------------------------------------------------
 lex_def SECTION_VERIFICATION "Vérification"        "Verification"

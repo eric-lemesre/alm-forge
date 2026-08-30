@@ -517,6 +517,12 @@ sh tools/revues.sh --ecrire >/dev/null
 sh tools/audit.sh --ecrire  >/dev/null
 sh tools/badges.sh --ecrire >/dev/null
 git add docs/todo docs/audit docs/revues docs/badges >/dev/null 2>&1 || true
+# docs/tracabilite/matrice.md n'est PAS régénéré ici : il balaie tout
+# l'outillage par fichier:ligne, y compris tools/init.sh et tools/init-test.sh
+# que l'étape suivante retire. Le régénérer maintenant le figerait avec des
+# références à des fichiers sur le point de disparaître — dérive détectée dès
+# la vérification finale. Sa régénération est donc reportée après le retrait
+# (étape 13/13).
 
 echo "12/13 — Retrait de l'outillage d'instanciation, devenu sans objet"
 # L'instanciation a lieu une fois. Ce qui la sert n'a plus d'objet ensuite, et
@@ -550,6 +556,13 @@ rm -f tools/init-test.sh
 # Ce script s'efface en dernier. Le shell garde le fichier ouvert par son
 # descripteur : le délier n'interrompt pas l'exécution en cours.
 rm -f tools/init.sh
+
+# Régénérée ICI, une fois l'outillage d'instanciation retiré : la matrice
+# balaie tout tools/ par fichier:ligne, et tools/init.sh en portait des tags
+# (Cf. étape 11/13). La régénérer avant ce retrait l'aurait figée avec des
+# références à des fichiers qui viennent de disparaître.
+sh tools/matrice.sh >/dev/null
+git add docs/tracabilite >/dev/null 2>&1 || true
 
 echo "13/13 — Vérification finale (traçabilité + cohérence)"
 # Environnement assaini (défense en profondeur, en plus de la primauté de
