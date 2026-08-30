@@ -41,12 +41,17 @@ audit *args:
 derive:
     sh tools/derive.sh
 
+# Matrice de traçabilité (informative, absente de `just ci`)
+matrice:
+    sh tools/matrice.sh
+
 # Régénère tous les artefacts dérivés
 regen:
     sh tools/todo.sh --ecrire
     sh tools/revues.sh --ecrire
     sh tools/audit.sh --ecrire
     sh tools/badges.sh --ecrire
+    sh tools/matrice.sh
 
 # Conformité des issues au cycle de vie (hors porte : réseau requis)
 issues:

@@ -10,16 +10,37 @@
 # dette invisible — l'exigence la plus contraignante du dépôt peut n'être
 # prouvée par rien, sans qu'aucun voyant ne s'allume.
 #
-# Deux contrôles :
+# Trois contrôles :
 #   1. toute exigence porte UN niveau normatif explicite (EARS, ch. 2) ;
 #   2. toute exigence de niveau DOIT déclare une vérification — mécanisée
-#      (utest/itest/stest) ou manuelle assumée (mtest).
+#      (utest/itest/stest) ou manuelle assumée (mtest) ;
+#   3. COMPLÉTUDE : une vérification manuelle (mtest) sur une exigence DOIT ou
+#      DEVRAIT n'est pas un défaut — R10 l'autorise explicitement — mais reste
+#      une promesse plus faible qu'un niveau mécanisé. Le contrôle la NOMME
+#      « à élever » sans faire échouer la porte : la méthode (ch. 5) dit
+#      qu'« une exigence bascule de mtest vers un niveau automatisé dès que
+#      c'est techniquement possible », chaque cas appelle donc un arbitrage
+#      (rester en mtest si l'automatisation n'est pas possible, ou écrire le
+#      test mécanisé) — jamais un tag de complaisance.
 #
 # PIÈGE VÉRIFIÉ, à l'origine du découpage du corps (constaté sur ergonomia) :
 # le niveau normatif se lit dans l'ÉNONCÉ seul. Un « DOIT » cité dans un
 # Rationale (« la porte DOIT rester hors ligne ») ou dans un critère
 # d'acceptation est un niveau EMPRUNTÉ : le classement le prendrait pour
 # l'énoncé et rangerait en DOIT une exigence rédigée en DEVRAIT.
+#
+# ADAPTATION DÉLIBÉRÉE (constatée sur un projet instancié, qui distingue par
+# un `Tags: niveau-…` le niveau de vérification CIBLE — unitaire/intégration/
+# système/manuel/… — de la couverture réellement déclarée, et nomme « à
+# élever » toute exigence couverte sous sa cible). Le gabarit ne porte PAS ce
+# `Tags:` : son format d'item (`docs/methode/02-exigences.md`) n'a que
+# Rationale/Critères/Covers/Needs, et son seul axe de rigueur exigible est le
+# niveau normatif EARS lui-même (R10 : seul le DOIT engage une vérification).
+# La complétude porte donc ici sur le seul écart qui existe réellement dans ce
+# format — mtest déclaré seul là où un niveau mécanisé reste possible — plutôt
+# que sur un axe « niveau cible » qui n'existe pas dans ce gabarit. Un projet
+# instancié qui adopte un `Tags: niveau-…` retrouve le contrôle complet en
+# reprenant la table niveau → type de la source (méthode, ch. 5).
 #
 #   sh tools/classification.sh            # contrôle + bilan chiffré
 #
@@ -49,8 +70,9 @@ FICHIERS="$(git ls-files 'spec/02-exigences/*.md' 2>/dev/null | \
 awk -v doit="$(lex NORM_DOIT)" \
     -v devrait="$(lex NORM_DEVRAIT)" \
     -v peut="$(lex NORM_PEUT)" \
-    -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" '
-function solder(   niveau, teste) {
+    -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" \
+    -v etiq_a_elever="$(lex_fr CLASSIFICATION_A_ELEVER)" '
+function solder(   niveau, teste, mecanisee, manuelle_seule) {
     if (id == "") return
     # Dénominateur : les exigences approuvées (ADR-0018). Un brouillon n’a pas
     # à porter un niveau de vérification : ce n’est pas encore un engagement.
@@ -80,7 +102,18 @@ function solder(   niveau, teste) {
             defauts++
         }
     }
-    if (teste) mecanisees[niveau]++
+
+    # Contrôle 3 — complétude : un DOIT/DEVRAIT couvert par mtest SEUL (aucun
+    # niveau mécanisé) tient sa promesse — R10 l’autorise — mais reste la
+    # preuve la plus faible. Ne fait jamais échouer : chaque cas appelle un
+    # arbitrage humain (méthode, ch. 5), pas un contrôle automatique.
+    mecanisee = (needs ~ /(utest|itest|stest)/)
+    manuelle_seule = (teste && !mecanisee && needs ~ /mtest/)
+    if (manuelle_seule && (niveau == "DOIT" || niveau == "DEVRAIT")) {
+        printf "  %s   %s — %s (niveau %s couvert par mtest seul — bascule vers un niveau mécanisé dès que possible)\n", \
+               etiq_a_elever, fichier, id, niveau
+        a_elever++
+    }
     id = ""; enonce = ""; needs = ""; statut = ""
 }
 
@@ -120,7 +153,17 @@ END {
     d = total["DOIT"] + 0; v = total["DEVRAIT"] + 0; p = total["PEUT"] + 0
     n = d + v + p
     printf "Classification : %d exigence(s) — %s %d, %s %d, %s %d.\n", n, "DOIT", d, "DEVRAIT", v, "PEUT", p
-    if (d > 0) printf "  DOIT avec vérification déclarée : %d/%d (%.1f %%)\n", verifiees + 0, d, (verifiees + 0) * 100 / d
+    # Dénominateur/taux (méthode, ch. 5) : M = exigences « testables » — dans
+    # ce gabarit, celles de niveau DOIT, seul niveau que R10 engage à une
+    # vérification (DEVRAIT/PEUT en sont l’équivalent du « non applicable » :
+    # aucune règle ne leur impose de Needs). N = celles qui en déclarent un
+    # réel (utest/itest/stest/mtest).
+    if (d > 0) {
+        printf "Couverture déclarée : %d/%d exigence(s) testable(s) (%.1f %%).\n", \
+               verifiees + 0, d, (verifiees + 0) * 100 / d
+        if (a_elever > 0)
+            printf "Complétude : %d exigence(s) couverte(s) par mtest seul (à élever).\n", a_elever + 0
+    }
     if (defauts > 0) {
         printf "%d défaut(s) de classification.\n", defauts > "/dev/stderr"
         exit 1
