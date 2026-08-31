@@ -10,6 +10,7 @@
 # [utest->req~journaux-depot-et-logiciel~1]
 # [utest->req~badges-autonomes~1]
 # [utest->req~lexique-outille~1]
+# [utest->req~avancement-calcule~1]
 # Test des portes de gouvernance documentaire, chacune sur son cas d'échec.
 # Un dépôt de synthèse est reconstruit avant chaque cas : les portes se
 # vérifient sur des données maîtrisées, jamais sur l'état du dépôt réel.
@@ -27,7 +28,7 @@ prepare() {
     rm -rf "${D}"
     mkdir -p "${D}/tools" "${D}/spec/02-exigences" "${D}/docs/decisions" \
              "${D}/docs/todo" "${D}/docs/revues" "${D}/docs/audit"
-    for s in lexique statuts releves classification todo revues audit journaux badges; do
+    for s in lexique statuts releves classification todo revues audit journaux badges avancement; do
         cp "${ROOT}/tools/${s}.sh" "${D}/tools/"
     done
 
@@ -52,9 +53,9 @@ EOF
     cat > "${D}/spec/02-exigences/README.md" <<'EOF'
 # Exigences
 
-| Domaine | Statut |
-| --- | --- |
-| [domaine](domaine.md) | ACTIVE |
+| Domaine | Statut | Objet |
+| --- | --- | --- |
+| [domaine](domaine.md) | ACTIVE | objet de démonstration |
 EOF
     cat > "${D}/docs/decisions/registre.md" <<'EOF'
 # Registre des décisions
@@ -95,6 +96,7 @@ EOF
                   sh tools/badges.sh --ecrire >/dev/null && \
                   sh tools/revues.sh --ecrire >/dev/null && \
                   sh tools/audit.sh --ecrire >/dev/null && \
+                  sh tools/avancement.sh --ecrire >/dev/null && \
                   git add -A && \
                   git -c user.name=t -c user.email=t@t commit -q -m "chore: artefacts dérivés")
 }
@@ -103,7 +105,7 @@ porte() { (cd "${D}" && sh "tools/$1.sh" >/dev/null 2>&1); }
 
 cas_sain() {
     prepare
-    for p in statuts releves classification todo revues audit journaux badges; do
+    for p in statuts releves classification todo revues audit journaux badges avancement; do
         if ! porte "${p}"; then
             echo "ÉCHEC : ${p} refuse un dépôt sain" >&2
             (cd "${D}" && sh "tools/${p}.sh" 2>&1 | sed 's/^/        /') >&2
@@ -306,6 +308,75 @@ if ! porte revues; then
     echo "ÉCHEC : revues — une barre échappée est du texte, pas un séparateur" >&2
     fail=1
 fi
+
+echo "gouvernance-test — avancement : due tenue (Needs déclaré) -> implémentée"
+prepare
+if ! grep -q '| implémentée | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — domaine entièrement tenu non reconnu implémentée" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : Needs vide, aucune fiche ouverte -> à planifier"
+prepare
+sed 's/^Needs: impl, utest$/Needs:/' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+(cd "${D}" && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| à planifier | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — domaine non tenu et non cité non reconnu à planifier" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : Needs vide, fiche OUVERTE qui cite -> planifiée"
+prepare
+sed 's/^Needs: impl, utest$/Needs:/' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+printf '# ToDo-0001 — Un chantier\n\n**Statut : 🚧 en cours**\n\nCite req~exigence-de-demonstration~1.\n' \
+    > "${D}/docs/todo/todo-0001-chantier.md"
+(cd "${D}" && sh tools/todo.sh --ecrire >/dev/null && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| planifiée | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — domaine cité par une fiche ouverte non reconnu planifiée" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : la même citation, fiche SOLDÉE -> ne compte plus"
+prepare
+sed 's/^Needs: impl, utest$/Needs:/' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+printf '# ToDo-0001 — Un chantier\n\n**Statut : ✅ fait**\n\nCite req~exigence-de-demonstration~1.\n' \
+    > "${D}/docs/todo/todo-0001-chantier.md"
+(cd "${D}" && sh tools/todo.sh --ecrire >/dev/null && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| à planifier | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — une fiche soldée comptée comme citation ouverte" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : aucune due (PEUT seul) -> hors mesure"
+prepare
+sed 's/^Le dépôt DOIT porter.*$/Le dépôt PEUT porter une exigence de démonstration./' \
+    "${D}/spec/02-exigences/domaine.md" > "${D}/x" && mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+(cd "${D}" && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| hors mesure | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — domaine sans exigence due non reconnu hors mesure" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : domaine non ACTIVE -> —"
+prepare
+sed 's/^\*\*Statut : ACTIVE\*\*.*$/**Statut : PROPOSITION** — pas encore actée./' \
+    "${D}/spec/02-exigences/domaine.md" > "${D}/x" && mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+sed 's/| ACTIVE |/| PROPOSITION |/' "${D}/spec/02-exigences/README.md" > "${D}/y" && \
+    mv "${D}/y" "${D}/spec/02-exigences/README.md"
+(cd "${D}" && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| — | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — domaine non actif non marqué « — »" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : colonne modifiée à la main"
+prepare
+sed 's/| implémentée |/| en cours |/' "${D}/spec/02-exigences/README.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/README.md"
+cas_echec avancement "colonne Avancement modifiée à la main"
 
 echo "gouvernance-test — audit : exigence non examinée"
 prepare

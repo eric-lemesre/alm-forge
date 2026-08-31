@@ -512,11 +512,17 @@ find docs/verification-manuelle -name '*.md' ! -name 'README.md' -exec rm -f {} 
 # lire des fichiers disparus de l'arbre de travail et l'instanciation échoue
 # (cas constaté : todo-0001 du gabarit, awk fatal dans un vrai clone).
 git add -A >/dev/null 2>&1 || true
-sh tools/todo.sh --ecrire   >/dev/null
-sh tools/revues.sh --ecrire >/dev/null
-sh tools/audit.sh --ecrire  >/dev/null
-sh tools/badges.sh --ecrire >/dev/null
-git add docs/todo docs/audit docs/revues docs/badges >/dev/null 2>&1 || true
+sh tools/todo.sh --ecrire       >/dev/null
+sh tools/revues.sh --ecrire     >/dev/null
+sh tools/audit.sh --ecrire      >/dev/null
+sh tools/badges.sh --ecrire     >/dev/null
+# Sans objet tant qu'aucun domaine n'existe (spec/02-exigences/*.md retirés à
+# l'étape 4/13) : appelé quand même, par la même rigueur que les générateurs
+# ci-dessus — le jour où un domaine survivrait à l'instanciation, sa colonne
+# Avancement doit être à jour dès cette étape, pas découverte en dérive à la
+# vérification finale.
+sh tools/avancement.sh --ecrire >/dev/null
+git add docs/todo docs/audit docs/revues docs/badges spec/02-exigences >/dev/null 2>&1 || true
 # docs/tracabilite/matrice.md n'est PAS régénéré ici : il balaie tout
 # l'outillage par fichier:ligne, y compris tools/init.sh et tools/init-test.sh
 # que l'étape suivante retire. Le régénérer maintenant le figerait avec des

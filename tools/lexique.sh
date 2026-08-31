@@ -206,6 +206,21 @@ lex_def JOURNAL_DEPRECIE   "Déprécié"   "Deprecated"
 lex_def CLASSIFICATION_A_ELEVER "à élever" "to raise"
 
 # ---------------------------------------------------------------------------
+# Avancement des DOMAINES (méthode, ch. 13) — à ne pas confondre avec les
+# statuts calculés de l'EXIGENCE (implémentée/vérifiée, ci-dessus) : celui-ci
+# résume un domaine entier depuis deux faits déjà écrits — ses exigences dues
+# tiennent-elles leur `Needs:` ? une fiche de feuille de route encore ouverte
+# le cite-t-elle ? — jamais depuis un chiffre saisi (tools/avancement.sh).
+# ---------------------------------------------------------------------------
+lex_def AVANCEMENT_LIBELLE     "Avancement"  "Progress"
+lex_def AVANCEMENT_IMPLEMENTEE "implémentée" "implemented"
+lex_def AVANCEMENT_EN_COURS    "en cours"    "in progress"
+lex_def AVANCEMENT_PLANIFIEE   "planifiée"   "planned"
+lex_def AVANCEMENT_A_PLANIFIER "à planifier" "to plan"
+lex_def AVANCEMENT_HORS_MESURE "hors mesure" "not measurable"
+lex_def AVANCEMENT_SANS_OBJET  "—"           "—"
+
+# ---------------------------------------------------------------------------
 # Sections normatives lues par les portes.
 # ---------------------------------------------------------------------------
 lex_def SECTION_VERIFICATION "Vérification"        "Verification"

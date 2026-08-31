@@ -76,7 +76,7 @@ dans `tools/*.sh`, appelables directement sans aucun runner.
 | `task audit` | `sh tools/audit.sh` | périmètre de l'audit de réalisation (`--squelette <domaine>`) |
 | `task derive` | `sh tools/derive.sh` | anti-dérive des artefacts générés |
 | `task matrice` | `sh tools/matrice.sh` | matrice de traçabilité (**informative**, absente de `task ci`) dans `docs/tracabilite/matrice.md` |
-| `task regen` | — | régénère feuille de route, suivi de revue, audit, badges, matrice |
+| `task regen` | — | régénère feuille de route, suivi de revue, audit, badges, avancement, matrice |
 | `task issues` | `sh tools/issues.sh` | conformité des issues (**hors porte** : réseau requis) |
 | `task hooks` | `git config core.hooksPath .githooks` | installe les hooks git du dépôt |
 | `task init -- --nom N --porteur P` | `sh tools/init.sh …` | instancie le gabarit (une seule fois) |
@@ -102,8 +102,8 @@ dans `tools/*.sh`, appelables directement sans aucun runner.
   deviendrait muette — sans erreur — dans un projet instancié dans l'autre
   langue.
 - Modifier à la main un artefact généré (index de feuille de route, suivi de
-  revue, tableau de bord d'audit, badges) ou une section de journal déjà
-  publiée.
+  revue, tableau de bord d'audit, badges, colonne Avancement de
+  `spec/02-exigences/README.md`) ou une section de journal déjà publiée.
 
 ## 5. Décisions déjà arbitrées
 
