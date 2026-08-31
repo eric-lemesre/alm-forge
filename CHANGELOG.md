@@ -54,6 +54,24 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Corrigé
 
+- **Quatre chemins de corruption silencieuse fermés dans les portes de
+  traçabilité** (`tools/classification.sh`, `tools/matrice.sh`,
+  `tools/avancement.sh`), constatés par revue adversariale sur un projet
+  instancié. Une deuxième ligne `Needs:` écrasait la première — deux
+  couvertures déclarées, une seule comptée : les lignes se cumulent désormais.
+  Un `Needs :` à la française (espace avant le deux-points) échappait aux
+  motifs `/^Needs:/` — la porte se désarmait en silence : l'espace est toléré.
+  Les types de vérification se lisaient par sous-chaîne — un mot qui contient
+  `itest` aurait compté : frontières de mot. Enfin le balayage des couvertures
+  réelles de la matrice incluait `docs/revues` et `docs/todo` — un constat de
+  revue qui CITE un tag aurait compté comme preuve : ces répertoires parlent
+  des exigences, ils ne les couvrent pas, ils sont exclus. Aucune valeur
+  produite ne change aujourd'hui (les générés sont identiques) : ces défauts
+  étaient latents, pas actifs. S'y ajoute une limite désormais écrite dans
+  `tools/avancement.sh` : « implémentée » inclut le vérifié manuellement
+  (R10), là où la complétude signale « à élever » — deux vues qui coexistent,
+  chacune disant ce qu'elle mesure.
+
 - **L'outillage d'instanciation se retire lui-même**
   (`req~instanciation-outillee~2`). `tools/init.sh` supprime, en dernier geste,
   son test, ses références dans les façades et le contrat, puis lui-même. Le

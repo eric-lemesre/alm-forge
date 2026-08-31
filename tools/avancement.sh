@@ -50,6 +50,15 @@
 #   sh tools/avancement.sh             # contrôle la colonne Avancement
 #   sh tools/avancement.sh --ecrire    # la régénère dans spec/02-exigences/README.md
 #
+# LIMITE ASSUMÉE — « implémentée » inclut le vérifié MANUELLEMENT. « Tenue »
+# signifie ici « déclare un Needs: non vide », mtest compris : un domaine dont
+# toutes les dues ne sont couvertes que par mtest s'affiche « implémentée »
+# alors que la complétude (tools/classification.sh) le signale « à élever ».
+# C'est voulu : R10 autorise la vérification manuelle assumée — « implémentée »
+# répond à « la promesse est-elle tenue ? », « à élever » répond à « la preuve
+# est-elle la plus forte possible ? ». Les deux vues coexistent, chacune dit
+# ce qu'elle mesure.
+#
 # LIMITE CONNUE : le tableau de spec/02-exigences/README.md est supposé porter
 # EXACTEMENT les colonnes Domaine (1re, lien vers <domaine>.md) puis Statut,
 # puis (une fois régénéré) Avancement, puis Objet — comme aujourd'hui. Une
@@ -171,12 +180,15 @@ calc_dues_tenues() {
         }
         attente_statut && NF > 0 { attente_statut = 0 }
         id == "" { next }
-        /^(Rationale:|Covers:|Needs:|Critères d.acceptation|Acceptance criteria|## )/ {
+        # Espace toléré avant le deux-points (« Needs : » à la française) ;
+        # les lignes Needs: se cumulent — la dernière n écrase pas la première.
+        /^(Rationale[ ]?:|Covers[ ]?:|Needs[ ]?:|Critères d.acceptation|Acceptance criteria|## )/ {
             dans_enonce = 0
         }
-        /^Needs:/ {
-            needs = $0
-            sub(/^Needs:[ \t]*/, "", needs)
+        /^Needs[ ]?:/ {
+            ligne = $0
+            sub(/^Needs[ ]?:[ \t]*/, "", ligne)
+            needs = (needs == "" ? ligne : needs " " ligne)
         }
         dans_enonce { enonce = enonce " " $0 }
         END {

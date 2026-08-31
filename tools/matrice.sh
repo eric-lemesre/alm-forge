@@ -105,9 +105,15 @@ else
     # ce que le projet instancié ajoute) : le motif reste générique, comme
     # celui d'OpenFastTrace, plutôt que d'énumérer des types qui deviendraient
     # vite obsolètes.
+    # Exclusion : docs/revues et docs/todo CITENT des exigences pour en
+    # parler (constat de revue, fiche de feuille de route), jamais pour les
+    # couvrir — une citation qui compterait comme preuve fabriquerait de la
+    # couverture. Le reste de docs/ porte des items réels (docs/methode est
+    # l'implémentation même de la méthode).
     SCAN_FILES="$(git ls-files spec docs examples src tools .github .gitlab \
                      .gitlab-ci.yml AGENTS.md README.md README.en.md \
-                     CONTRIBUTING.md CHANGELOG.md Taskfile.yml 2>/dev/null || true)"
+                     CONTRIBUTING.md CHANGELOG.md Taskfile.yml 2>/dev/null | \
+                  grep -v '^docs/revues/\|^docs/todo/' || true)"
     COUVERTURES=""
     if [ -n "${SCAN_FILES}" ]; then
         # shellcheck disable=SC2086 — découpe en mots voulue.
@@ -182,10 +188,12 @@ else
 
         id == "" { next }
 
-        /^(Rationale:|Covers:|Needs:|Critères d.acceptation|Acceptance criteria|## )/ {
+        # Espace toléré avant le deux-points (« Needs : » à la française) ;
+        # les lignes Needs: se cumulent — la dernière n écrase pas la première.
+        /^(Rationale[ ]?:|Covers[ ]?:|Needs[ ]?:|Critères d.acceptation|Acceptance criteria|## )/ {
             dans_enonce = 0
         }
-        /^Needs:/ { needs = $0 }
+        /^Needs[ ]?:/ { needs = (needs == "" ? $0 : needs " " $0) }
         dans_enonce { enonce = enonce " " $0 }
 
         END {
