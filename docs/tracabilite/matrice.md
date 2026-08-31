@@ -2,8 +2,6 @@
 
 <!-- GÉNÉRÉ par tools/matrice.sh — ne pas éditer à la main (R8). -->
 
-Date de génération : 2026-08-30.
-
 Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (OpenFastTrace) ni à `task ci` (`tools/classification.sh`) et ne peut jamais faire échouer une porte. Section 1 : chaque exigence des spécifications, avec ses couvertures RÉELLEMENT trouvées par balayage du dépôt (pas seulement les `Needs:` déclarés). Section 2 : son inverse, les fichiers d'outillage sans aucune trace de traçabilité — une liste de revue, pas un verdict.
 
 ## 1. Exigences → couvertures
@@ -131,6 +129,14 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Couvertures réelles (2) :
   - `impl` — tools/badges.sh:2
   - `utest` — tools/gouvernance-test.sh:11
+
+#### `req~avancement-calcule~1`
+
+- Niveau normatif : DOIT
+- Needs: impl, utest
+- Couvertures réelles (2) :
+  - `impl` — tools/avancement.sh:2
+  - `utest` — tools/gouvernance-test.sh:13
 
 ### spec/02-exigences/gouvernance.md
 
@@ -386,7 +392,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### Bilan (couvertures réelles)
 
-42/42 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+43/43 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
@@ -422,5 +428,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 12/61 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 12/62 fichier(s) d'outillage sans trace de traçabilité.**
 

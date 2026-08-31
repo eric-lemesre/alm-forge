@@ -100,6 +100,7 @@ etape "classification"     sh tools/classification.sh
 etape "relevés"            sh tools/releves.sh
 etape "journaux"           sh tools/journaux.sh
 etape "feuille de route"   sh tools/todo.sh
+etape "avancement"         sh tools/avancement.sh
 etape "constats de revue"  sh tools/revues.sh
 etape "audit"              sh tools/audit.sh
 etape "badges"             sh tools/badges.sh

@@ -51,6 +51,7 @@ regen:
     sh tools/revues.sh --ecrire
     sh tools/audit.sh --ecrire
     sh tools/badges.sh --ecrire
+    sh tools/avancement.sh --ecrire
     sh tools/matrice.sh
 
 # Conformité des issues au cycle de vie (hors porte : réseau requis)

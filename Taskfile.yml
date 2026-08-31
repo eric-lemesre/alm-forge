@@ -60,12 +60,13 @@ tasks:
       - sh tools/matrice.sh
 
   regen:
-    desc: Régénère tous les artefacts dérivés (feuille de route, suivi, audit, badges, matrice)
+    desc: Régénère tous les artefacts dérivés (feuille de route, suivi, audit, badges, avancement, matrice)
     cmds:
       - sh tools/todo.sh --ecrire
       - sh tools/revues.sh --ecrire
       - sh tools/audit.sh --ecrire
       - sh tools/badges.sh --ecrire
+      - sh tools/avancement.sh --ecrire
       - sh tools/matrice.sh
 
   issues:

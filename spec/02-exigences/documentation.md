@@ -128,3 +128,49 @@ Covers:
 - feat~documentation-verifiee~1
 
 Needs: impl, utest
+
+## Avancement des domaines, calculé depuis les exigences et la feuille de route
+
+`req~avancement-calcule~1`
+
+**Statut : approuvée**
+
+L'index `spec/02-exigences/README.md` DOIT porter, pour chaque domaine ACTIVE,
+un état d'avancement calculé depuis deux faits déjà écrits : ses exigences
+dues (DOIT ou DEVRAIT, approuvées) et si elles tiennent leur promesse de
+vérification (`Needs:` déclaré), et les fiches de la feuille de route non
+soldées qui citent des exigences du domaine. Cet état NE DOIT jamais être
+saisi à la main.
+
+Rationale:
+Même défaut que l'index de feuille de route (ch. 12) et les statuts calculés
+de l'exigence (ADR-0018) : un avancement écrit à la main se périme au premier
+remaniement, sans qu'aucune porte ne le remarque, et il inspire d'autant plus
+confiance qu'il affiche un chiffre. Le domaine est la maille qui manquait :
+l'exigence dit si ELLE tient, la feuille de route dit ce qui est planifié,
+mais rien ne réunissait les deux pour dire où en est un DOMAINE entier — la
+question que pose un point d'avancement de projet.
+
+Critères d'acceptation :
+
+- Étant donné un domaine ACTIVE dont toutes les exigences dues déclarent leur
+  `Needs:`, quand la porte s'exécute, alors il est dit « implémentée ».
+- Étant donné un domaine ACTIVE dont certaines exigences dues déclarent leur
+  `Needs:` et d'autres non, quand la porte s'exécute, alors il est dit
+  « en cours ».
+- Étant donné un domaine ACTIVE sans aucune exigence due tenue mais cité par
+  une fiche de feuille de route non soldée, quand la porte s'exécute, alors
+  il est dit « planifiée ».
+- Étant donné un domaine ACTIVE sans exigence due tenue et cité par aucune
+  fiche, quand la porte s'exécute, alors il est dit « à planifier ».
+- Étant donné un domaine ACTIVE sans aucune exigence due (DOIT/DEVRAIT), quand
+  la porte s'exécute, alors il est dit « hors mesure ».
+- Étant donné un domaine qui n'est pas ACTIVE, quand la porte s'exécute, alors
+  la colonne affiche « — ».
+- Étant donné une colonne modifiée à la main, quand la porte s'exécute, alors
+  elle échoue en indiquant la commande de régénération.
+
+Covers:
+- feat~documentation-verifiee~1
+
+Needs: impl, utest
