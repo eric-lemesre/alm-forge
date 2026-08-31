@@ -92,7 +92,9 @@ function solder(   niveau, teste, mecanisee, manuelle_seule) {
         total[niveau]++
     }
 
-    teste = (needs ~ /(utest|itest|stest|mtest)/)
+    # Frontières de mot : « itest » ne doit se lire ni dans un mot qui le
+    # contient, ni ailleurs que comme un type entier de la liste Needs.
+    teste = (needs ~ /(^|[ ,:])(utest|itest|stest|mtest)([ ,]|$)/)
     if (niveau == "DOIT") {
         if (teste) verifiees++
         else {
@@ -107,8 +109,8 @@ function solder(   niveau, teste, mecanisee, manuelle_seule) {
     # niveau mécanisé) tient sa promesse — R10 l’autorise — mais reste la
     # preuve la plus faible. Ne fait jamais échouer : chaque cas appelle un
     # arbitrage humain (méthode, ch. 5), pas un contrôle automatique.
-    mecanisee = (needs ~ /(utest|itest|stest)/)
-    manuelle_seule = (teste && !mecanisee && needs ~ /mtest/)
+    mecanisee = (needs ~ /(^|[ ,:])(utest|itest|stest)([ ,]|$)/)
+    manuelle_seule = (teste && !mecanisee && needs ~ /(^|[ ,:])mtest([ ,]|$)/)
     if (manuelle_seule && (niveau == "DOIT" || niveau == "DEVRAIT")) {
         printf "  %s   %s — %s (niveau %s couvert par mtest seul — bascule vers un niveau mécanisé dès que possible)\n", \
                etiq_a_elever, fichier, id, niveau
@@ -141,11 +143,15 @@ attente_statut && NF > 0 { attente_statut = 0 }
 id == "" { next }
 
 # Fin de l’énoncé : tout ce qui suit (rationale, critères, relations) porte
-# un vocabulaire qui n’est PAS celui de l’exigence.
-/^(Rationale:|Covers:|Needs:|Critères d.acceptation|Acceptance criteria|## )/ {
+# un vocabulaire qui n’est PAS celui de l’exigence. Les noms de champ
+# tolèrent l’espace avant le deux-points (« Needs : » à la française) : une
+# typographie ne doit jamais désarmer une porte en silence.
+/^(Rationale[ ]?:|Covers[ ]?:|Needs[ ]?:|Critères d.acceptation|Acceptance criteria|## )/ {
     dans_enonce = 0
 }
-/^Needs:/ { needs = $0 }
+# Les lignes Needs: se CUMULENT : la dernière n’écrase pas la première —
+# deux déclarations valent deux couvertures, pas une perte silencieuse.
+/^Needs[ ]?:/ { needs = (needs == "" ? $0 : needs " " $0) }
 dans_enonce { enonce = enonce " " $0 }
 
 END {
