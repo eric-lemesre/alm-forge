@@ -1,5 +1,5 @@
 #!/bin/sh
-# [impl->req~classification-exigences~1]
+# [impl->req~classification-exigences~2]
 # [impl->req~format-exigence-ears~1]
 # Classification des exigences : niveau normatif × niveau de vérification.
 #
@@ -14,14 +14,18 @@
 #   1. toute exigence porte UN niveau normatif explicite (EARS, ch. 2) ;
 #   2. toute exigence de niveau DOIT déclare une vérification — mécanisée
 #      (utest/itest/stest) ou manuelle assumée (mtest) ;
-#   3. COMPLÉTUDE : une vérification manuelle (mtest) sur une exigence DOIT ou
-#      DEVRAIT n'est pas un défaut — R10 l'autorise explicitement — mais reste
-#      une promesse plus faible qu'un niveau mécanisé. Le contrôle la NOMME
-#      « à élever » sans faire échouer la porte : la méthode (ch. 5) dit
-#      qu'« une exigence bascule de mtest vers un niveau automatisé dès que
-#      c'est techniquement possible », chaque cas appelle donc un arbitrage
-#      (rester en mtest si l'automatisation n'est pas possible, ou écrire le
-#      test mécanisé) — jamais un tag de complaisance.
+#   3. COMPLÉTUDE (durcie — révision ~2 de l'exigence) : une vérification
+#      manuelle (mtest) sur une exigence DOIT ou DEVRAIT n'est pas un défaut
+#      en soi — R10 l'autorise explicitement — mais reste une promesse plus
+#      faible qu'un niveau mécanisé, et la méthode (ch. 5) dit qu'« une
+#      exigence bascule de mtest vers un niveau automatisé dès que c'est
+#      techniquement possible ». Un signal qu'on peut ignorer sans trace
+#      finit ignoré : le contrôle FAIT donc ÉCHOUER la porte, sauf report
+#      explicite — l'identifiant suivi du marqueur « (à élever…) » dans une
+#      fiche de la feuille de route (docs/todo/) — auquel cas l'exigence est
+#      NOMMÉE comme dette à chaque passage. Chaque cas appelle un arbitrage
+#      (écrire le test mécanisé, ou assumer le mtest durablement avec son
+#      motif dans la fiche) — jamais un tag de complaisance.
 #
 # PIÈGE VÉRIFIÉ, à l'origine du découpage du corps (constaté sur ergonomia) :
 # le niveau normatif se lit dans l'ÉNONCÉ seul. Un « DOIT » cité dans un
@@ -66,12 +70,36 @@ FICHIERS="$(git ls-files 'spec/02-exigences/*.md' 2>/dev/null | \
             grep -v 'spec/02-exigences/README.md' || true)"
 [ -n "${FICHIERS}" ] || { echo "Classification : aucune exigence."; exit 0; }
 
+# Reports de complétude : l'identifiant suivi du marqueur « (à élever…) »
+# dans une fiche de la feuille de route. Le marqueur se lit dans TOUTES les
+# fiches, ouvertes ou closes : le report vit dans la fiche du chantier qui
+# rendra l'arbitrage, et s'il survit à sa clôture il reste une dette nommée,
+# jamais un oubli. Terme pris au lexique (R9) — la ou les langues selon la
+# langue figée du dépôt.
+MARQUE_ELEVER="req~[a-z0-9-]+~[0-9]+\`? *\($(lex_motif CLASSIFICATION_A_ELEVER)"
+ELEVEES=""
+for fiche in $(git ls-files 'docs/todo/todo-*.md' 2>/dev/null || true); do
+    ELEVEES="${ELEVEES}$(grep -ohE "${MARQUE_ELEVER}" "${fiche}" 2>/dev/null \
+        | grep -ohE '^req~[a-z0-9-]+~[0-9]+' || true)
+"
+done
+
 # shellcheck disable=SC2086 — découpe en mots voulue.
 awk -v doit="$(lex NORM_DOIT)" \
     -v devrait="$(lex NORM_DEVRAIT)" \
     -v peut="$(lex NORM_PEUT)" \
     -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" \
-    -v etiq_a_elever="$(lex_fr CLASSIFICATION_A_ELEVER)" '
+    -v etiq_a_elever="$(lex_fr CLASSIFICATION_A_ELEVER)" \
+    -v elevees="${ELEVEES}" '
+BEGIN {
+    nrep = split(elevees, liste, "\n")
+    for (i = 1; i <= nrep; i++) if (liste[i] != "") {
+        # La comparaison ignore la version : un report survit à une révision
+        # de l’exigence — c’est l’exigence qu’on reporte, pas son numéro.
+        r = liste[i]; sub(/~[0-9]+$/, "~", r); reportee[r] = 1
+    }
+}
+function racine(item,   r) { r = item; sub(/~[0-9]+$/, "~", r); return r }
 function solder(   niveau, teste, mecanisee, manuelle_seule) {
     if (id == "") return
     # Dénominateur : les exigences approuvées (ADR-0018). Un brouillon n’a pas
@@ -105,16 +133,26 @@ function solder(   niveau, teste, mecanisee, manuelle_seule) {
         }
     }
 
-    # Contrôle 3 — complétude : un DOIT/DEVRAIT couvert par mtest SEUL (aucun
-    # niveau mécanisé) tient sa promesse — R10 l’autorise — mais reste la
-    # preuve la plus faible. Ne fait jamais échouer : chaque cas appelle un
-    # arbitrage humain (méthode, ch. 5), pas un contrôle automatique.
+    # Contrôle 3 — complétude (durcie) : un DOIT/DEVRAIT couvert par mtest
+    # SEUL (aucun niveau mécanisé) tient la lettre de R10 mais reste la
+    # preuve la plus faible. ÉCHEC, sauf report explicite par une fiche de
+    # la feuille de route — l’exigence est alors nommée comme dette à
+    # chaque passage, jamais un signal qu’on ignore en silence.
     mecanisee = (needs ~ /(^|[ ,:])(utest|itest|stest)([ ,]|$)/)
     manuelle_seule = (teste && !mecanisee && needs ~ /(^|[ ,:])mtest([ ,]|$)/)
     if (manuelle_seule && (niveau == "DOIT" || niveau == "DEVRAIT")) {
-        printf "  %s   %s — %s (niveau %s couvert par mtest seul — bascule vers un niveau mécanisé dès que possible)\n", \
-               etiq_a_elever, fichier, id, niveau
-        a_elever++
+        if (reportee[racine(id)]) {
+            printf "  %s   %s — %s (niveau %s couvert par mtest seul ; reporté par fiche)\n", \
+                   etiq_a_elever, fichier, id, niveau
+            a_elever++
+        } else {
+            printf "ÉCHEC : %s — %s : niveau %s couvert par mtest seul, sans report.\n", \
+                   fichier, id, niveau > "/dev/stderr"
+            printf "        Écrire le test mécanisé (utest/itest/stest), ou reporter\n" > "/dev/stderr"
+            printf "        explicitement : « %s (%s : motif) » dans une fiche de la\n", id, etiq_a_elever > "/dev/stderr"
+            printf "        feuille de route (docs/todo/) — la dette sera nommée à chaque passage.\n" > "/dev/stderr"
+            defauts++
+        }
     }
     id = ""; enonce = ""; needs = ""; statut = ""
 }
@@ -168,7 +206,7 @@ END {
         printf "Couverture déclarée : %d/%d exigence(s) testable(s) (%.1f %%).\n", \
                verifiees + 0, d, (verifiees + 0) * 100 / d
         if (a_elever > 0)
-            printf "Complétude : %d exigence(s) couverte(s) par mtest seul (à élever).\n", a_elever + 0
+            printf "Complétude : %d exigence(s) couverte(s) par mtest seul, reportée(s) par fiche (à élever).\n", a_elever + 0
     }
     if (defauts > 0) {
         printf "%d défaut(s) de classification.\n", defauts > "/dev/stderr"

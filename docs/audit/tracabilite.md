@@ -11,7 +11,7 @@ Miroir de [`spec/02-exigences/tracabilite.md`](../../spec/02-exigences/tracabili
 | `req~exemple-multilangage~1` | conforme | `examples/demo-multi-langages/` — Python, Rust, shell, chaîne complète et tests tagués ; l'implémentation shell est exécutée par `tools/socle-test.sh` |
 | `req~perimetre-constate~1` | conforme | `tools/perimetre.sh` et `tools/ci.sh` ; ADR-0017 ; `tools/perimetre-test.sh` couvre six cas dont quatre négatifs |
 | `req~anti-derive-generes~1` | conforme | `tools/derive.sh`, double contrôle suivi-par-git puis régénération ; `tools/derive-test.sh` couvre le cas capital de l'artefact non versionné |
-| `req~classification-exigences~1` | conforme | `tools/classification.sh` ; `tools/gouvernance-test.sh` couvre les trois cas, dont le niveau normatif emprunté au rationale |
+| `req~classification-exigences~2` | conforme | `tools/classification.sh` ; `tools/gouvernance-test.sh` couvre les cinq cas, dont le niveau emprunté au rationale, le mtest seul refusé sans report et le report par fiche qui nomme la dette |
 | `req~audit-de-realisation~1` | conforme | ce document et ses six pairs ; `tools/audit.sh` ; ADR-0016 ; quatre cas d'échec dans `tools/gouvernance-test.sh` |
 
 ## Écarts ouverts

@@ -188,14 +188,18 @@ Needs: impl, utest
 
 ## Classification des exigences
 
-`req~classification-exigences~1`
+`req~classification-exigences~2`
 
 **Statut : approuvée**
 
 Toute exigence DOIT porter un niveau normatif explicite dans son énoncé, et
 toute exigence de niveau le plus contraignant DOIT déclarer un niveau de
 vérification — mécanisé ou manuel assumé. Le niveau normatif DOIT être lu dans
-le seul énoncé, à l'exclusion du rationale et des critères d'acceptation.
+le seul énoncé, à l'exclusion du rationale et des critères d'acceptation. Une
+exigence du niveau le plus contraignant couverte par une vérification
+manuelle SEULE DOIT faire échouer la porte, sauf report explicite —
+l'identifiant suivi du marqueur « (à élever…) » dans une fiche de la feuille
+de route — auquel cas la porte la nomme comme dette à chaque passage.
 
 Rationale:
 La traçabilité vérifie qu'un « Needs » déclaré est satisfait ; elle ne vérifie
@@ -204,7 +208,14 @@ DOIT sans déclarer aucune vérification passe donc en silence — la plus
 contraignante du dépôt peut n'être prouvée par rien. L'exclusion du rationale
 répond au piège du niveau EMPRUNTÉ constaté sur ergonomia : un « DOIT » cité
 dans une justification faisait classer en DOIT une exigence rédigée en
-DEVRAIT.
+DEVRAIT. La couverture manuelle seule tient la lettre de R10 mais reste la
+preuve la plus faible ; tant qu'elle n'était que signalée « à élever », le
+signal pouvait être ignoré sans trace — précisément ce que les portes du
+dépôt existent pour empêcher (constaté sur un projet instancié : le même
+contrôle, durci, a débusqué des écarts réels dès sa première exécution). Le
+report par fiche transforme « ne pas prendre en compte » en acte écrit, relu
+à chaque passage — jamais un oubli silencieux. *(Révision `~2` : le
+signalement devient bloquant, avec report explicite.)*
 
 Critères d'acceptation :
 
@@ -215,6 +226,13 @@ Critères d'acceptation :
 - Étant donné une exigence dont seul le rationale contient un niveau
   normatif, quand la porte s'exécute, alors elle échoue sans la classer au
   niveau emprunté.
+- Étant donné une exigence de niveau DOIT couverte par mtest seul et absente
+  des reports de la feuille de route, quand la porte s'exécute, alors elle
+  échoue en indiquant les deux sorties (mécaniser, ou reporter par le
+  marqueur).
+- Étant donné la même exigence dont l'identifiant, suivi du marqueur
+  « (à élever…) », figure dans une fiche de la feuille de route, quand la
+  porte s'exécute, alors elle passe en nommant la dette.
 
 Covers:
 - feat~tracabilite-mecanisee~1
