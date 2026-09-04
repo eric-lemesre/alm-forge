@@ -44,6 +44,13 @@ dans `docs/verification-manuelle/`, tagué mtest, décrivant : préconditions,
 étapes, résultat attendu, fréquence d'exécution (à chaque release au minimum),
 et le journal des exécutions (date, exécutant, verdict). Une exigence bascule
 de mtest vers un niveau automatisé dès que c'est techniquement possible.
+Cet engagement est **outillé** (`req~classification-exigences~2`) : une
+exigence du niveau le plus contraignant couverte par mtest seul fait
+**échouer** la porte de classification, sauf report explicite —
+l'identifiant suivi du marqueur « (à élever : motif) » dans une fiche de la
+feuille de route (`docs/todo/`) — auquel cas la dette est nommée à chaque
+passage. Assumer durablement une vérification manuelle reste légitime (R10) :
+c'est alors un motif consigné qui le dit, jamais un signal ignoré.
 
 ## Qualité du parc de tests
 

@@ -248,6 +248,21 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Modifié
 
+- **La complétude devient bloquante** (`req~classification-exigences~2`).
+  Une exigence DOIT/DEVRAIT couverte par mtest seul n'est plus un signal
+  « à élever » qu'on peut ignorer sans trace : la porte de classification
+  **échoue**, sauf report explicite — l'identifiant suivi du marqueur
+  « (à élever : motif) » dans une fiche de la feuille de route
+  (`docs/todo/`) — la dette étant alors nommée à chaque passage. Assumer
+  durablement une vérification manuelle reste légitime (R10) : c'est
+  désormais un motif consigné qui le dit. Les dix exigences concernées sont
+  reportées par la fiche
+  [ToDo-0002](docs/todo/todo-0002-completude-a-elever.md), chacune en
+  attente d'un arbitrage du mainteneur ; `tools/gouvernance-test.sh`
+  éprouve les deux nouveaux cas (mtest seul refusé sans report ; report par
+  fiche qui passe en nommant). Mécanique éprouvée sur un projet instancié,
+  où le même durcissement a débusqué des écarts réels dès sa première
+  exécution.
 - **Dette révélée et résorbée.** La porte de classification a montré que 19
   exigences sur 25 étaient de niveau DOIT **sans aucune vérification
   déclarée** — dont les trois contrôles historiques de `tools/checks.sh`, qui

@@ -372,7 +372,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `utest` — tools/derive-test.sh:2
   - `impl` — tools/derive.sh:2
 
-#### `req~classification-exigences~1`
+#### `req~classification-exigences~2`
 
 - Niveau normatif : DOIT
 - Needs: impl, utest

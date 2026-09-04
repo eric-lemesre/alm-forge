@@ -2,7 +2,7 @@
 # [utest->req~statut-specification~1]
 # [utest->req~cycle-de-vie-exigence~2]
 # [utest->req~releves-de-decision~1]
-# [utest->req~classification-exigences~1]
+# [utest->req~classification-exigences~2]
 # [utest->req~format-exigence-ears~1]
 # [utest->req~feuille-de-route-outillee~1]
 # [utest->req~suivi-constats-revue~1]
@@ -200,6 +200,24 @@ prepare
 sed 's/^Needs: impl, utest$/Needs: impl/' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
     mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
 cas_echec classification "exigence DOIT sans niveau de test"
+
+echo "gouvernance-test — classification : mtest seul sans report (complétude durcie)"
+prepare
+sed 's/^Needs: impl, utest$/Needs: impl, mtest/' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+cas_echec classification "DOIT couvert par mtest seul, sans report"
+
+echo "gouvernance-test — classification : mtest seul reporté par fiche (dette nommée)"
+prepare
+sed 's/^Needs: impl, utest$/Needs: impl, mtest/' "${D}/spec/02-exigences/domaine.md" > "${D}/x" && \
+    mv "${D}/x" "${D}/spec/02-exigences/domaine.md"
+printf '\n- `req~exigence-de-demonstration~1` (à élever : à mécaniser)\n' \
+    >> "${D}/docs/todo/todo-0001-chantier.md"
+if ! porte classification; then
+    echo "ÉCHEC : classification refuse un mtest seul pourtant reporté par fiche" >&2
+    (cd "${D}" && sh tools/classification.sh 2>&1 | sed 's/^/        /') >&2
+    fail=1
+fi
 
 echo "gouvernance-test — classification : énoncé sans niveau normatif"
 prepare
