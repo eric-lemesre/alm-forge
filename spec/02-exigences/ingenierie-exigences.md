@@ -90,6 +90,40 @@ Covers:
 
 Needs: dsn, impl, utest, mtest
 
+## Statut lu par l'outil de traçabilité
+
+`req~statut-trace-concordant~1`
+
+**Statut : approuvée**
+
+La porte de traçabilité DOIT ne retenir que les items approuvés. Un besoin ou
+une exigence non approuvés DOIVENT porter le statut OpenFastTrace
+correspondant (`Status: draft`, `proposed` ou `rejected`) sur la ligne qui
+suit immédiatement leur identifiant, et si ce statut ne concorde pas avec le
+statut déclaré d'une exigence, alors la porte des statuts DOIT échouer.
+
+Rationale:
+Sans filtre, une exigence rédigée mais non réalisée fait échouer le commit :
+la spécification ne peut entrer au dépôt qu'avec son code, à rebours de la
+méthode. Sans concordance, une exigence approuvée marquée `draft` sortirait
+de la traçabilité sans que rien ne le signale. OpenFastTrace ne lit `Status:`
+que collé sous l'identifiant : constaté sur un projet instancié (LeadSage).
+
+Critères d'acceptation :
+
+- Étant donné un besoin et une exigence en `Status: draft` non réalisés,
+  quand la traçabilité s'exécute, alors elle passe.
+- Étant donné une exigence approuvée non réalisée, quand la traçabilité
+  s'exécute, alors elle échoue.
+- Étant donné une exigence déclarée approuvée marquée `Status: draft`, ou en
+  brouillon sans `Status:`, ou dont le `Status:` est séparé de
+  l'identifiant, quand la porte des statuts s'exécute, alors elle échoue.
+
+Covers:
+- feat~tracabilite-mecanisee~1
+
+Needs: dsn, impl, utest
+
 `req~questions-ouvertes~1`
 
 **Statut : approuvée**

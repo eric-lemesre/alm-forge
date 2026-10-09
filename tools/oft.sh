@@ -1,5 +1,6 @@
 #!/bin/sh
 # [impl->req~tracabilite-outillee~1]
+# [impl->req~statut-trace-concordant~1]
 # Point unique d'exécution d'OpenFastTrace : la CI, les hooks et les façades
 # d'orchestration (Taskfile, justfile…) passent tous par ce script, avec le
 # même périmètre de fichiers (R2, ADR-0002, ADR-0007).
@@ -13,6 +14,8 @@ OFT_URL="https://github.com/itsallcode/openfasttrace/releases/download/${OFT_VER
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 JAR="${ROOT}/.cache/openfasttrace-${OFT_VERSION}.jar"
+# Statuts OpenFastTrace retenus par la porte (ADR-0020).
+STATUTS_TRACES="approved"
 
 # Périmètre scanné (relatif à la racine). templates/ est exclu : les modèles
 # contiennent des identifiants d'exemple qui ne doivent pas devenir des items.
@@ -73,7 +76,11 @@ case "${1:-trace}" in
         fetch_jar
         scan_inputs
         # shellcheck disable=SC2086 — la découpe en mots de SCAN est voulue.
-        java -jar "${JAR}" trace -v failures ${SCAN}
+        # Seuls les items approuvés entrent dans la porte (ADR-0020) : un
+        # besoin ou une exigence non arbitrés portent « Status: draft » (ou
+        # proposed) sous leur identifiant, et tools/statuts.sh vérifie que ce
+        # statut concorde avec le statut déclaré de l'exigence.
+        java -jar "${JAR}" trace -v failures -w "${STATUTS_TRACES}" ${SCAN}
         echo "Traçabilité : OK (aucune exigence orpheline)."
         ;;
     report)
@@ -83,8 +90,8 @@ case "${1:-trace}" in
         mkdir -p build
         # Le rapport HTML est informatif : généré même en cas de défauts ; le
         # code retour de la porte est porté par le résumé qui suit.
-        java -jar "${JAR}" trace -o html -f build/tracabilite.html ${SCAN} || true
-        java -jar "${JAR}" trace -v summary ${SCAN}
+        java -jar "${JAR}" trace -o html -f build/tracabilite.html -w "${STATUTS_TRACES}" ${SCAN} || true
+        java -jar "${JAR}" trace -v summary -w "${STATUTS_TRACES}" ${SCAN}
         echo "Rapport : build/tracabilite.html"
         ;;
     *)

@@ -122,6 +122,8 @@ etape "test — lanceur"           sh tools/ci-test.sh
 etape "test — anti-secrets"      sh tools/secrets-test.sh
 etape "test — données"           sh tools/donnees-test.sh
 etape "test — liens"             sh tools/liens-test.sh
+etape "test — statuts"           sh tools/statuts-test.sh
+etape "test — traçabilité"       sh tools/oft-test.sh
 etape "test — périmètre"         sh tools/perimetre-test.sh
 etape "test — anti-dérive"       sh tools/derive-test.sh
 etape "test — cohérence"         sh tools/checks-test.sh
