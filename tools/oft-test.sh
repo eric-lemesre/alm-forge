@@ -58,6 +58,10 @@ attendu ok "items en brouillon"
 echo "oft-test — besoin et exigence approuvés, aucun maillon aval : acceptés (à réaliser)"
 sed -i '/^Status: draft$/d' "${TMP}/depot/spec/s.md"
 attendu ok "exigence approuvée à réaliser"
+if ! (cd "${TMP}/depot" && sh tools/oft.sh report >/dev/null 2>&1); then
+    echo "ÉCHEC : rapport — refuse une exigence approuvée à réaliser" >&2
+    fail=1
+fi
 
 echo "oft-test — exigence approuvée couverte en partie : la porte doit échouer"
 sed -i 's/^Needs: impl$/Needs: impl, utest/' "${TMP}/depot/spec/s.md"

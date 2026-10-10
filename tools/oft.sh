@@ -118,10 +118,11 @@ case "${1:-trace}" in
         scan_inputs
         mkdir -p build
         # Le rapport HTML est informatif : généré même en cas de défauts ; le
-        # code retour de la porte est porté par le résumé qui suit.
+        # code retour est celui de la porte, exigences à réaliser tolérées
+        # comprises (ADR-0021).
         java -jar "${JAR}" trace -o html -f build/tracabilite.html -w "${STATUTS_TRACES}" ${SCAN} || true
-        java -jar "${JAR}" trace -v summary -w "${STATUTS_TRACES}" ${SCAN}
         echo "Rapport : build/tracabilite.html"
+        sh "${ROOT}/tools/oft.sh" trace
         ;;
     *)
         echo "Usage : tools/oft.sh [trace|report]" >&2
