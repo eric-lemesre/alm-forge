@@ -1,9 +1,11 @@
 #!/bin/sh
 # [utest->req~statut-trace-concordant~1]
-# Test mécanisé du filtre de statut de la porte de traçabilité (ADR-0020) :
-# un item non approuvé sort de la porte, un item approuvé non couvert la fait
-# échouer. Le cas NÉGATIF est le plus important : un filtre trop large
-# rendrait la porte muette.
+# Test mécanisé du filtre de statut de la porte de traçabilité (ADR-0020) et
+# de la tolérance des exigences approuvées à réaliser (ADR-0021) : un item non
+# approuvé sort de la porte ; une exigence approuvée sans aucun maillon aval
+# passe ; une couverture commencée mais incomplète, un lien amont rompu, un
+# besoin approuvé sans exigence approuvée la font échouer. Les cas NÉGATIFS
+# sont les plus importants : une tolérance trop large rendrait la porte muette.
 # POSIX sh strict. Requiert Java (comme tools/oft.sh).
 set -eu
 
@@ -14,7 +16,7 @@ fail=0
 
 prepare() {
     rm -rf "${TMP}/depot"
-    mkdir -p "${TMP}/depot/tools" "${TMP}/depot/spec"
+    mkdir -p "${TMP}/depot/tools" "${TMP}/depot/spec" "${TMP}/depot/src"
     # Les tags de couverture de la porte elle-même pointeraient vers des
     # exigences absentes du dépôt de test : on les retire de la copie.
     grep -v '^# \[[a-z]*->' "${ROOT}/tools/oft.sh" > "${TMP}/depot/tools/oft.sh"
@@ -53,9 +55,35 @@ Needs: impl
 SPEC
 attendu ok "items en brouillon"
 
-echo "oft-test — exigence approuvée non réalisée : la porte doit échouer"
+echo "oft-test — besoin et exigence approuvés, aucun maillon aval : acceptés (à réaliser)"
 sed -i '/^Status: draft$/d' "${TMP}/depot/spec/s.md"
-attendu echec "exigence approuvée sans implémentation"
+attendu ok "exigence approuvée à réaliser"
+
+echo "oft-test — exigence approuvée couverte en partie : la porte doit échouer"
+sed -i 's/^Needs: impl$/Needs: impl, utest/' "${TMP}/depot/spec/s.md"
+# Tags assemblés à l'exécution : écrits en clair, ils deviendraient des items
+# du dépôt réel, orphelins.
+printf '// [%s->%s]\n' impl 'req~exigence~1' > "${TMP}/depot/src/a.rs"
+attendu echec "implémentation sans son test"
+
+echo "oft-test — exigence approuvée entièrement couverte : acceptée"
+printf '// [%s->%s]\n' utest 'req~exigence~1' >> "${TMP}/depot/src/a.rs"
+attendu ok "exigence réalisée et testée"
+
+echo "oft-test — exigence approuvée à réaliser au lien amont rompu : la porte doit échouer"
+prepare
+cat > "${TMP}/depot/spec/s.md" <<'SPEC'
+`req~exigence~1`
+
+Texte.
+
+Covers:
+
+- feat~absent~1
+
+Needs: impl
+SPEC
+attendu echec "exigence couvrant un besoin inexistant"
 
 echo "oft-test — besoin approuvé couvert seulement par un brouillon : la porte doit échouer"
 prepare

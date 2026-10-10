@@ -96,7 +96,8 @@ Needs: dsn, impl, utest, mtest
 
 **Statut : approuvée**
 
-La porte de traçabilité DOIT ne retenir que les items approuvés. Un besoin ou
+La porte de traçabilité DOIT ne retenir que les items approuvés, et tolérer
+une exigence approuvée sans aucun maillon aval, dite à réaliser. Un besoin ou
 une exigence non approuvés DOIVENT porter le statut OpenFastTrace
 correspondant (`Status: draft`, `proposed` ou `rejected`) sur la ligne qui
 suit immédiatement leur identifiant, et si ce statut ne concorde pas avec le
@@ -113,7 +114,11 @@ Critères d'acceptation :
 
 - Étant donné un besoin et une exigence en `Status: draft` non réalisés,
   quand la traçabilité s'exécute, alors elle passe.
-- Étant donné une exigence approuvée non réalisée, quand la traçabilité
+- Étant donné une exigence approuvée sans aucun maillon aval, quand la
+  traçabilité s'exécute, alors elle passe et la liste « à réaliser »
+  (ADR-0021).
+- Étant donné une exigence approuvée dont la couverture est commencée mais
+  incomplète, ou dont le lien amont est rompu, quand la traçabilité
   s'exécute, alors elle échoue.
 - Étant donné une exigence déclarée approuvée marquée `Status: draft`, ou en
   brouillon sans `Status:`, ou dont le `Status:` est séparé de

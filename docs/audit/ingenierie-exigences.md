@@ -7,7 +7,7 @@ Miroir de [`spec/02-exigences/ingenierie-exigences.md`](../../spec/02-exigences/
 | `req~expression-du-besoin~1` | conforme | `spec/01-besoins/besoins.md` (6 besoins, chacun avec rationale et `Needs: req`) ; modèles `need.md` fr/en ; procédure `mtest~besoin-capture-intention~1` |
 | `req~format-exigence-ears~1` | conforme | méthode ch. 2 ; niveau normatif vérifié mécaniquement par `tools/classification.sh` ; la clarté relève de `mtest~redaction-ears~1` |
 | `req~cycle-de-vie-exigence~2` | conforme | statut déclaré sur chacune des 39 exigences, avancement CALCULÉ depuis les tags et les items de couverture (`tools/statuts.sh`) ; les trois refus — statut absent, statut d'avancement déclaré, approbation dans un domaine non actif — sont éprouvés par `tools/gouvernance-test.sh` ; ADR-0018 |
-| `req~statut-trace-concordant~1` | conforme | `tools/oft.sh` filtre sur `approved` ; concordance vérifiée par `tools/statuts.sh` (invariant 7) ; cas d'échec éprouvés par `tools/oft-test.sh` et `tools/statuts-test.sh`, qui échouent contre les portes antérieures ; ADR-0020 |
+| `req~statut-trace-concordant~1` | conforme | `tools/oft.sh` filtre sur `approved` ; concordance vérifiée par `tools/statuts.sh` (invariant 7) ; exigences approuvées sans maillon aval tolérées et listées « à réaliser », couverture partielle et lien amont rompu refusés ; cas d'échec éprouvés par `tools/oft-test.sh`, `tools/socle-test.sh` et `tools/statuts-test.sh`, qui échouent contre les portes antérieures ; ADR-0020, ADR-0021 |
 | `req~questions-ouvertes~1` | conforme | `spec/open-questions.md`, méthode ch. 6, modèles `open-question.md` fr/en ; procédure `mtest~questions-ouvertes-vivantes~1` |
 
 ## Écarts ouverts

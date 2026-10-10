@@ -248,7 +248,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `utest` — tools/init-test.sh:188
   - `impl` — tools/init.sh:201
   - `impl` — tools/init.sh:493
-  - `impl` — tools/socle-test.sh:88
+  - `impl` — tools/socle-test.sh:92
 
 ### spec/02-exigences/ingenierie-exigences.md
 

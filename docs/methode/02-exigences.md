@@ -82,6 +82,9 @@ brouillon ──▶ proposée ──▶ approuvée ──▶ implémentée ─�
   concorde pas avec le statut déclaré ([ADR-0020](../adr/0020-tracer-les-seuls-items-approuves.md)).
   Un besoin dont aucune exigence n'est encore approuvée porte lui aussi
   `Status: draft`.
+- Une exigence approuvée sans aucun maillon aval est **à réaliser** : la
+  porte la tolère et la liste. Dès son premier tag ou item aval, sa
+  couverture complète est exigée ([ADR-0021](../adr/0021-tolerer-les-exigences-approuvees-a-realiser.md)).
 - **Toute modification du texte normatif incrémente la révision** de
   l'identifiant (par exemple rev 1 → rev 2). Les couvertures pointant l'ancienne
   révision deviennent des défauts de traçabilité : c'est voulu, chaque site
