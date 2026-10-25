@@ -316,6 +316,58 @@ Covers:
 
 Needs: impl, utest
 
+## Hygiène des artefacts de compilation
+
+`req~hygiene-artefacts-compilation~1`
+
+**Statut : approuvée**
+
+Quand le projet instancié compile du code (manifeste Cargo, ou l'équivalent
+d'un autre outil de build à cache), le dépôt DOIT épingler sa chaîne de
+compilation dans un fichier versionné, et toute commande de test, de
+couverture ou d'intégration continue DOIT désactiver la compilation
+incrémentale. Les artefacts d'un worktree lié DOIVENT être confinés au
+worktree ou placés dans un répertoire qui porte son nom. Un nettoyage
+périodique des artefacts DOIT sélectionner par l'âge d'inutilisation, jamais
+par un plafond de taille pendant qu'une compilation est en cours. Une porte
+DOIT constater les deux premiers réglages ; sans manifeste, elle le dit et
+passe.
+
+Rationale:
+Les caches de compilation sont régénérables mais énormes, et trois mécanismes
+les font grossir sans limite — constats du poste de référence : l'incrémental
+écrit dans `target/*/incremental` que rien ne purge (la moitié des 503 Go de
+l'incident fondateur) ; une chaîne non épinglée conserve une copie complète
+des artefacts à chaque changement de rustc (62 Go de binaires de test en 2 à
+7 variantes) ; un cache par branche de travail (70 à 80 Go chacun) qui survit
+à la suppression de son worktree. Un plafond de taille, lui, efface des
+artefacts de quelques minutes dès que le cache frôle la limite et casse la
+compilation en cours (2026-10-25). Le nettoyage déclaré (exigence « nettoyage
+outillé du dépôt local ») retire ce qui est connu ; cette exigence empêche
+l'accumulation à la source et la rend visible.
+
+Critères d'acceptation :
+
+- Étant donné un dépôt sans manifeste Cargo, quand la porte s'exécute, alors
+  elle passe en disant qu'elle n'a rien à juger.
+- Étant donné un manifeste Cargo sans `rust-toolchain.toml`, quand la porte
+  s'exécute, alors elle échoue en nommant le manque.
+- Étant donné une façade, un script ou une CI qui lance `cargo test`,
+  `cargo nextest`, `cargo llvm-cov` ou `cargo tarpaulin` sans
+  `CARGO_INCREMENTAL=0` dans le même fichier, quand la porte s'exécute, alors
+  elle échoue en nommant le fichier et la ligne ; un appel en commentaire
+  n'est pas compté.
+- Étant donné les deux réglages en place, quand la porte s'exécute, alors
+  elle passe.
+- Étant donné un worktree lié dont les artefacts iraient dans le cache du
+  tree principal, quand la garde du kit s'exécute, alors elle échoue avec le
+  remède ; un répertoire qui porte le nom du worktree est accepté.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

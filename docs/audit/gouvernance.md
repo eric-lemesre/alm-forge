@@ -15,6 +15,7 @@ Verdicts écrits à la main ; le tableau de bord est généré (méthode, ch. 14
 | `req~politique-langue~1` | conforme | `tools/init.sh` étape 3 ; `tools/init-test.sh` vérifie les trois branches |
 | `req~portabilite-forges~1` | conforme | les deux façades délèguent à `tools/ci.sh` ; leur alignement est vérifié par `tools/checks.sh` et éprouvé par `tools/checks-test.sh` |
 | `req~nettoyage-outille~1` | conforme | `tools/clean.sh` à chemins déclarés ; `tools/clean-test.sh` couvre l'idempotence et la préservation du versionné |
+| `req~hygiene-artefacts-compilation~1` | conforme | `tools/hygiene-compilation.sh` (chaîne épinglée, `CARGO_INCREMENTAL=0` par fichier appelant, passage explicite sans manifeste), câblée dans `tools/ci.sh` ; `tools/hygiene-compilation-test.sh` joue les deux cas d'échec, l'export en amont et l'appel en commentaire ; garde de worktree et nettoyage par l'âge dans le kit `templates/bootstrap.d/rust/rust.sh` (hors périmètre tracé, à taguer dans le projet instancié) |
 | `req~versionnement-release~1` | conforme | contrôle VERSION ↔ CHANGELOG dans `tools/checks.sh`, éprouvé par `tools/checks-test.sh` ; `tools/journaux.sh` y ajoute l'intangibilité des sections publiées |
 | `req~lexique-outille~1` | conforme | `tools/lexique.sh` (42 termes, deux formes chacun) ; complétude vérifiée par `tools/checks.sh` ; effet réel du réglage éprouvé par `tools/gouvernance-test.sh` (verdict français refusé en langue `en`) |
 

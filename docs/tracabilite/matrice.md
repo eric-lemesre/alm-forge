@@ -219,6 +219,14 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `utest` — tools/clean-test.sh:2
   - `impl` — tools/clean.sh:2
 
+#### `req~hygiene-artefacts-compilation~1`
+
+- Niveau normatif : DOIT
+- Needs: impl, utest
+- Couvertures réelles (2) :
+  - `utest` — tools/hygiene-compilation-test.sh:2
+  - `impl` — tools/hygiene-compilation.sh:2
+
 #### `req~versionnement-release~1`
 
 - Niveau normatif : DOIT
@@ -392,7 +400,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### Bilan (couvertures réelles)
 
-43/43 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+44/44 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
@@ -428,5 +436,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 12/62 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 12/64 fichier(s) d'outillage sans trace de traçabilité.**
 

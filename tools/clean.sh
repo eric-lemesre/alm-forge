@@ -40,7 +40,7 @@ nettoyer build
 # --- Point d'extension du projet instancié -------------------------------
 # Déclarer ici les artefacts de VOTRE outillage, avec un commentaire
 # renvoyant vers l'ADR technologique qui les justifie. Exemples :
-#   nettoyer target                # Rust — ou : cargo clean (ADR-00NN)
+#   sh tools/rust.sh clean         # Rust — kit templates/bootstrap.d/rust/, par l'âge (ADR-00NN)
 #   nettoyer node_modules          # Node (ADR-00NN)
 #   nettoyer .venv                 # Python (ADR-00NN)
 #
