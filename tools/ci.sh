@@ -133,5 +133,6 @@ etape "test — accueil"           sh tools/setup-test.sh
 etape "test — bootstrap"         sh tools/bootstrap-test.sh
 etape "test — nettoyage"         sh tools/clean-test.sh
 etape "test — hygiène de compilation" sh tools/hygiene-compilation-test.sh
+etape "test — kit Rust"          sh tools/rust-kit-test.sh
 
 bilan

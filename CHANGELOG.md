@@ -7,20 +7,26 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
-- **Hygiène des artefacts de compilation** (exigence
-  `req~hygiene-artefacts-compilation~1`, domaine gouvernance). Porte
+- **Hygiène des artefacts de compilation** (exigences
+  `req~hygiene-artefacts-compilation~1` et
+  `req~confinement-artefacts-worktree~1`, domaine gouvernance). Porte
   `tools/hygiene-compilation.sh`, câblée dans `tools/ci.sh` : dans un projet
   qui compile du Rust, la chaîne
-  est épinglée (`rust-toolchain.toml`) et tout fichier qui lance des tests,
-  une couverture ou une CI Cargo porte `CARGO_INCREMENTAL=0` ; sans manifeste,
-  la porte le dit et passe. Kit Rust prêt à copier dans
-  `templates/bootstrap.d/` : module `50-rust.sh` (cargo, nextest, sweep,
-  chaîne) et `rust/rust.sh` (garde des worktrees liés, tests et couverture
-  sans incrémental, nettoyage par l'âge, jamais par un plafond pendant une
-  compilation). Deux anti-patrons au chapitre 4. Constats à l'origine : 70 à
-  80 Go de cache par branche de travail et un disque plein trois fois en un
-  mois ; un balayage par plafond de taille qui casse une compilation en
-  cours. `tools/hygiene-compilation-test.sh` joue les cas d'échec.
+  est épinglée (`rust-toolchain.toml` suivi par git, canal exact ou daté —
+  pas « stable ») et tout fichier qui lance des tests ou une couverture Cargo
+  coupe l'incrémental (`CARGO_INCREMENTAL` à zéro sur la ligne ou avant le
+  premier appel, formes `env:`, `variables:`, `:=` de just et
+  `.cargo/config.toml` reconnues) ; sans manifeste, la porte le dit et passe.
+  Kit Rust prêt à copier dans `templates/bootstrap.d/` : module `50-rust.sh`
+  (cargo, nextest, sweep, chaîne) et `rust/rust.sh` (garde des worktrees
+  liés : artefacts dans le worktree ou dans `cargo-target-<nom>` seulement ;
+  tests et couverture sans incrémental ; nettoyage par l'âge, jamais par un
+  plafond, refusé sur un cache partagé sans `--partage`). Deux anti-patrons
+  au chapitre 4. Constats à l'origine : 70 à 80 Go de cache par branche de
+  travail et un disque plein trois fois en un mois ; un balayage par plafond
+  de taille qui casse une compilation en cours.
+  `tools/hygiene-compilation-test.sh` et `tools/rust-kit-test.sh` (talons
+  cargo et cargo-sweep) jouent les cas d'échec.
 
 - **Le lanceur joue toutes les portes et rend un bilan** (ADR-0019,
   `req~porte-ci~2`). `tools/ci.sh` ne s'arrête plus à la première porte en

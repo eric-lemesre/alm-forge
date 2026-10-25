@@ -10,8 +10,8 @@ dans la fiche de chaque domaine ; ce tableau de bord ne fait que les compter.
 | [coordination-issues](coordination-issues.md) | 5 | 5 | 0 | 0 |
 | [decisions](decisions.md) | 5 | 5 | 0 | 0 |
 | [documentation](documentation.md) | 5 | 5 | 0 | 0 |
-| [gouvernance](gouvernance.md) | 13 | 13 | 0 | 0 |
+| [gouvernance](gouvernance.md) | 14 | 14 | 0 | 0 |
 | [ingenierie-exigences](ingenierie-exigences.md) | 4 | 4 | 0 | 0 |
 | [securite](securite.md) | 3 | 3 | 0 | 0 |
 | [tracabilite](tracabilite.md) | 9 | 9 | 0 | 0 |
-| **total** | **44** | **44** | **0** | **0** |
+| **total** | **45** | **45** | **0** | **0** |
