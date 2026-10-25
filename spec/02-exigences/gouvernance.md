@@ -316,6 +316,104 @@ Covers:
 
 Needs: impl, utest
 
+## Hygiène des artefacts de compilation
+
+`req~hygiene-artefacts-compilation~1`
+
+**Statut : approuvée**
+
+Là où le projet instancié compile du Rust (manifeste Cargo à la racine), le
+dépôt DOIT épingler sa chaîne de compilation dans un fichier suivi par git
+dont le canal est une version exacte ou datée, et tout fichier — façade,
+script ou configuration de CI — qui lance une commande de test ou de
+couverture Cargo DOIT désactiver la compilation incrémentale, sur la ligne
+d'appel ou avant le premier appel. Une porte DOIT constater ces deux
+réglages ; sans manifeste, elle le dit et passe.
+
+Rationale:
+Les caches de compilation sont régénérables mais énormes, et deux mécanismes
+les font grossir à l'insu de tous — constats du poste de référence :
+l'incrémental écrit dans `target/*/incremental` que rien ne purge (la moitié
+des 503 Go de l'incident fondateur), alors qu'il n'accélère qu'une boucle
+d'édition et jamais une exécution complète ; une chaîne non épinglée conserve
+une copie complète des artefacts à chaque publication de rustc (62 Go de
+binaires de test en 2 à 7 variantes), et un canal « stable » avance à chaque
+publication — il n'épingle rien. Le nettoyage déclaré (exigence « nettoyage
+outillé du dépôt local ») retire ce qui est connu ; cette exigence empêche
+l'accumulation à la source et la rend visible.
+
+Critères d'acceptation :
+
+- Étant donné un dépôt sans manifeste Cargo, quand la porte s'exécute, alors
+  elle passe en disant qu'elle n'a rien à juger.
+- Étant donné un manifeste Cargo sans fichier de chaîne, ou avec un fichier
+  non suivi par git, ou dont le canal est « stable », « beta » ou « nightly »
+  sans version ni date, quand la porte s'exécute, alors elle échoue en
+  nommant le manque.
+- Étant donné un fichier qui lance `cargo test`, `cargo nextest`,
+  `cargo llvm-cov` ou `cargo tarpaulin` (options, chaîne `+…`, `$(CARGO)` et
+  formes `cargo-…` comprises) sans réglage `CARGO_INCREMENTAL` à zéro sur la
+  ligne ni avant le premier appel, quand la porte s'exécute, alors elle
+  échoue en nommant le fichier et la ligne ; un appel ou un réglage en
+  commentaire, ou cité par `echo`/`printf`, n'est pas compté.
+- Étant donné le réglage sous l'une de ses formes idiomatiques (préfixe de
+  ligne, `export`, `env:` ou `variables:` de CI, `export … := "0"` de just,
+  `incremental = false` dans `.cargo/config.toml`) et une chaîne exacte
+  suivie par git, quand la porte s'exécute, alors elle passe.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
+## Confinement des artefacts d'un worktree lié
+
+`req~confinement-artefacts-worktree~1`
+
+**Statut : approuvée**
+
+Là où un worktree lié compile du Rust, ses artefacts DOIVENT être confinés au
+worktree ou placés dans un répertoire nommé exactement `cargo-target-<nom du
+worktree>` hors du tree principal, et l'outillage fourni DOIT refuser de
+compiler vers tout autre répertoire. Un nettoyage des artefacts DOIT
+sélectionner par l'âge d'inutilisation, jamais par un plafond de taille, et
+DOIT refuser un répertoire partagé entre projets sauf demande explicite.
+
+Rationale:
+Un worktree lié qui compile dans le cache du tree principal sert les
+artefacts de l'autre copie : symbole introuvable pourtant présent dans les
+sources, fichier généré vidé (ergonomia, 2026-08-14). Un cache par branche de
+travail (70 à 80 Go chacun) survit à la suppression de son worktree : seul un
+nom convenu permet à un balayage du poste de le reconnaître et de le retirer.
+Un plafond de taille efface des artefacts de quelques minutes dès que le
+cache frôle la limite et casse la compilation en cours ; un nettoyage lancé
+depuis un dépôt sur un cache partagé purge les artefacts de tous les projets
+du poste (2026-10-25). Le matériel qui réalise cette exigence est le kit Rust
+de `templates/bootstrap.d/`, hors du périmètre tracé ; le gabarit l'éprouve
+par un test qui remplace cargo et cargo-sweep par des talons.
+
+Critères d'acceptation :
+
+- Étant donné le tree principal, quand la garde s'exécute, alors elle passe
+  sans contrôle.
+- Étant donné un worktree lié dont les artefacts vont dans le worktree, ou
+  dans `cargo-target-<nom du worktree>`, quand la garde s'exécute, alors elle
+  passe.
+- Étant donné un worktree lié dont les artefacts iraient dans le tree
+  principal, dans le cache partagé du poste, ou dans un répertoire dont seul
+  un composant porte le nom du worktree, quand la garde s'exécute, alors elle
+  échoue en donnant le remède.
+- Étant donné un nettoyage sur des artefacts confinés, quand il s'exécute,
+  alors il balaie par l'âge et n'applique aucun plafond de taille.
+- Étant donné un nettoyage visant un répertoire partagé, quand il s'exécute
+  sans demande explicite, alors il refuse sans rien balayer ; avec la demande
+  explicite, il balaie par l'âge.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

@@ -85,6 +85,11 @@ tasks:
     cmds:
       - sh tools/clean.sh {{.CLI_ARGS}}
 
+  hygiene:
+    desc: Hygiène des artefacts de compilation (chaîne épinglée, incrémental coupé sur tests et CI)
+    cmds:
+      - sh tools/hygiene-compilation.sh
+
   bootstrap:
     desc: "Dépendances, flux consenti : socle + modules projet (tools/bootstrap.d/)"
     cmds:

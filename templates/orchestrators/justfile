@@ -63,6 +63,10 @@ hooks:
     git config core.hooksPath .githooks
     @echo "Hooks installés (core.hooksPath = .githooks)."
 
+# Hygiène des artefacts de compilation (chaîne épinglée, incrémental coupé sur tests et CI)
+hygiene:
+    sh tools/hygiene-compilation.sh
+
 # Nettoie les artefacts locaux (chemins déclarés) : just clean [--all]
 clean *args:
     sh tools/clean.sh {{args}}

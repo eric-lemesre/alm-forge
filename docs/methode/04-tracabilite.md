@@ -174,3 +174,26 @@ des exemples d'identifiants qui ne doivent pas devenir des items.
   répertoire commun à tous les projets du poste. (Cas vécu à l'origine de
   cette règle : bascule d'un poste en target partagé, scripts de nettoyage
   devenus vides et recettes clean devenues globales le même jour.)
+- **Purge par la taille pendant une compilation** : un nettoyage borné par un
+  plafond (`cargo sweep --maxsize`, et ses équivalents) efface les artefacts
+  les plus anciens jusqu'à repasser sous la limite — y compris ceux de
+  quelques minutes, dès que le cache frôle le plafond. Lancé par un minuteur
+  pendant qu'un build tourne, il retire sous ses pieds un fichier objet que
+  l'étape suivante attend : échec incompréhensible, sans rapport avec le
+  changement en cours. Un nettoyage périodique sélectionne **par l'âge**
+  d'inutilisation ; un plafond ne s'applique qu'à froid, quand aucune
+  compilation ne tourne. (Cas vécu : CI cassée sur une dépendance
+  cryptographique par le balayage de 17 h 22, cache à 75 Go pour un plafond
+  de 80.)
+- **Cache qui grossit à l'insu de tous** : la compilation incrémentale écrit
+  dans `target/*/incremental` que rien ne purge, et n'accélère qu'une boucle
+  d'édition — jamais une exécution complète de tests ou de CI ; une chaîne de
+  compilation non épinglée conserve une copie complète des artefacts à
+  chaque changement de version de l'outil ; un cache ouvert par branche de
+  travail survit à la suppression de sa branche. Chacun de ces trois
+  mécanismes est invisible jusqu'au disque plein. D'où l'exigence d'hygiène
+  des artefacts de compilation (domaine gouvernance) : incrémental coupé sur
+  tests, couverture et CI ; chaîne épinglée dans un fichier versionné ; cache de
+  worktree nommé d'après le worktree, pour qu'un balayage sache le reconnaître
+  et le retirer. (Cas vécu : 70 à 80 Go par branche, disque plein trois fois
+  en un mois.)
