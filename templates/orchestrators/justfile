@@ -63,6 +63,10 @@ hooks:
     git config core.hooksPath .githooks
     @echo "Hooks installés (core.hooksPath = .githooks)."
 
+# Tout fichier de code se rattache à une exigence (étiquette de couverture ou mention)
+rattachement:
+    sh tools/rattachement.sh
+
 # Hygiène des artefacts de compilation (chaîne épinglée, incrémental coupé sur tests et CI)
 hygiene:
     sh tools/hygiene-compilation.sh

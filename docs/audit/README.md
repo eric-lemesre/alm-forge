@@ -13,5 +13,5 @@ dans la fiche de chaque domaine ; ce tableau de bord ne fait que les compter.
 | [gouvernance](gouvernance.md) | 14 | 14 | 0 | 0 |
 | [ingenierie-exigences](ingenierie-exigences.md) | 4 | 4 | 0 | 0 |
 | [securite](securite.md) | 3 | 3 | 0 | 0 |
-| [tracabilite](tracabilite.md) | 9 | 9 | 0 | 0 |
-| **total** | **45** | **45** | **0** | **0** |
+| [tracabilite](tracabilite.md) | 10 | 10 | 0 | 0 |
+| **total** | **46** | **46** | **0** | **0** |

@@ -160,15 +160,21 @@ echo "1/13 — Retrait des tags de couverture du gabarit dans les documents cons
 # survivait alors dans le dépôt produit, y devenait un item orphelin, et la
 # traçabilité du projet naissait rouge sans que son porteur puisse deviner
 # pourquoi. Constaté à l'ajout de tools/ci-test.sh.
+# Les mentions « Exigence servie : req~… » (req~rattachement-code-exigence~1)
+# suivent le même sort, matériel prêt à copier compris : elles citeraient des
+# exigences que l'étape 4 retire.
 for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          examples/demo-multi-langages/README.md \
          docs/verification-manuelle/*.md \
          tools/*.sh tools/*.ps1 tools/hooks/*.sh tools/bootstrap.d/*.sh \
+         templates/bootstrap.d/*.sh templates/bootstrap.d/*/*.sh \
+         templates/bootstrap.d/*/*.mjs templates/forge/tools/*.sh \
          .github/workflows/*.yml .gitlab-ci.yml \
          .github/ISSUE_TEMPLATE/*.yml .gitlab/issue_templates/*.md; do
     [ -f "${f}" ] || continue
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \
         -e '/^# \[impl->/d' -e '/^# \[utest->/d' \
+        -e '/^# Exigence servie : req~/d' -e '/^\/\/ Exigence servie : req~/d' \
         "${f}" > "${f}.tmp"
     mv "${f}.tmp" "${f}"
 done
@@ -562,6 +568,29 @@ rm -f tools/init-test.sh
 # Ce script s'efface en dernier. Le shell garde le fichier ouvert par son
 # descripteur : le délier n'interrompt pas l'exécution en cours.
 rm -f tools/init.sh
+
+# [impl->req~rattachement-code-exigence~1]
+# Code hérité du gabarit : ses traces sont retirées (étape 1) et ses
+# exigences avec la spécification (étape 4) ; il ne peut plus se rattacher à
+# rien dans le projet. La liste en est dressée ICI, une fois l'outillage
+# d'instanciation retiré, par la porte elle-même : un fichier que le projet
+# ajoutera ensuite n'y figurera pas, et devra se rattacher à ses exigences.
+if [ "${LANGUE}" = "en" ]; then
+    entete_herites="# Code inherited from the alm-forge template, without a requirement of
+# this project: listed by the instantiation, one path per line. Remove a
+# line once the file is deleted or carries its own trace —
+# tools/rattachement.sh enforces it."
+else
+    entete_herites="# Code hérité du gabarit alm-forge, sans exigence de ce projet : liste
+# dressée par l'instanciation, un chemin par ligne. Retirer une ligne dès que
+# le fichier disparaît ou porte sa propre trace — tools/rattachement.sh
+# l'impose."
+fi
+{
+    printf '%s\n' "${entete_herites}"
+    sh tools/rattachement.sh --liste
+} > tools/rattachement-herites.txt
+git add tools/rattachement-herites.txt >/dev/null 2>&1 || true
 
 # Régénérée ICI, une fois l'outillage d'instanciation retiré : la matrice
 # balaie tout tools/ par fichier:ligne, et tools/init.sh en portait des tags

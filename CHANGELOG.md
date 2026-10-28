@@ -7,6 +7,20 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Tout fichier de code se rattache à une exigence** (exigence
+  `req~rattachement-code-exigence~1`, domaine traçabilité, D-2026-10-01).
+  Porte `tools/rattachement.sh`, câblée dans `tools/ci.sh` (voie
+  documentaire) : chaque fichier de code suivi par git porte une étiquette de
+  couverture vers un item existant, ou la mention « Exigence servie :
+  req~…~n » d'une exigence existante quand il la sert sans la couvrir ; une
+  étiquette vers une révision périmée échoue, y compris dans `templates/`,
+  qu'OpenFastTrace ne balaie pas. L'instanciation dresse la liste du code
+  hérité du gabarit (`tools/rattachement-herites.txt`) et retire ses
+  mentions avec ses étiquettes. Sept fichiers sans trace rattachés ; le kit
+  de lint Markdown, sans exigence jusque-là, reçoit la sienne
+  (`req~kit-lint-markdown~1`, PEUT, proposée). `tools/rattachement-test.sh`
+  joue les cas d'échec ; `tools/init-test.sh` éprouve le projet produit.
+
 - **Hygiène des artefacts de compilation** (exigences
   `req~hygiene-artefacts-compilation~1` et
   `req~confinement-artefacts-worktree~1`, domaine gouvernance). Porte

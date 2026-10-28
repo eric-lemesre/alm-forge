@@ -273,3 +273,60 @@ Covers:
 - feat~tracabilite-mecanisee~1
 
 Needs: dsn, impl, utest
+
+## Tout fichier de code se rattache à une exigence
+
+`req~rattachement-code-exigence~1`
+
+**Statut : approuvée**
+
+Tout fichier de code suivi par git DOIT se rattacher à une exigence
+existante : par une étiquette de couverture (`impl`, `utest`, `itest`,
+`stest`…) quand il réalise ou vérifie l'exigence, ou par la mention de son
+identifiant (convention : `Exigence servie : req~…~n`) quand il la sert sans
+la couvrir — outil d'appoint, fichier de structure, matériel prêt à copier.
+Une étiquette qui vise un item inexistant (révision périmée, faute de
+frappe) DOIT faire échouer la porte, y compris dans les répertoires
+qu'OpenFastTrace ne balaie pas. Dans un projet instancié, le code hérité du
+gabarit, dont les exigences ont été retirées, DOIT être déclaré dans une
+liste dressée à l'instanciation ; une déclaration DOIT viser un fichier de
+code suivi qui ne porte aucune trace propre.
+
+Rationale:
+OpenFastTrace part des exigences et cherche leurs couvertures : il ne voit
+jamais le code qui ne revendique rien. La matrice le montre à titre
+informatif, sur l'outillage seulement ; constaté dans un projet aval, plus
+d'une centaine de fichiers de code s'étaient accumulés sans trace sans
+qu'aucune porte ne bronche (demande du porteur, D-2026-10-01). La mention
+existe pour dire honnêtement « sert, sans couvrir » : une étiquette de
+complaisance ne répond pas à la règle — la revue et l'audit de réalisation
+la traquent, et OpenFastTrace la refuse quand le type ne figure pas dans le
+`Needs:` de l'exigence. La liste du code hérité est dressée par
+l'instanciation, jamais à la main : un fichier ajouté ensuite par le projet
+n'y figure pas et se rattache à ses propres exigences.
+
+Critères d'acceptation :
+
+- Étant donné un fichier de code suivi sans étiquette ni mention d'une
+  exigence existante, quand la porte s'exécute, alors elle échoue en le
+  nommant ; un fichier non suivi, ou qui n'est pas du code, est ignoré.
+- Étant donné une étiquette vers un item existant, ou la mention d'une
+  exigence existante, quand la porte s'exécute, alors le fichier est
+  rattaché.
+- Étant donné une étiquette vers une révision périmée, quand la porte
+  s'exécute, alors elle échoue même si le fichier porte une autre trace
+  valide.
+- Étant donné un identifiant défini seulement dans un bloc de code ou dans
+  `templates/`, quand un fichier le vise, alors la porte le tient pour
+  inexistant.
+- Étant donné un projet fraîchement instancié, quand la porte s'exécute,
+  alors elle passe, et un fichier de code ajouté ensuite sans trace la fait
+  échouer.
+- Étant donné une déclaration de code hérité qui vise un fichier absent ou
+  déjà tracé, ou cette liste présente dans le gabarit lui-même, quand la
+  porte s'exécute, alors elle échoue.
+
+Covers:
+- feat~tracabilite-mecanisee~1
+
+Needs: impl, utest
