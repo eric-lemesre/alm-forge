@@ -174,3 +174,33 @@ Covers:
 - feat~documentation-verifiee~1
 
 Needs: impl, utest
+
+## Kit de lint Markdown prêt à copier
+
+`req~kit-lint-markdown~1`
+
+**Statut : proposée**
+
+Le gabarit PEUT fournir, hors du périmètre tracé et prêt à copier dans un
+projet instancié, un kit de lint Markdown : une porte qui échoue sur un
+tableau GFM non aligné, un formateur qui mesure la largeur des cellules comme
+la porte, et les modules de bootstrap de leurs dépendances, chacun disant où
+le copier et vers quelle exigence du projet le rattacher.
+
+Rationale:
+Le kit existait dans `templates/bootstrap.d/` sans exigence qui le dise :
+relevé de la porte du rattachement (`req~rattachement-code-exigence~1`),
+2026-10-28. Niveau PEUT : le kit est une commodité offerte, que le gabarit
+n'exécute pas ; l'éprouver exigerait Node.js, dépendance d'outillage que le
+socle n'admet pas sans ADR. Un projet qui l'adopte en fait une exigence
+vérifiée de sa propre spécification.
+
+Critères d'acceptation :
+
+- Étant donné un projet instancié qui copie le kit selon
+  `templates/bootstrap.d/README.md`, quand il lance la porte sur un tableau
+  désaligné, alors elle échoue ; après normalisation par le formateur, elle
+  passe.
+
+Covers:
+- feat~documentation-verifiee~1

@@ -76,6 +76,32 @@ des scripts `.sh` tagués dans `tools/`. C'est aussi une des raisons du choix
 de `Taskfile.yml` comme façade par défaut : son extension le rend scannable
 (ADR-0007).
 
+## Rattacher tout fichier de code
+
+OpenFastTrace part des exigences : il ne voit jamais le code qui ne revendique
+rien. La porte `tools/rattachement.sh` (`req~rattachement-code-exigence~1`)
+prend le chemin inverse : tout fichier de code suivi par git se rattache à une
+exigence existante, par l'une de deux traces.
+
+- **L'étiquette de couverture** — `[impl->…]`, `[utest->…]`… — quand le
+  fichier réalise ou vérifie l'exigence, et que ce type figure dans son
+  `Needs:` (sinon OpenFastTrace refuse une couverture non demandée).
+- **La mention** — par convention `Exigence servie : req~…~n` en commentaire
+  — quand le fichier sert l'exigence sans la couvrir : outil d'appoint,
+  fichier de structure, matériel prêt à copier de `templates/`. OpenFastTrace
+  ne la lit pas comme une couverture ; elle dit honnêtement « sert, sans
+  couvrir ».
+
+Une étiquette qui vise un item inexistant fait échouer la porte, y compris
+dans `templates/`, qu'OpenFastTrace ne balaie pas. Quand aucune exigence ne
+convient, on écrit celle qui manque — jamais une étiquette de complaisance.
+
+Dans un projet instancié, le code hérité du gabarit a perdu ses exigences :
+l'instanciation en dresse la liste dans `tools/rattachement-herites.txt`.
+Cette liste ne se complète pas à la main : un fichier ajouté par le projet se
+rattache à ses propres exigences, et une ligne se retire dès que le fichier
+disparaît ou porte sa propre trace.
+
 ## Exécution
 
 | Commande | Effet |
@@ -92,6 +118,7 @@ deux forges (ADR-0010).
 | Porte | Ce qu'elle refuse |
 | --- | --- |
 | `oft.sh` | un maillon manquant dans la chaîne besoin → test |
+| `rattachement.sh` | un fichier de code sans étiquette ni mention d'une exigence existante, une étiquette vers un item inexistant |
 | `checks.sh` | parité des modèles, ADR sans vérification, version hors journal, index d'ADR incomplet, façades CI désalignées, lexique incomplet, référence pendante depuis une façade ou le contrat |
 | `liens.sh` | un lien interne qui ne mène nulle part |
 | `statuts.sh` | un statut de domaine absent, non acté, ou divergent de l'index |

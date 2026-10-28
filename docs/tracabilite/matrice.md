@@ -23,7 +23,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `impl` — .github/ISSUE_TEMPLATE/proposition-exigence.yml:1
   - `impl` — .github/ISSUE_TEMPLATE/proposition-organisation.yml:1
   - `impl` — docs/methode/11-cycle-de-vie-issues.md:4
-  - `impl` — tools/init.sh:368
+  - `impl` — tools/init.sh:374
 
 #### `req~issues-triage-priorites~2`
 
@@ -138,6 +138,12 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `impl` — tools/avancement.sh:2
   - `utest` — tools/gouvernance-test.sh:13
 
+#### `req~kit-lint-markdown~1`
+
+- Niveau normatif : PEUT
+- Needs : (absent)
+- Couvertures réelles : aucune (niveau non exigé)
+
 ### spec/02-exigences/gouvernance.md
 
 #### `req~gouvernance-agents~1`
@@ -192,7 +198,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Couvertures réelles (3) :
   - `impl` — tools/hooks/commit-msg.sh:25
   - `utest` — tools/init-test.sh:3
-  - `impl` — tools/init.sh:177
+  - `impl` — tools/init.sh:183
 
 #### `req~politique-langue~1`
 
@@ -200,7 +206,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Needs: dsn, impl, utest
 - Couvertures réelles (2) :
   - `utest` — tools/init-test.sh:4
-  - `impl` — tools/init.sh:219
+  - `impl` — tools/init.sh:225
 
 #### `req~portabilite-forges~1`
 
@@ -259,10 +265,10 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Needs: impl, utest
 - Couvertures réelles (6) :
   - `impl` — tools/checks-test.sh:69
-  - `utest` — tools/init-test.sh:153
-  - `utest` — tools/init-test.sh:188
-  - `impl` — tools/init.sh:201
-  - `impl` — tools/init.sh:493
+  - `utest` — tools/init-test.sh:176
+  - `utest` — tools/init-test.sh:211
+  - `impl` — tools/init.sh:207
+  - `impl` — tools/init.sh:499
   - `impl` — tools/socle-test.sh:88
 
 ### spec/02-exigences/ingenierie-exigences.md
@@ -405,9 +411,19 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `impl` — tools/audit.sh:2
   - `utest` — tools/gouvernance-test.sh:9
 
+#### `req~rattachement-code-exigence~1`
+
+- Niveau normatif : DOIT
+- Needs: impl, utest
+- Couvertures réelles (4) :
+  - `utest` — tools/init-test.sh:5
+  - `impl` — tools/init.sh:572
+  - `utest` — tools/rattachement-test.sh:2
+  - `impl` — tools/rattachement.sh:2
+
 ### Bilan (couvertures réelles)
 
-45/45 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+46/46 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
@@ -443,5 +459,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 12/65 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 12/67 fichier(s) d'outillage sans trace de traçabilité.**
 

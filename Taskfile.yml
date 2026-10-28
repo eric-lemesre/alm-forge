@@ -85,6 +85,11 @@ tasks:
     cmds:
       - sh tools/clean.sh {{.CLI_ARGS}}
 
+  rattachement:
+    desc: Tout fichier de code se rattache à une exigence (étiquette de couverture ou mention)
+    cmds:
+      - sh tools/rattachement.sh
+
   hygiene:
     desc: Hygiène des artefacts de compilation (chaîne épinglée, incrémental coupé sur tests et CI)
     cmds:

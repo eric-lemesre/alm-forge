@@ -2,6 +2,7 @@
 # [utest->req~instanciation-outillee~2]
 # [utest->req~politique-attribution-agents~2]
 # [utest->req~politique-langue~1]
+# [utest->req~rattachement-code-exigence~1]
 # Test mécanisé du script d'instanciation : exécute tools/init.sh sur des
 # copies temporaires et vérifie les critères d'acceptation des quatre
 # arbitrages (identité, attribution des agents, langue, cycle de vie des
@@ -93,6 +94,28 @@ fi
 (cd "${TA}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
     echo "ÉCHEC [A] : portes non vertes après instanciation" >&2 ; fail=1
 }
+# Le code hérité du gabarit est déclaré par l'instanciation, et seulement
+# lui : le premier fichier de code que le projet ajoute sans trace fait
+# échouer la porte du rattachement.
+if ! grep -qxF 'tools/ci.sh' "${TA}/tools/rattachement-herites.txt" 2>/dev/null; then
+    echo "ÉCHEC [A] : le code hérité du gabarit n'est pas déclaré (tools/rattachement-herites.txt)" >&2
+    fail=1
+fi
+if grep -q 'req~' "${TA}/tools/bump.sh" "${TA}/templates/bootstrap.d/markdown/markdown.sh"; then
+    echo "ÉCHEC [A] : une mention d'exigence du gabarit subsiste dans l'outillage hérité" >&2
+    fail=1
+fi
+(cd "${TA}" && sh tools/rattachement.sh >/dev/null 2>&1) || {
+    echo "ÉCHEC [A] : porte du rattachement rouge après instanciation" >&2 ; fail=1
+}
+mkdir -p "${TA}/src"
+printf 'def f():\n    return 1\n' > "${TA}/src/sans_trace.py"
+(cd "${TA}" && git add src/sans_trace.py)
+if (cd "${TA}" && sh tools/rattachement.sh >/dev/null 2>&1); then
+    echo "ÉCHEC [A] : un fichier de code du projet sans trace passe la porte du rattachement" >&2
+    fail=1
+fi
+(cd "${TA}" && git rm -q --cached src/sans_trace.py) && rm -f "${TA}/src/sans_trace.py"
 # L'outillage d'instanciation se retire lui-même, avec toutes ses amarres.
 # Le laisser en place rendait la porte du dépôt produit rouge dès sa première
 # réalisation taguée, et gardait un script destructeur documenté au contrat.

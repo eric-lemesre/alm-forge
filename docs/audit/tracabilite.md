@@ -13,6 +13,7 @@ Miroir de [`spec/02-exigences/tracabilite.md`](../../spec/02-exigences/tracabili
 | `req~anti-derive-generes~1` | conforme | `tools/derive.sh`, double contrôle suivi-par-git puis régénération ; `tools/derive-test.sh` couvre le cas capital de l'artefact non versionné |
 | `req~classification-exigences~2` | conforme | `tools/classification.sh` ; `tools/gouvernance-test.sh` couvre les cinq cas, dont le niveau emprunté au rationale, le mtest seul refusé sans report et le report par fiche qui nomme la dette |
 | `req~audit-de-realisation~1` | conforme | ce document et ses six pairs ; `tools/audit.sh` ; ADR-0016 ; quatre cas d'échec dans `tools/gouvernance-test.sh` |
+| `req~rattachement-code-exigence~1` | conforme | `tools/rattachement.sh`, câblée dans `tools/ci.sh` (voie documentaire) ; `tools/rattachement-test.sh` joue seize cas, dont neuf d'échec : fichier sans trace, matériel de `templates/` sans trace, mention inconnue, révision périmée malgré une mention valide, item défini en bloc de code ou dans un modèle, et trois fautes de la liste du code hérité ; `tools/init-test.sh` prouve la liste dressée à l'instanciation, la porte verte du projet produit puis rouge sur son premier fichier sans trace ; sept fichiers sans trace rattachés à la mise en place, une exigence manquante écrite (`req~kit-lint-markdown~1`) |
 
 ## Écarts ouverts
 
