@@ -136,5 +136,6 @@ etape "test — nettoyage"         sh tools/clean-test.sh
 etape "test — hygiène de compilation" sh tools/hygiene-compilation-test.sh
 etape "test — kit Rust"          sh tools/rust-kit-test.sh
 etape "test — rattachement"      sh tools/rattachement-test.sh
+etape "test — automatismes de forge" sh tools/automatismes-test.sh
 
 bilan

@@ -5,6 +5,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Corrigé
+
+- **Lecture d'une consultation : le login se compare entier.** L'automatisme
+  `lecture` de `templates/forge/tools/automatismes.sh` cochait la première
+  case dont la ligne *contenait* le login du commentateur : `@eric` valait
+  pour `@eric2` ou `@ericlemesre`, et un lecteur pouvait ainsi cocher la
+  case d'un autre. Le login est désormais extrait de la ligne et comparé
+  pour égalité, une seule case par lecture (constat de revue de sécurité du
+  2026-10-29, projet aval webdcrs). Test `tools/automatismes-test.sh`,
+  câblé dans `tools/ci.sh`, qui joue les cas d'échec sur une forge simulée.
+
 ### Ajouté
 
 - **Tout fichier de code se rattache à une exigence** (exigence

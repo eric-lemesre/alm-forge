@@ -453,11 +453,12 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 
 - `.gitlab/merge_request_templates/Default.md`
 
-### `tools` (3)
+### `tools` (4)
 
 - `tools/adr-new.sh`
+- `tools/automatismes-test.sh`
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 12/67 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 13/68 fichier(s) d'outillage sans trace de traçabilité.**
 
