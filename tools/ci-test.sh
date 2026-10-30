@@ -102,6 +102,61 @@ if [ "$(portes_du_bilan "${sortie_cassee}")" != "${portes_saines}" ]; then
     fail=1
 fi
 
+# Les fonctions du lanceur que seule la voie complète emploie (étapes
+# parallèles, durées), extraites de ci.sh entre leurs marqueurs et jouées
+# dans un harnais : la voie complète d'une copie du dépôt coûterait trop.
+H="${TMP}/harnais"
+harnais() {   # harnais <corps> : rend ${TMP}/h-sortie
+    rm -rf "${H}"
+    mkdir -p "${H}/tools"
+    cp "${ROOT}/tools/paralleles.sh" "${H}/tools/"
+    {
+        echo 'set -eu'
+        echo 'BILAN=""; ECHECS=0'
+        sed -n '/--- lanceur:debut ---/,/--- lanceur:fin ---/p' "${ROOT}/tools/ci.sh"
+        printf '%s\n' "$1"
+        echo 'printf "%s\n" "${BILAN}"; echo "ECHECS=${ECHECS}"'
+    } > "${H}/h.sh"
+    (cd "${H}" && sh h.sh) > "${TMP}/h-sortie" 2>&1 || true
+}
+exiger() {   # exiger <libellé> <motif fixe>
+    if ! grep -qF -- "$2" "${TMP}/h-sortie"; then
+        echo "ÉCHEC : $1 — « $2 » absent :" >&2
+        sed 's/^/        /' "${TMP}/h-sortie" >&2 ; fail=1
+    fi
+}
+
+echo "ci-test — étapes parallèles : l'étape rouge est comptée et nommée au bilan"
+harnais "etapes_paralleles <<'FIN'
+saine$(printf '\t')true
+rouge$(printf '\t')false
+FIN"
+exiger "étape rouge" "ÉCHEC    rouge ("
+exiger "étape saine" "ok       saine ("
+exiger "compte des échecs" "ECHECS=1"
+
+echo "ci-test — étapes parallèles : un bilan incomplet est un échec"
+harnais "etapes_paralleles <<'FIN'
+une$(printf '\t')true
+deux$(printf '\t')true
+FIN"
+printf '#!/bin/sh\nprintf "ok\\t0\\tune\\n" >> "$1"\n' > "${H}/tools/paralleles.sh"
+(cd "${H}" && sh h.sh) > "${TMP}/h-sortie" 2>&1 || true
+exiger "bilan incomplet" "1 étape(s) au bilan pour 2"
+exiger "bilan incomplet compté" "ECHECS=1"
+
+echo "ci-test — « date » sans %s : les portes suivantes sont jouées, durée inconnue"
+mkdir -p "${TMP}/date-sans-s"
+printf '#!/bin/sh\necho "%%s"\n' > "${TMP}/date-sans-s/date"
+chmod +x "${TMP}/date-sans-s/date"
+CHEMIN_SAUF="${PATH}"
+PATH="${TMP}/date-sans-s:${PATH}"
+harnais 'etape p1 false
+etape p2 true'
+PATH="${CHEMIN_SAUF}"
+exiger "porte après une rouge" "ok       p2 (? s)"
+exiger "porte rouge" "ÉCHEC    p1 (? s)"
+
 if [ "${fail}" -ne 0 ]; then
     echo "ci-test : ÉCHEC." >&2
     exit 1

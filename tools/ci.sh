@@ -65,14 +65,23 @@ fi
 # permet jamais de savoir.
 BILAN=""
 ECHECS=0
+# --- lanceur:debut --- (fonctions éprouvées à part par tools/ci-test.sh)
+# Secondes depuis l'époque, ou rien : un « date » sans %s prive la durée de
+# sa valeur, jamais le lanceur de son bilan.
+secondes() {
+    _s="$(date +%s 2>/dev/null || true)"
+    case "${_s}" in ''|*[!0-9]*) ;; *) printf '%s' "${_s}" ;; esac
+}
 # La durée de chaque porte figure au bilan : c'est elle qui dit où optimiser.
 etape() {
     _titre="$1"
     shift
-    echo "— ${_titre}"
-    _debut="$(date +%s)"
+    printf '— %s\n' "${_titre}"
+    _debut="$(secondes)"
     if "$@"; then _verdict="ok"; else _verdict="ÉCHEC"; ECHECS=$((ECHECS + 1)); fi
-    retenir "${_verdict}" "$(( $(date +%s) - _debut ))" "${_titre}"
+    _fin="$(secondes)"
+    if [ -n "${_debut}" ] && [ -n "${_fin}" ]; then _duree=$((_fin - _debut)); else _duree="?"; fi
+    retenir "${_verdict}" "${_duree}" "${_titre}"
 }
 retenir() {   # retenir <ok|ÉCHEC> <secondes> <titre>
     # Colonnes alignées à la main : printf compterait les octets de « É ».
@@ -84,22 +93,26 @@ ${_col} $3 ($2 s)"
 # Étapes indépendantes, jouées en parallèle par tools/paralleles.sh : la
 # liste « titre<TAB>commande » arrive sur l'entrée ; chaque étape garde sa
 # ligne au bilan, dans l'ordre de la liste, comme si elle avait été jouée
-# seule.
+# seule. Un bilan qui n'a pas une ligne par étape est un échec : une étape
+# omise ne doit jamais passer pour absente.
 etapes_paralleles() {
+    _liste="$(mktemp)"
     _bilan="$(mktemp)"
-    sh tools/paralleles.sh "${_bilan}" || true
+    awk 'NF { print }' > "${_liste}"
+    sh tools/paralleles.sh "${_bilan}" < "${_liste}" || true
     while IFS="$(printf '\t')" read -r _verdict _duree _titre; do
         [ "${_verdict}" = "ok" ] || ECHECS=$((ECHECS + 1))
         retenir "${_verdict}" "${_duree}" "${_titre}"
     done < "${_bilan}"
-    # Un lanceur qui n'a rien rendu n'a rien joué : c'est un échec.
-    if [ ! -s "${_bilan}" ]; then
-        retenir "ÉCHEC" 0 "tests d'outillage (lanceur parallèle)"
+    _attendues="$(awk 'END { print NR }' "${_liste}")"
+    _rendues="$(awk 'END { print NR }' "${_bilan}")"
+    if [ "${_rendues}" -ne "${_attendues}" ] || [ "${_attendues}" -eq 0 ]; then
+        retenir "ÉCHEC" "?" "lanceur parallèle : ${_rendues} étape(s) au bilan pour ${_attendues}"
         ECHECS=$((ECHECS + 1))
     fi
-    rm -f "${_bilan}"
+    rm -f "${_liste}" "${_bilan}"
 }
-
+# --- lanceur:fin ---
 
 bilan() {
     echo
@@ -145,7 +158,8 @@ fi
 # l'aiguillage. Chacun travaille dans son propre dossier (mktemp) : ils sont
 # joués en parallèle, au plus CI_PARALLELE à la fois (tools/paralleles.sh).
 etape "test — lanceur parallèle" sh tools/paralleles-test.sh
-etapes_paralleles <<FIN
+# Liste protégée ('FIN') : rien n'y est développé avant le lanceur.
+etapes_paralleles <<'FIN'
 test — lanceur	sh tools/ci-test.sh
 test — anti-secrets	sh tools/secrets-test.sh
 test — données	sh tools/donnees-test.sh
