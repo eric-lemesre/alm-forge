@@ -346,10 +346,12 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 - Niveau normatif : DOIT
 - Needs: impl, utest, mtest
-- Couvertures réelles (3) :
+- Couvertures réelles (5) :
   - `impl` — .github/workflows/ci.yml:1
   - `utest` — tools/ci-test.sh:2
   - `impl` — tools/ci.sh:3
+  - `utest` — tools/paralleles-test.sh:2
+  - `impl` — tools/paralleles.sh:2
 
 #### `req~garde-fous-locaux~1`
 
@@ -417,7 +419,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Needs: impl, utest
 - Couvertures réelles (4) :
   - `utest` — tools/init-test.sh:5
-  - `impl` — tools/init.sh:572
+  - `impl` — tools/init.sh:574
   - `utest` — tools/rattachement-test.sh:2
   - `impl` — tools/rattachement.sh:2
 
@@ -459,5 +461,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 12/67 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 12/69 fichier(s) d'outillage sans trace de traçabilité.**
 

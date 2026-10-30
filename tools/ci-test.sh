@@ -54,10 +54,10 @@ lancer() {
     CODE=0
     (cd "${D}" && CI_COMPLET=0 sh tools/ci.sh --rapide) > "${TMP}/sortie" 2>&1 || CODE=$?
 }
-# Les noms de portes du bilan, dans l'ordre, verdicts ôtés.
+# Les noms de portes du bilan, dans l'ordre, verdicts et durées ôtés.
 portes_du_bilan() {
     printf '%s\n' "$1" | sed -n '/^— bilan/,$p' | \
-        sed -n 's/^  \(ok\|ÉCHEC\) *//p'
+        sed -n 's/^  \(ok\|ÉCHEC\) *//p' | sed 's/ ([0-9]* s)$//'
 }
 
 echo "ci-test — dépôt tel quel : le bilan nomme les portes jouées"

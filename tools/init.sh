@@ -557,7 +557,9 @@ echo "12/13 — Retrait de l'outillage d'instanciation, devenu sans objet"
 # Ce retrait était jusqu'ici PROPOSÉ en fin de message, comme une option,
 # après cinq autres étapes. Une option qui doit être prise à chaque fois n'en
 # est pas une.
-sed_inplace '/etape "test — instanciation"/d' tools/ci.sh
+# La ligne du test, dans la liste des tests joués en parallèle :
+# « titre<TAB>commande ».
+sed_inplace '/^test — instanciation	sh tools\/init-test\.sh$/d' tools/ci.sh
 retirer_bloc 'tools/init.sh' Taskfile.yml
 retirer_bloc 'tools/init.sh' templates/orchestrators/justfile
 # Contrat de dépôt : la SEULE ligne du tableau des commandes qui cite le

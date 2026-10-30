@@ -47,8 +47,10 @@ mkdir -p "${REP}"
 # rendu correct sans embarquer de table de fontes. Les caractères non-ASCII
 # (UTF-8 multi-octets) sont comptés une fois, pas par octet.
 largeur() {
-    printf '%s' "$1" | awk '{ n = 0 }
-        { for (i = 1; i <= length($0); i++) n++ }
+    # Octets comptés en locale C, moins les octets de continuation UTF-8
+    # (10xxxxxx) : le même nombre de caractères sous toute locale, là où
+    # length() compte des octets sous C et des caractères sous UTF-8.
+    printf '%s' "$1" | LC_ALL=C awk '{ n = length($0); gsub(/[\200-\277]/, ""); n = length($0) }
         END { printf "%d", n * 7 + 10 }'
 }
 
