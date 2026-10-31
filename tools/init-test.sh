@@ -94,6 +94,37 @@ fi
 (cd "${TA}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
     echo "ÉCHEC [A] : portes non vertes après instanciation" >&2 ; fail=1
 }
+# Une réécriture par fichier temporaire ne doit pas retirer le droit
+# d'exécution : sans lui, le hook pre-commit refuse de s'exécuter
+# (« Permission non accordée ») et le premier commit du projet échoue.
+# Constaté sur deux projets instanciés le 2026-10-31 (43 scripts touchés).
+# La liste des exécutables vient de l'index du gabarit. Vide (pas de git, index
+# illisible), le contrôle ne vérifierait rien : elle doit contenir le hook.
+executables="$(cd "${ROOT}" && git ls-files -s | awk '$1 == "100755" { print $4 }')" || executables=""
+case "${executables}" in
+    *tools/hooks/pre-commit.sh*) ;;
+    *) echo "ÉCHEC [A] : exécutables du gabarit introuvables, contrôle des droits sans objet" >&2 ; fail=1 ;;
+esac
+perdus=""
+for f in ${executables}; do
+    if [ -f "${TA}/${f}" ] && [ ! -x "${TA}/${f}" ]; then
+        perdus="${perdus} ${f}"
+    fi
+done
+if [ -n "${perdus}" ]; then
+    echo "ÉCHEC [A] : droit d'exécution perdu à l'instanciation :${perdus}" >&2 ; fail=1
+fi
+# L'outillage d'instanciation quitte aussi l'index, avant tout « git add » du
+# test : sinon la matrice le citerait encore.
+if (cd "${TA}" && git ls-files --error-unmatch tools/init.sh tools/init-test.sh >/dev/null 2>&1); then
+    echo "ÉCHEC [A] : tools/init.sh ou tools/init-test.sh reste dans l'index" >&2 ; fail=1
+fi
+# Les artefacts générés sortent à jour de l'instanciation : la porte
+# anti-dérive, que le hook pre-commit joue, ne doit pas refuser le premier
+# commit du projet (constaté le 2026-10-31 : matrice de traçabilité périmée).
+(cd "${TA}" && git add -A && sh tools/derive.sh >/dev/null 2>&1) || {
+    echo "ÉCHEC [A] : artefacts générés périmés après instanciation (tools/derive.sh)" >&2 ; fail=1
+}
 # Le code hérité du gabarit est déclaré par l'instanciation, et seulement
 # lui : le premier fichier de code que le projet ajoute sans trace fait
 # échouer la porte du rattachement.

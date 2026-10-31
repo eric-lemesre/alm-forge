@@ -23,7 +23,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `impl` — .github/ISSUE_TEMPLATE/proposition-exigence.yml:1
   - `impl` — .github/ISSUE_TEMPLATE/proposition-organisation.yml:1
   - `impl` — docs/methode/11-cycle-de-vie-issues.md:4
-  - `impl` — tools/init.sh:374
+  - `impl` — tools/init.sh:392
 
 #### `req~issues-triage-priorites~2`
 
@@ -198,7 +198,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Couvertures réelles (3) :
   - `impl` — tools/hooks/commit-msg.sh:25
   - `utest` — tools/init-test.sh:3
-  - `impl` — tools/init.sh:183
+  - `impl` — tools/init.sh:199
 
 #### `req~politique-langue~1`
 
@@ -206,7 +206,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Needs: dsn, impl, utest
 - Couvertures réelles (2) :
   - `utest` — tools/init-test.sh:4
-  - `impl` — tools/init.sh:225
+  - `impl` — tools/init.sh:241
 
 #### `req~portabilite-forges~1`
 
@@ -265,10 +265,10 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Needs: impl, utest
 - Couvertures réelles (6) :
   - `impl` — tools/checks-test.sh:69
-  - `utest` — tools/init-test.sh:176
-  - `utest` — tools/init-test.sh:211
-  - `impl` — tools/init.sh:207
-  - `impl` — tools/init.sh:499
+  - `utest` — tools/init-test.sh:207
+  - `utest` — tools/init-test.sh:242
+  - `impl` — tools/init.sh:223
+  - `impl` — tools/init.sh:517
   - `impl` — tools/socle-test.sh:88
 
 ### spec/02-exigences/ingenierie-exigences.md
@@ -420,7 +420,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Needs: impl, utest
 - Couvertures réelles (4) :
   - `utest` — tools/init-test.sh:5
-  - `impl` — tools/init.sh:574
+  - `impl` — tools/init.sh:596
   - `utest` — tools/rattachement-test.sh:2
   - `impl` — tools/rattachement.sh:2
 
