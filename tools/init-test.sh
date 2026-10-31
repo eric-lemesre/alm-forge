@@ -98,14 +98,26 @@ fi
 # d'exécution : sans lui, le hook pre-commit refuse de s'exécuter
 # (« Permission non accordée ») et le premier commit du projet échoue.
 # Constaté sur deux projets instanciés le 2026-10-31 (43 scripts touchés).
+# La liste des exécutables vient de l'index du gabarit. Vide (pas de git, index
+# illisible), le contrôle ne vérifierait rien : elle doit contenir le hook.
+executables="$(cd "${ROOT}" && git ls-files -s | awk '$1 == "100755" { print $4 }')" || executables=""
+case "${executables}" in
+    *tools/hooks/pre-commit.sh*) ;;
+    *) echo "ÉCHEC [A] : exécutables du gabarit introuvables, contrôle des droits sans objet" >&2 ; fail=1 ;;
+esac
 perdus=""
-for f in $(cd "${ROOT}" && git ls-files -s | awk '$1 == "100755" { print $4 }'); do
+for f in ${executables}; do
     if [ -f "${TA}/${f}" ] && [ ! -x "${TA}/${f}" ]; then
         perdus="${perdus} ${f}"
     fi
 done
 if [ -n "${perdus}" ]; then
     echo "ÉCHEC [A] : droit d'exécution perdu à l'instanciation :${perdus}" >&2 ; fail=1
+fi
+# L'outillage d'instanciation quitte aussi l'index, avant tout « git add » du
+# test : sinon la matrice le citerait encore.
+if (cd "${TA}" && git ls-files --error-unmatch tools/init.sh tools/init-test.sh >/dev/null 2>&1); then
+    echo "ÉCHEC [A] : tools/init.sh ou tools/init-test.sh reste dans l'index" >&2 ; fail=1
 fi
 # Les artefacts générés sortent à jour de l'instanciation : la porte
 # anti-dérive, que le hook pre-commit joue, ne doit pas refuser le premier

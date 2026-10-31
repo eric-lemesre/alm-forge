@@ -132,7 +132,9 @@ fi
 # <fichier>, qui garde ses droits. Un « mv » lui donnerait ceux du
 # temporaire, sans droit d'exécution : le hook pre-commit d'un projet
 # instancié refusait alors de s'exécuter (constaté le 2026-10-31, 43 scripts).
-# [impl->req~instanciation-outillee~2]
+# La cible est tronquée puis réécrite, sans l'atomicité d'un « mv » : le
+# script ne tourne qu'une fois, sur un dépôt neuf, et le gabarit ne contient
+# aucun lien symbolique que la copie suivrait.
 remplacer() {
     cat "$1.tmp" > "$1"
     rm -f "$1.tmp"
@@ -589,7 +591,6 @@ rm -f tools/init.sh
 # Retirés de l'index aussi : la matrice se dresse depuis « git ls-files », et
 # les y laisser la figeait avec deux fichiers absents — la porte anti-dérive
 # refusait alors le premier commit du projet (constaté le 2026-10-31).
-# [impl->req~instanciation-outillee~2]
 git rm -q --cached --ignore-unmatch tools/init.sh tools/init-test.sh >/dev/null 2>&1 || true
 
 # [impl->req~rattachement-code-exigence~1]
