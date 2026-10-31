@@ -7,6 +7,20 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Tests d'outillage joués en parallèle** (exigence `req~porte-ci~2`,
+  constaté sur un projet instancié) : `tools/paralleles.sh` les joue au plus
+  `CI_PARALLELE` à la fois (défaut : le nombre de processeurs), chacun
+  jusqu'au bout quel que soit le verdict des autres, et rend leurs sorties
+  dans l'ordre de la liste ; le bilan de `tools/ci.sh` donne la durée de
+  chaque porte. `tools/paralleles-test.sh` joue les cas d'échec, dont un
+  rendez-vous qu'un lanceur séquentiel ne tient pas. L'instanciation
+  retire la ligne de son test de cette liste. Fermé en cas de panne : une
+  étape non jouée jusqu'au bout (travailleur tué, xargs absent) est un
+  échec nommé, `CI_PARALLELE` invalide est refusé, et `tools/ci.sh` exige
+  une ligne de bilan par étape ; un `date` sans `%s` ne prive que la durée
+  de sa valeur. Décrit au chapitre 4 de la méthode. Revue
+  `docs/revues/2026-10-30-ci-parallele.md`.
+
 - **Tout fichier de code se rattache à une exigence** (exigence
   `req~rattachement-code-exigence~1`, domaine traçabilité, D-2026-10-01).
   Porte `tools/rattachement.sh`, câblée dans `tools/ci.sh` (voie
@@ -88,6 +102,16 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   chemin d'un partage interne avait suivi la documentation d'un code existant.
 
 ### Corrigé
+
+- **Artefacts générés indépendants de la locale** (exigence
+  `req~anti-derive-generes~1`, constaté sur un projet instancié dont la CI
+  tourne en `C.UTF-8` et le poste en `fr_FR`) : le suivi de revue et la
+  matrice trient en ordre des octets (`LC_COLLATE=C`), et la largeur des
+  badges se compte en caractères sous toute locale, `C` comprise. Un
+  artefact généré sur le poste ne se dit plus périmé en CI.
+  `tools/locale-test.sh` les génère sous une locale de langue et sous `C`,
+  sur des données dont les deux ordres diffèrent, et exige des sorties
+  identiques.
 
 - **Quatre chemins de corruption silencieuse fermés dans les portes de
   traçabilité** (`tools/classification.sh`, `tools/matrice.sh`,

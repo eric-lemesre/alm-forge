@@ -65,19 +65,54 @@ fi
 # permet jamais de savoir.
 BILAN=""
 ECHECS=0
+# --- lanceur:debut --- (fonctions éprouvées à part par tools/ci-test.sh)
+# Secondes depuis l'époque, ou rien : un « date » sans %s prive la durée de
+# sa valeur, jamais le lanceur de son bilan.
+secondes() {
+    _s="$(date +%s 2>/dev/null || true)"
+    case "${_s}" in ''|*[!0-9]*) ;; *) printf '%s' "${_s}" ;; esac
+}
+# La durée de chaque porte figure au bilan : c'est elle qui dit où optimiser.
 etape() {
     _titre="$1"
     shift
-    echo "— ${_titre}"
-    if "$@"; then
-        BILAN="${BILAN}
-ok       ${_titre}"
-    else
-        BILAN="${BILAN}
-ÉCHEC    ${_titre}"
+    printf '— %s\n' "${_titre}"
+    _debut="$(secondes)"
+    if "$@"; then _verdict="ok"; else _verdict="ÉCHEC"; ECHECS=$((ECHECS + 1)); fi
+    _fin="$(secondes)"
+    if [ -n "${_debut}" ] && [ -n "${_fin}" ]; then _duree=$((_fin - _debut)); else _duree="?"; fi
+    retenir "${_verdict}" "${_duree}" "${_titre}"
+}
+retenir() {   # retenir <ok|ÉCHEC> <secondes> <titre>
+    # Colonnes alignées à la main : printf compterait les octets de « É ».
+    case "$1" in ok) _col="ok      " ;; *) _col="ÉCHEC   " ;; esac
+    BILAN="${BILAN}
+${_col} $3 ($2 s)"
+}
+
+# Étapes indépendantes, jouées en parallèle par tools/paralleles.sh : la
+# liste « titre<TAB>commande » arrive sur l'entrée ; chaque étape garde sa
+# ligne au bilan, dans l'ordre de la liste, comme si elle avait été jouée
+# seule. Un bilan qui n'a pas une ligne par étape est un échec : une étape
+# omise ne doit jamais passer pour absente.
+etapes_paralleles() {
+    _liste="$(mktemp)"
+    _bilan="$(mktemp)"
+    awk 'NF { print }' > "${_liste}"
+    sh tools/paralleles.sh "${_bilan}" < "${_liste}" || true
+    while IFS="$(printf '\t')" read -r _verdict _duree _titre; do
+        [ "${_verdict}" = "ok" ] || ECHECS=$((ECHECS + 1))
+        retenir "${_verdict}" "${_duree}" "${_titre}"
+    done < "${_bilan}"
+    _attendues="$(awk 'END { print NR }' "${_liste}")"
+    _rendues="$(awk 'END { print NR }' "${_bilan}")"
+    if [ "${_rendues}" -ne "${_attendues}" ] || [ "${_attendues}" -eq 0 ]; then
+        retenir "ÉCHEC" "?" "lanceur parallèle : ${_rendues} étape(s) au bilan pour ${_attendues}"
         ECHECS=$((ECHECS + 1))
     fi
+    rm -f "${_liste}" "${_bilan}"
 }
+# --- lanceur:fin ---
 
 bilan() {
     echo
@@ -119,22 +154,29 @@ fi
 
 # --- Tests d'outillage (voie complète) --------------------------------------
 # Chaque porte se teste sur son cas d'échec (R3). Ces tests créent des dépôts
-# git jetables : c'est la partie coûteuse, et la raison d'être de l'aiguillage.
-etape "test — lanceur"           sh tools/ci-test.sh
-etape "test — anti-secrets"      sh tools/secrets-test.sh
-etape "test — données"           sh tools/donnees-test.sh
-etape "test — liens"             sh tools/liens-test.sh
-etape "test — périmètre"         sh tools/perimetre-test.sh
-etape "test — anti-dérive"       sh tools/derive-test.sh
-etape "test — cohérence"         sh tools/checks-test.sh
-etape "test — socle"             sh tools/socle-test.sh
-etape "test — gouvernance"       sh tools/gouvernance-test.sh
-etape "test — instanciation"     sh tools/init-test.sh
-etape "test — accueil"           sh tools/setup-test.sh
-etape "test — bootstrap"         sh tools/bootstrap-test.sh
-etape "test — nettoyage"         sh tools/clean-test.sh
-etape "test — hygiène de compilation" sh tools/hygiene-compilation-test.sh
-etape "test — kit Rust"          sh tools/rust-kit-test.sh
-etape "test — rattachement"      sh tools/rattachement-test.sh
+# git jetables : c'est la partie coûteuse, et la raison d'être de
+# l'aiguillage. Chacun travaille dans son propre dossier (mktemp) : ils sont
+# joués en parallèle, au plus CI_PARALLELE à la fois (tools/paralleles.sh).
+etape "test — lanceur parallèle" sh tools/paralleles-test.sh
+# Liste protégée ('FIN') : rien n'y est développé avant le lanceur.
+etapes_paralleles <<'FIN'
+test — lanceur	sh tools/ci-test.sh
+test — anti-secrets	sh tools/secrets-test.sh
+test — données	sh tools/donnees-test.sh
+test — liens	sh tools/liens-test.sh
+test — périmètre	sh tools/perimetre-test.sh
+test — anti-dérive	sh tools/derive-test.sh
+test — cohérence	sh tools/checks-test.sh
+test — socle	sh tools/socle-test.sh
+test — gouvernance	sh tools/gouvernance-test.sh
+test — instanciation	sh tools/init-test.sh
+test — accueil	sh tools/setup-test.sh
+test — bootstrap	sh tools/bootstrap-test.sh
+test — nettoyage	sh tools/clean-test.sh
+test — hygiène de compilation	sh tools/hygiene-compilation-test.sh
+test — kit Rust	sh tools/rust-kit-test.sh
+test — rattachement	sh tools/rattachement-test.sh
+test — indépendance à la locale	sh tools/locale-test.sh
+FIN
 
 bilan
