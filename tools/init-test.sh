@@ -94,6 +94,25 @@ fi
 (cd "${TA}" && sh tools/oft.sh trace >/dev/null && sh tools/checks.sh >/dev/null) || {
     echo "ÉCHEC [A] : portes non vertes après instanciation" >&2 ; fail=1
 }
+# Une réécriture par fichier temporaire ne doit pas retirer le droit
+# d'exécution : sans lui, le hook pre-commit refuse de s'exécuter
+# (« Permission non accordée ») et le premier commit du projet échoue.
+# Constaté sur deux projets instanciés le 2026-10-31 (43 scripts touchés).
+perdus=""
+for f in $(cd "${ROOT}" && git ls-files -s | awk '$1 == "100755" { print $4 }'); do
+    if [ -f "${TA}/${f}" ] && [ ! -x "${TA}/${f}" ]; then
+        perdus="${perdus} ${f}"
+    fi
+done
+if [ -n "${perdus}" ]; then
+    echo "ÉCHEC [A] : droit d'exécution perdu à l'instanciation :${perdus}" >&2 ; fail=1
+fi
+# Les artefacts générés sortent à jour de l'instanciation : la porte
+# anti-dérive, que le hook pre-commit joue, ne doit pas refuser le premier
+# commit du projet (constaté le 2026-10-31 : matrice de traçabilité périmée).
+(cd "${TA}" && git add -A && sh tools/derive.sh >/dev/null 2>&1) || {
+    echo "ÉCHEC [A] : artefacts générés périmés après instanciation (tools/derive.sh)" >&2 ; fail=1
+}
 # Le code hérité du gabarit est déclaré par l'instanciation, et seulement
 # lui : le premier fichier de code que le projet ajoute sans trace fait
 # échouer la porte du rattachement.

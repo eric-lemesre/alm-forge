@@ -128,6 +128,16 @@ if [ "${FORCE}" -ne 1 ]; then
     esac
 fi
 
+# remplacer <fichier> : le contenu de <fichier>.tmp remplace celui de
+# <fichier>, qui garde ses droits. Un « mv » lui donnerait ceux du
+# temporaire, sans droit d'exécution : le hook pre-commit d'un projet
+# instancié refusait alors de s'exécuter (constaté le 2026-10-31, 43 scripts).
+# [impl->req~instanciation-outillee~2]
+remplacer() {
+    cat "$1.tmp" > "$1"
+    rm -f "$1.tmp"
+}
+
 retirer_bloc() {
     # Supprime tout bloc — au sens des paragraphes séparés par une ligne vide
     # — qui cite le motif donné. Les façades d'orchestration déclarent une
@@ -141,7 +151,7 @@ retirer_bloc() {
         NF == 0 { if (index(bloc, motif) == 0) printf "%s", bloc; bloc = ""; next }
         END { if (index(bloc, motif) == 0) printf "%s", bloc }
     ' "${_fichier}" > "${_fichier}.tmp"
-    mv "${_fichier}.tmp" "${_fichier}"
+    remplacer "${_fichier}"
 }
 
 sed_inplace() {
@@ -149,7 +159,7 @@ sed_inplace() {
     _expr="$1"
     _file="$2"
     sed "${_expr}" "${_file}" > "${_file}.tmp"
-    mv "${_file}.tmp" "${_file}"
+    remplacer "${_file}"
 }
 
 annee="$(date +%Y)"
@@ -172,11 +182,15 @@ for f in AGENTS.md docs/methode/*.md docs/adr/README.md \
          .github/workflows/*.yml .gitlab-ci.yml \
          .github/ISSUE_TEMPLATE/*.yml .gitlab/issue_templates/*.md; do
     [ -f "${f}" ] || continue
+    # Ce script et son test sont retirés à l'étape 12/13. Celui-ci surtout ne
+    # se réécrit pas : le shell le lit au fil de l'exécution, et le remplacer
+    # sur place décalerait la lecture au milieu d'une ligne.
+    case "${f}" in tools/init.sh|tools/init-test.sh) continue ;; esac
     sed -e '/^<!-- \[impl->/d' -e '/^<!-- \[utest->/d' \
         -e '/^# \[impl->/d' -e '/^# \[utest->/d' \
         -e '/^# Exigence servie : req~/d' -e '/^\/\/ Exigence servie : req~/d' \
         "${f}" > "${f}.tmp"
-    mv "${f}.tmp" "${f}"
+    remplacer "${f}"
 done
 
 echo "2/13 — Politique de mention de l'IA dans les commits : ${ATTRIBUTION}"
@@ -185,7 +199,7 @@ if [ "${ATTRIBUTION}" != "obligatoire" ]; then
     # Le bloc livré par défaut (déclaration obligatoire) est retiré…
     sed '/politique-attribution:debut/,/politique-attribution:fin/d' \
         tools/hooks/commit-msg.sh > tools/hooks/commit-msg.sh.tmp
-    mv tools/hooks/commit-msg.sh.tmp tools/hooks/commit-msg.sh
+    remplacer tools/hooks/commit-msg.sh
     chmod +x tools/hooks/commit-msg.sh
 fi
 case "${ATTRIBUTION}" in
@@ -227,7 +241,7 @@ if [ "${LANGUE}" != "fr-en" ]; then
     # Une seule langue : un seul jeu de modèles, plus de porte de parité.
     sed '/parite-templates:debut/,/parite-templates:fin/d' \
         tools/checks.sh > tools/checks.sh.tmp
-    mv tools/checks.sh.tmp tools/checks.sh
+    remplacer tools/checks.sh
     chmod +x tools/checks.sh
 fi
 case "${LANGUE}" in
@@ -241,7 +255,9 @@ if [ "${LANGUE}" = "en" ]; then
     # finale. La parité des templates garantit les mêmes noms de fichiers.
     find docs -name '*.md' -exec sh -c '
         for f; do
-            sed "s|templates/fr/|templates/en/|g" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+            # Sous-shell, hors de portée de la fonction remplacer.
+            sed "s|templates/fr/|templates/en/|g" "$f" > "$f.tmp" &&
+                cat "$f.tmp" > "$f" && rm -f "$f.tmp"
         done' _ {} +
 fi
 
@@ -323,7 +339,7 @@ cat >> docs/adr/README.md.tmp <<EOF
 Aucun ADR à ce jour. Les décisions fondatrices du gabarit alm-forge restent
 consultables dans son dépôt d'origine.
 EOF
-mv docs/adr/README.md.tmp docs/adr/README.md
+remplacer docs/adr/README.md
 # La documentation de méthode cite ces ADR fondateurs par lien relatif ; les
 # cibles viennent d'être retirées, et la porte d'intégrité des liens ferait
 # échouer la vérification finale. On honore la promesse ci-dessus (« restent
@@ -333,7 +349,7 @@ mv docs/adr/README.md.tmp docs/adr/README.md
 for f in docs/methode/*.md; do
     [ -f "${f}" ] || continue
     sed 's|](\.\./adr/0|](https://github.com/eric-lemesre/alm-forge/blob/main/docs/adr/0|g' \
-        "${f}" > "${f}.tmp" && mv "${f}.tmp" "${f}"
+        "${f}" > "${f}.tmp" && remplacer "${f}"
 done
 
 echo "6/13 — Registre des décisions réinitialisé"
@@ -403,7 +419,7 @@ awk -v row="| D-$(date +%Y-%m)-01 | $(date +%Y-%m-%d) | ${decision_cycle} | ${re
     { print }
     $0 == "| --- | --- | --- | --- |" { print row }
 ' docs/decisions/registre.md > docs/decisions/registre.md.tmp
-mv docs/decisions/registre.md.tmp docs/decisions/registre.md
+remplacer docs/decisions/registre.md
 
 echo "8/13 — CHANGELOG et VERSION réinitialisés"
 if [ "${LANGUE}" = "en" ]; then
@@ -570,6 +586,11 @@ rm -f tools/init-test.sh
 # Ce script s'efface en dernier. Le shell garde le fichier ouvert par son
 # descripteur : le délier n'interrompt pas l'exécution en cours.
 rm -f tools/init.sh
+# Retirés de l'index aussi : la matrice se dresse depuis « git ls-files », et
+# les y laisser la figeait avec deux fichiers absents — la porte anti-dérive
+# refusait alors le premier commit du projet (constaté le 2026-10-31).
+# [impl->req~instanciation-outillee~2]
+git rm -q --cached --ignore-unmatch tools/init.sh tools/init-test.sh >/dev/null 2>&1 || true
 
 # [impl->req~rattachement-code-exigence~1]
 # Code hérité du gabarit : ses traces sont retirées (étape 1) et ses

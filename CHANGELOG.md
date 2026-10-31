@@ -113,6 +113,18 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   sur des données dont les deux ordres diffèrent, et exige des sorties
   identiques.
 
+- **L'instanciation garde les droits d'exécution et une matrice à jour**
+  (`req~instanciation-outillee~2`). `tools/init.sh` réécrivait ses fichiers
+  par un temporaire puis `mv` : 43 scripts perdaient leur droit
+  d'exécution, et le hook pre-commit du projet produit refusait de
+  s'exécuter (« Permission non accordée »). Il remplace désormais le
+  contenu sur place (`remplacer`), et ne se réécrit plus lui-même pendant
+  son exécution. Il retire aussi `tools/init.sh` et `tools/init-test.sh` de
+  l'index avant de dresser la matrice, qui les listait encore : la porte
+  anti-dérive refusait le premier commit. Constaté le 2026-10-31 sur deux
+  projets instanciés ; `tools/init-test.sh` éprouve les deux cas, qui
+  échouaient avant le correctif.
+
 - **Quatre chemins de corruption silencieuse fermés dans les portes de
   traçabilité** (`tools/classification.sh`, `tools/matrice.sh`,
   `tools/avancement.sh`), constatés par revue adversariale sur un projet
