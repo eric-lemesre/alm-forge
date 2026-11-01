@@ -7,6 +7,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Définitions en double nommées avant la trace** (exigence
+  `req~tracabilite-outillee~1`, constaté sur un projet instancié) :
+  OpenFastTrace tient pour définition toute ligne qui commence en colonne 0
+  par un identifiant entre accents graves, même suivi de texte ; une citation
+  mal placée redéfinissait l'item et la trace échouait sans dire où.
+  `tools/oft.sh` (sous-commande `doublons`, jouée en tête de `trace`) nomme
+  chaque identifiant défini plusieurs fois et ses fichiers ;
+  `tools/oft-doublons-test.sh` joue le cas d'échec. La méthode (ch. 4)
+  corrige la règle. Le périmètre de la trace comprend aussi `tests/` (tests
+  d'intégration d'un projet Rust).
+
 - **Tests d'outillage joués en parallèle** (exigence `req~porte-ci~2`,
   constaté sur un projet instancié) : `tools/paralleles.sh` les joue au plus
   `CI_PARALLELE` à la fois (défaut : le nombre de processeurs), chacun

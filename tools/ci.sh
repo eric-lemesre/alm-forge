@@ -175,6 +175,7 @@ test — bootstrap	sh tools/bootstrap-test.sh
 test — nettoyage	sh tools/clean-test.sh
 test — hygiène de compilation	sh tools/hygiene-compilation-test.sh
 test — kit Rust	sh tools/rust-kit-test.sh
+test — définitions en double	sh tools/oft-doublons-test.sh
 test — rattachement	sh tools/rattachement-test.sh
 test — indépendance à la locale	sh tools/locale-test.sh
 FIN
