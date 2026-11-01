@@ -1,5 +1,5 @@
 #!/bin/sh
-# [utest->req~tracabilite-outillee~2]
+# [utest->req~tracabilite-outillee~3]
 # Test du contrôle des définitions en double de tools/oft.sh (sous-commande
 # « doublons », jouée aussi en tête de « trace ») sur son cas d'échec (R3) :
 # un identifiant repris en colonne 0 dans un second fichier échoue en

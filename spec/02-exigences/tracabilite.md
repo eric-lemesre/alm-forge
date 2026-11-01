@@ -5,29 +5,38 @@ le dénominateur des taux d'audit et de classification (méthode, ch. 13).
 
 ## Traçabilité outillée de bout en bout
 
-`req~tracabilite-outillee~2`
+`req~tracabilite-outillee~3`
 
 **Statut : approuvée**
 
 La chaîne besoin → exigence → conception → implémentation → test DOIT être
 vérifiée par un outil indépendant du langage qui échoue (code retour non nul)
-dès qu'un maillon manque à une réalisation commencée : couverture partielle,
-couverture pointant un identifiant inexistant, un item écarté ou une révision
-obsolète. Une exigence approuvée sans aucun maillon aval DOIT être listée
-comme à réaliser, sans faire échouer la porte.
+dès qu'un maillon manque à une réalisation commencée — au moins un tag de
+code ou de test posé : couverture partielle, couverture pointant un
+identifiant inexistant, un item écarté ou une révision obsolète. Une
+exigence ou un item de conception approuvés dont la réalisation n'a pas
+commencé DOIVENT être listés comme à réaliser, sans faire échouer la porte,
+même si leur conception existe.
 
 Rationale:
 Révision 2 (ADR-0020) : la révision 1 faisait échouer toute exigence
 approuvée non réalisée, si bien qu'approuver une exigence relue bloquait les
 commits jusqu'à la fin de son développement — et que les projets tronquaient
-leur `Needs:` pour passer.
+leur `Needs:` pour passer. Révision 3 (ADR-0021) : la révision 2 ne
+tolérait que l'exigence sans AUCUN maillon aval ; une exigence déjà conçue
+(couverte par l'item de conception d'un ADR) mais pas encore codée faisait
+échouer la porte, et l'item de conception lui-même aussi — l'enchaînement
+normal « conception, puis code » était bloqué (constaté sur un projet
+instancié).
 
 Critères d'acceptation :
 
-- Étant donné une exigence approuvée réalisée sans son test, quand la
-  traçabilité s'exécute, alors elle échoue en nommant l'exigence.
-- Étant donné une exigence approuvée sans aucun maillon aval, quand la
-  traçabilité s'exécute, alors elle passe et la liste à réaliser.
+- Étant donné une exigence approuvée réalisée sans son test, ou testée sans
+  son code, quand la traçabilité s'exécute, alors elle échoue en nommant
+  l'exigence.
+- Étant donné une exigence approuvée sans aucun maillon aval, ou couverte
+  seulement par un item de conception lui-même sans code, quand la
+  traçabilité s'exécute, alors elle passe et les liste à réaliser.
 - Étant donné un tag de couverture vers un identifiant inexistant, quand la
   traçabilité s'exécute, alors elle échoue (aucun tag fantôme possible).
 
