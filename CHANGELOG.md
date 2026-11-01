@@ -18,6 +18,22 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Traçabilité limitée aux items approuvés** (exigences
+  `req~tracabilite-outillee~2` et `req~statut-trace-concordant~1`,
+  ADR-0020 qui remplace l'ADR-0002, D-2026-11-01) : `tools/oft.sh` ne trace
+  que les items `approved` ; un item non arbitré porte `Status: draft`,
+  `proposed` ou `rejected` collé sous son identifiant, et
+  `tools/statuts.sh` (invariant 7) refuse toute discordance avec le statut
+  déclaré. Une exigence approuvée sans aucun maillon aval est listée « à
+  réaliser » sans faire échouer la porte ; toute réalisation commencée doit
+  être complète. On ne réalise que l'approuvé : un tag de code, ou un item de
+  conception approuvé, qui couvre une exigence proposée fait échouer la
+  porte ; l'item de conception prend alors le même `Status:`. Modèles de
+  besoin et d'exigence (fr, en) avec `Status: draft` ; méthode ch. 2 ;
+  `tools/oft-test.sh` et `tools/statuts-test.sh` jouent les cas d'échec.
+  Pour un projet instancié : remplacer le `Needs:` tronqué des exigences non
+  réalisées par le `Needs:` complet et un `Status:` collé.
+
 - **Définitions en double nommées avant la trace** (exigence
   `req~tracabilite-outillee~1`, constaté sur un projet instancié) :
   OpenFastTrace tient pour définition toute ligne qui commence en colonne 0

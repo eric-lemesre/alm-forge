@@ -1,5 +1,6 @@
 #!/bin/sh
-# [impl->req~tracabilite-outillee~1]
+# [impl->req~tracabilite-outillee~2]
+# [impl->req~statut-trace-concordant~1]
 # Point unique d'exécution d'OpenFastTrace : la CI, les hooks et les façades
 # d'orchestration (Taskfile, justfile…) passent tous par ce script, avec le
 # même périmètre de fichiers (R2, ADR-0002, ADR-0007).
@@ -13,6 +14,9 @@ OFT_URL="https://github.com/itsallcode/openfasttrace/releases/download/${OFT_VER
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 JAR="${ROOT}/.cache/openfasttrace-${OFT_VERSION}.jar"
+# Statuts OpenFastTrace retenus par la porte (ADR-0020) ; exigences
+# approuvées à réaliser tolérées (ADR-0020).
+STATUTS_TRACES="approved"
 
 # Périmètre scanné (relatif à la racine). templates/ est exclu : les modèles
 # contiennent des identifiants d'exemple qui ne doivent pas devenir des items.
@@ -106,8 +110,40 @@ case "${1:-trace}" in
         require_java
         fetch_jar
         # shellcheck disable=SC2086 — la découpe en mots de SCAN est voulue.
-        java -jar "${JAR}" trace -v failures ${SCAN}
-        echo "Traçabilité : OK (aucune exigence orpheline)."
+        # Seuls les items approuvés entrent dans la porte (ADR-0020) : un
+        # besoin ou une exigence non arbitrés portent « Status: draft » (ou
+        # proposed) sous leur identifiant, et tools/statuts.sh vérifie que ce
+        # statut concorde avec le statut déclaré de l'exigence.
+        rc=0
+        SORTIE="$(java -jar "${JAR}" trace -c BLACK_AND_WHITE -v direct_failure_summaries \
+                  -w "${STATUTS_TRACES}" ${SCAN} 2>&1)" || rc=$?
+        if [ "${rc}" -eq 0 ]; then
+            echo "Traçabilité : OK (aucune exigence orpheline)."
+            exit 0
+        fi
+        # Défauts DIRECTS seulement : un défaut transitif (un besoin en
+        # échec à cause de son exigence) a toujours sa cause parmi eux.
+        DEFAUTS="$(printf '%s\n' "${SORTIE}" | grep '^not ok \[' || true)"
+        if [ -z "${DEFAUTS}" ]; then
+            # Aucun défaut lisible : erreur de l'outil, jamais un succès.
+            printf '%s\n' "${SORTIE}" >&2
+            exit "${rc}"
+        fi
+        # Exigence approuvée À RÉALISER (ADR-0020) : aucun maillon aval
+        # (« in: 0 / 0 »), lien amont sain (« out: … ✔ »), et pour seul défaut
+        # des types requis non couverts (« (-impl, -utest) »). Dès le premier
+        # tag ou item aval, la couverture complète est exigée.
+        MOTIF_A_REALISER='^not ok \[ in: +0 / +0 +\| out: +[0-9]+ / +[0-9]+ ✔ \] req~[a-z0-9-]+~[0-9]+ \(-[a-z]+(, -[a-z]+)*\)$'
+        BLOQUANTS="$(printf '%s\n' "${DEFAUTS}" | grep -Ev "${MOTIF_A_REALISER}" || true)"
+        if [ -n "${BLOQUANTS}" ]; then
+            printf '%s\n' "${SORTIE}" >&2
+            echo "ÉCHEC : traçabilité — défauts bloquants :" >&2
+            printf '%s\n' "${BLOQUANTS}" >&2
+            exit 1
+        fi
+        A_REALISER="$(printf '%s\n' "${DEFAUTS}" | grep -oE 'req~[a-z0-9-]+~[0-9]+')"
+        echo "Traçabilité : OK — $(printf '%s\n' "${A_REALISER}" | wc -l | tr -d ' ') exigence(s) approuvée(s) à réaliser :"
+        printf '%s\n' "${A_REALISER}" | sed 's/^/  /'
         ;;
     doublons)
         scan_inputs
@@ -120,10 +156,11 @@ case "${1:-trace}" in
         scan_inputs
         mkdir -p build
         # Le rapport HTML est informatif : généré même en cas de défauts ; le
-        # code retour de la porte est porté par le résumé qui suit.
-        java -jar "${JAR}" trace -o html -f build/tracabilite.html ${SCAN} || true
-        java -jar "${JAR}" trace -v summary ${SCAN}
+        # code retour est celui de la porte, exigences à réaliser tolérées
+        # comprises (ADR-0020).
+        java -jar "${JAR}" trace -o html -f build/tracabilite.html -w "${STATUTS_TRACES}" ${SCAN} || true
         echo "Rapport : build/tracabilite.html"
+        sh "${ROOT}/tools/oft.sh" trace
         ;;
     *)
         echo "Usage : tools/oft.sh [trace|report|doublons]" >&2

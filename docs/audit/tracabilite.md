@@ -4,7 +4,7 @@ Miroir de [`spec/02-exigences/tracabilite.md`](../../spec/02-exigences/tracabili
 
 | Exigence | Verdict | Preuve / écart |
 | --- | --- | --- |
-| `req~tracabilite-outillee~1` | conforme | `tools/oft.sh` (jar épinglé par empreinte) ; `tools/socle-test.sh` prouve l'échec sur exigence orpheline **et** le retour au vert une fois le maillon posé |
+| `req~tracabilite-outillee~2` | conforme | `tools/oft.sh` (jar épinglé par empreinte, items approuvés seuls, exigences à réaliser listées) ; `tools/socle-test.sh` prouve l'échec sur une réalisation sans son test **et** le retour au vert une fois le test posé ; `tools/oft-test.sh` joue couverture partielle, lien amont rompu et item écarté couvert ; ADR-0020 |
 | `req~porte-ci~2` | conforme | les deux façades délèguent à `tools/ci.sh`, qui joue toutes les portes de la voie et rend un bilan (ADR-0019) ; `tools/ci-test.sh` éprouve l'invariant sur son cas d'échec ; seuls les automatismes de forge sont non câblés, avec raison et échéance (méthode ch. 11) ; procédure `mtest~portes-cablees~1` |
 | `req~garde-fous-locaux~1` | conforme | `.githooks/` et `tools/hooks/` ; le pre-commit rejoue la voie documentaire, le contournement `ALM_SKIP_HOOKS=1` est explicite et bruyant ; `tools/socle-test.sh` couvre trois refus et un passage |
 | `req~tests-mecanises~1` | conforme | 100 % des exigences DOIT déclarent une vérification (`tools/classification.sh`) ; les non automatisables sont couvertes par `docs/verification-manuelle/` ; la vérité des tags relève de `mtest~pyramide-tests~1` |

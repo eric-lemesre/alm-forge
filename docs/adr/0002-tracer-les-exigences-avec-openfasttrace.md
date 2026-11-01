@@ -1,21 +1,19 @@
 # ADR-0002 — Tracer les exigences avec OpenFastTrace
 
-**Statut** : Accepté
+**Statut** : Remplacé par [ADR-0020](0020-tracer-les-seuls-items-approuves.md)
 **Date** : 2026-08-08
 **Décideur** : Éric Lemesre — consultation directe (voir D-2026-08-02, registre des décisions)
 **Portée** : durable — condition de réouverture : abandon du projet OpenFastTrace ou besoin d'attributs d'exigence que son format ne porte pas
 
 ## Item de conception
 
-`dsn~moteur-tracabilite~1`
+*Item de conception repris en révision 2 par l'ADR-0020 (la traçabilité suit
+la décision en vigueur ; la prose ci-dessous reste le texte d'origine).*
 
 La traçabilité besoin→exigence→conception→implémentation→test est vérifiée par
 OpenFastTrace (jar autonome, épinglé en version et en empreinte SHA-256 dans
 `tools/oft.sh`) : items de spécification dans les fichiers Markdown, tags de
 couverture dans les commentaires du code, échec du build si un maillon manque.
-
-Covers:
-- req~tracabilite-outillee~1
 
 ## Contexte
 

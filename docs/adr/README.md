@@ -57,7 +57,7 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | ADR | Titre | Statut |
 | --- | --- | --- |
 | [0001](0001-structurer-alm-forge-en-depot-gabarit.md) | Structurer alm-forge en dépôt-gabarit instanciable | Accepté |
-| [0002](0002-tracer-les-exigences-avec-openfasttrace.md) | Tracer les exigences avec OpenFastTrace | Accepté |
+| [0002](0002-tracer-les-exigences-avec-openfasttrace.md) | Tracer les exigences avec OpenFastTrace | Remplacé par 0020 |
 | [0003](0003-structurer-les-adr-sur-madr-avec-verification.md) | Structurer les ADR sur MADR avec section Vérification | Accepté |
 | [0004](0004-rediger-les-exigences-selon-ears.md) | Rédiger les exigences selon la syntaxe EARS | Accepté |
 | [0005](0005-documentation-normative-francaise-templates-bilingues.md) | Documentation normative en français, templates bilingues | Accepté |
@@ -75,3 +75,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0017](0017-perimetre-de-la-porte-constate.md) | Constater le périmètre de la porte plutôt que le déclarer | Accepté |
 | [0018](0018-statut-de-cycle-de-vie-porte-par-l-exigence.md) | Porter le statut de cycle de vie au niveau de l'exigence | Accepté |
 | [0019](0019-jouer-toutes-les-portes-et-rendre-un-bilan.md) | Jouer toutes les portes et rendre un bilan | Accepté |
+| [0020](0020-tracer-les-seuls-items-approuves.md) | Tracer avec OpenFastTrace les seuls items approuvés, et tolérer l'exigence approuvée à réaliser | Accepté |

@@ -269,7 +269,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `utest` — tools/init-test.sh:242
   - `impl` — tools/init.sh:223
   - `impl` — tools/init.sh:517
-  - `impl` — tools/socle-test.sh:88
+  - `impl` — tools/socle-test.sh:92
 
 ### spec/02-exigences/ingenierie-exigences.md
 
@@ -297,6 +297,16 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `impl` — docs/methode/02-exigences.md:4
   - `utest` — tools/gouvernance-test.sh:3
   - `impl` — tools/statuts.sh:3
+
+#### `req~statut-trace-concordant~1`
+
+- Niveau normatif : DOIT
+- Needs: dsn, impl, utest
+- Couvertures réelles (4) :
+  - `utest` — tools/oft-test.sh:2
+  - `impl` — tools/oft.sh:3
+  - `utest` — tools/statuts-test.sh:2
+  - `impl` — tools/statuts.sh:4
 
 #### `req~questions-ouvertes~1`
 
@@ -333,7 +343,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### spec/02-exigences/tracabilite.md
 
-#### `req~tracabilite-outillee~1`
+#### `req~tracabilite-outillee~2`
 
 - Niveau normatif : DOIT
 - Needs: dsn, impl, utest
@@ -427,7 +437,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### Bilan (couvertures réelles)
 
-46/46 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+47/47 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
@@ -464,5 +474,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 13/72 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 13/74 fichier(s) d'outillage sans trace de traçabilité.**
 
