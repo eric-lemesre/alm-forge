@@ -5,19 +5,29 @@ le dénominateur des taux d'audit et de classification (méthode, ch. 13).
 
 ## Traçabilité outillée de bout en bout
 
-`req~tracabilite-outillee~1`
+`req~tracabilite-outillee~2`
 
 **Statut : approuvée**
 
 La chaîne besoin → exigence → conception → implémentation → test DOIT être
 vérifiée par un outil indépendant du langage qui échoue (code retour non nul)
-dès qu'un maillon manque : exigence sans couverture, couverture pointant un
-identifiant inexistant ou une révision obsolète.
+dès qu'un maillon manque à une réalisation commencée : couverture partielle,
+couverture pointant un identifiant inexistant, un item écarté ou une révision
+obsolète. Une exigence approuvée sans aucun maillon aval DOIT être listée
+comme à réaliser, sans faire échouer la porte.
+
+Rationale:
+Révision 2 (ADR-0020) : la révision 1 faisait échouer toute exigence
+approuvée non réalisée, si bien qu'approuver une exigence relue bloquait les
+commits jusqu'à la fin de son développement — et que les projets tronquaient
+leur `Needs:` pour passer.
 
 Critères d'acceptation :
 
-- Étant donné une exigence approuvée sans implémentation taguée, quand la
-  traçabilité s'exécute, alors elle échoue en nommant l'exigence orpheline.
+- Étant donné une exigence approuvée réalisée sans son test, quand la
+  traçabilité s'exécute, alors elle échoue en nommant l'exigence.
+- Étant donné une exigence approuvée sans aucun maillon aval, quand la
+  traçabilité s'exécute, alors elle passe et la liste à réaliser.
 - Étant donné un tag de couverture vers un identifiant inexistant, quand la
   traçabilité s'exécute, alors elle échoue (aucun tag fantôme possible).
 

@@ -178,6 +178,7 @@ Needs: impl, utest
 ## Kit de lint Markdown prêt à copier
 
 `req~kit-lint-markdown~1`
+Status: proposed
 
 **Statut : proposée**
 
