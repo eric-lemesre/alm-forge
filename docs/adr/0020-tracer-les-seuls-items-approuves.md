@@ -1,6 +1,6 @@
 # ADR-0020 — Tracer avec OpenFastTrace les seuls items approuvés, et tolérer l'exigence approuvée à réaliser
 
-**Statut** : Accepté
+**Statut** : Remplacé par [ADR-0021](0021-tolerer-la-conception-avant-la-realisation.md)
 **Date** : 2026-11-01
 **Décideur** : Éric Lemesre — seul : option retenue en séance le 2026-10-10 (tolérance des exigences à réaliser), reprise sur la branche principale à sa demande le 2026-11-01 (voir D-2026-11-01, registre des décisions)
 **Portée** : durable — condition de réouverture : abandon du projet OpenFastTrace, ou changement du format de sortie qu'il rend à la vérification
@@ -8,7 +8,8 @@
 
 ## Item de conception
 
-`dsn~moteur-tracabilite~2`
+*Item de conception repris en révision 3 par l'ADR-0021 (la traçabilité suit
+la décision en vigueur ; la prose ci-dessous reste le texte d'origine).*
 
 La traçabilité besoin → exigence → conception → implémentation → test est
 vérifiée par OpenFastTrace (jar autonome, épinglé en version et en empreinte
@@ -18,10 +19,6 @@ ligne qui suit son identifiant ; `tools/statuts.sh` exige que ce statut
 concorde avec le statut déclaré de l'exigence. Une exigence approuvée sans
 aucun maillon aval est **à réaliser** : la porte la tolère et la liste ; dès
 le premier maillon, la couverture complète est exigée.
-
-Covers:
-- req~tracabilite-outillee~2
-- req~statut-trace-concordant~1
 
 ## Contexte
 

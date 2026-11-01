@@ -7,6 +7,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Corrigé
 
+- **Conception avant réalisation tolérée par la traçabilité** (exigence
+  `req~tracabilite-outillee~3`, ADR-0021 qui remplace l'ADR-0020,
+  D-2026-11-02, constaté à l'adoption par un projet instancié) : une
+  exigence approuvée déjà couverte par l'item de conception d'un ADR mais
+  pas encore codée faisait échouer la trace, et l'item de conception aussi.
+  Sont désormais « à réaliser », tolérés et listés, une exigence ou un item
+  de conception approuvés sans aucun tag de code ni de test ; dès le
+  premier, la couverture complète est exigée (un test sans code échoue).
+  Cas ajoutés à `tools/oft-test.sh`, qui échouent contre la porte
+  précédente ; méthode ch. 2.
+
 - **Lecture d'une consultation : le login se compare entier.** L'automatisme
   `lecture` de `templates/forge/tools/automatismes.sh` cochait la première
   case dont la ligne *contenait* le login du commentateur : `@eric` valait

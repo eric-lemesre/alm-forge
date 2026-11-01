@@ -343,7 +343,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### spec/02-exigences/tracabilite.md
 
-#### `req~tracabilite-outillee~2`
+#### `req~tracabilite-outillee~3`
 
 - Niveau normatif : DOIT
 - Needs: dsn, impl, utest

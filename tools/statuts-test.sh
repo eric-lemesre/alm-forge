@@ -1,7 +1,7 @@
 #!/bin/sh
 # [utest->req~statut-trace-concordant~1]
 # Test mécanisé de la porte des statuts, centré sur la concordance entre le
-# statut déclaré d'une exigence et le statut lu par OpenFastTrace (ADR-0020).
+# statut déclaré d'une exigence et le statut lu par OpenFastTrace (ADR-0021).
 # Les cas NÉGATIFS sont les plus importants : une porte qui ne signale jamais
 # rien passe toujours.
 # POSIX sh strict.
