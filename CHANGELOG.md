@@ -103,6 +103,15 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Corrigé
 
+- **Matériel du gabarit pris pour des appels de test Cargo** (exigence
+  `req~hygiene-artefacts-compilation~1`, constaté sur un projet instancié) :
+  dans un projet Rust, la porte d'hygiène de compilation échouait sur son
+  propre test copié (`tools/hygiene-compilation-test.sh`, dont les appels
+  sont des jeux d'essai) et sur le module `50-rust.sh` (noms
+  `cargo-nextest`/`cargo-sweep` écrits sur la ligne d'un `for`). La porte
+  exclut son test ; le module compose les noms. Cas [I] ajouté au test :
+  le matériel du gabarit copié dans un projet passe sans réglage natif.
+
 - **Artefacts générés indépendants de la locale** (exigence
   `req~anti-derive-generes~1`, constaté sur un projet instancié dont la CI
   tourne en `C.UTF-8` et le poste en `fr_FR`) : le suivi de revue et la
