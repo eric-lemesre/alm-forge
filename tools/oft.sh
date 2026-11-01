@@ -22,13 +22,45 @@ JAR="${ROOT}/.cache/openfasttrace-${OFT_VERSION}.jar"
 # a pas — il ne réalise rien — mais tout projet instancié en aura un, et sans
 # lui au périmètre ses exigences resteraient orphelines sans qu'on sache
 # pourquoi. Manque constaté sur un projet instancié.
-INPUTS="spec docs examples src tools .github .gitlab .gitlab-ci.yml AGENTS.md README.md README.en.md CONTRIBUTING.md CHANGELOG.md Taskfile.yml"
+# « tests » porte les tests d'intégration d'un projet Rust (tags itest), que
+# cargo range hors de src (constaté sur un projet instancié).
+INPUTS="spec docs examples src tests tools .github .gitlab .gitlab-ci.yml AGENTS.md README.md README.en.md CONTRIBUTING.md CHANGELOG.md Taskfile.yml"
 
 scan_inputs() {
     SCAN=""
     for p in ${INPUTS}; do
         if [ -e "${p}" ]; then SCAN="${SCAN} ${p}"; fi
     done
+}
+
+# Définitions en double. OpenFastTrace tient pour DÉFINITION d'item toute
+# ligne Markdown qui COMMENCE (colonne 0) par un identifiant entre accents
+# graves — « `req~x~1`, et la suite » compris ; indenté ou en milieu de
+# phrase, l'identifiant n'est qu'une citation (vérifié sur OFT 4.9.0). Une
+# citation mal placée dans un CHANGELOG ou une fiche redéfinit donc l'item,
+# et la trace échoue en ne listant que des identifiants, sans dire où est
+# le doublon (constaté sur un projet instancié). Ce contrôle, joué avant la
+# trace, nomme chaque identifiant défini plusieurs fois et ses fichiers.
+doublons() {
+    _md="$(for p in ${SCAN}; do
+        if [ -d "${p}" ]; then find "${p}" -type f -name '*.md'
+        else case "${p}" in *.md) echo "${p}" ;; esac
+        fi
+    done | LC_ALL=C sort)"
+    [ -n "${_md}" ] || return 0
+    # shellcheck disable=SC2086 — la découpe en mots de la liste est voulue.
+    _rapport="$(grep -nE '^`[a-z]+~[^`[:space:]]+~[0-9]+`' ${_md} 2>/dev/null \
+        | sed -E 's/^([^:]+):([0-9]+):`([^`]+)`.*/\3 \1:\2/' \
+        | LC_ALL=C sort \
+        | awk '{ n[$1]++; lieux[$1] = lieux[$1] "\n    " $2 }
+               END { for (i in n) if (n[i] > 1) printf "%s%s\n", i, lieux[i] }' \
+        | LC_ALL=C sort)" || true
+    if [ -n "${_rapport}" ]; then
+        echo "ÉCHEC : identifiant(s) défini(s) plusieurs fois :" >&2
+        printf '%s\n' "${_rapport}" | sed 's/^\([^ ]\)/  \1/' >&2
+        echo "Une ligne qui COMMENCE par un identifiant entre accents graves est une définition OpenFastTrace : pour le citer, l'indenter ou le placer dans la phrase." >&2
+        return 1
+    fi
 }
 
 require_java() {
@@ -69,12 +101,18 @@ fetch_jar() {
 cd "${ROOT}"
 case "${1:-trace}" in
     trace)
+        scan_inputs
+        doublons
         require_java
         fetch_jar
-        scan_inputs
         # shellcheck disable=SC2086 — la découpe en mots de SCAN est voulue.
         java -jar "${JAR}" trace -v failures ${SCAN}
         echo "Traçabilité : OK (aucune exigence orpheline)."
+        ;;
+    doublons)
+        scan_inputs
+        doublons
+        echo "Définitions : aucun identifiant défini deux fois."
         ;;
     report)
         require_java
@@ -88,7 +126,7 @@ case "${1:-trace}" in
         echo "Rapport : build/tracabilite.html"
         ;;
     *)
-        echo "Usage : tools/oft.sh [trace|report]" >&2
+        echo "Usage : tools/oft.sh [trace|report|doublons]" >&2
         exit 2
         ;;
 esac

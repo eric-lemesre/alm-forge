@@ -39,9 +39,14 @@ Comportements vérifiés empiriquement (OpenFastTrace 4.9.0) :
 
 - les blocs de code (comme ci-dessus) sont **ignorés** : la documentation peut
   citer la syntaxe sans créer d'items ;
-- une mention d'identifiant à l'intérieur d'une phrase ne crée pas d'item ;
-  éviter simplement de placer un identifiant entre accents graves seul en début
-  de ligne hors définition volontaire.
+- une mention d'identifiant à l'intérieur d'une phrase, ou indentée, ne crée
+  pas d'item ;
+- en revanche, une ligne qui **commence en colonne 0** par un identifiant entre
+  accents graves est une définition, **même suivie de texte** (« `req~x~1`, et
+  la suite ») : une citation ainsi placée dans un journal ou une fiche redéfinit
+  l'item. `tools/oft.sh` le contrôle avant la trace et nomme chaque
+  identifiant défini plusieurs fois avec ses fichiers (`sh tools/oft.sh
+  doublons`).
 
 ## Taguer une couverture (tout langage)
 
@@ -137,6 +142,15 @@ combien ont échoué. Le motif tient en une phrase : une porte légitimement
 rouge — une traçabilité qui attend la réalisation d'exigences déjà écrites —
 masquerait sinon l'état de toutes celles qui la suivent, et rien dans la
 sortie ne distinguerait une porte non jouée d'une porte absente.
+
+**Les tests d'outillage sont joués en parallèle** (`tools/paralleles.sh`),
+au plus `CI_PARALLELE` à la fois — par défaut le nombre de processeurs, `0`
+pour ne pas limiter. Chacun travaille dans son propre dossier jetable ; un
+test qui écrirait dans le dépôt n'a pas sa place dans cette liste. La règle
+du bilan ne change pas : chaque test est joué jusqu'au bout quel que soit le
+verdict des autres, sa sortie est rendue entière dans l'ordre de la liste,
+et une étape qui n'a pas pu aller au bout compte comme un échec. Le bilan
+donne la durée de chaque porte : c'est lui qui dit où le temps se passe.
 
 **Le périmètre est constaté, jamais déclaré** (ADR-0017). `tools/perimetre.sh`
 lit le changement réel — commits depuis la base de fusion, index, arbre de

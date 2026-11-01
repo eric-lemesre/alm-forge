@@ -36,6 +36,11 @@
 #
 # POSIX sh + awk.
 set -eu
+# Tri en ordre des octets, quelle que soit la locale du poste ou de la CI :
+# sinon l'artefact généré sous fr_FR diffère de celui de la CI (C.UTF-8),
+# et l'anti-dérive le dit périmé. Les caractères restent ceux de la locale.
+unset LC_ALL
+export LC_COLLATE=C
 
 # Chemins portant espaces ou métacaractères (constat de revue n° 2) : le
 # découpage par défaut d'un « $(git ls-files) » non quoté coupe « mon
