@@ -7,6 +7,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Définitions en double nommées avant la trace** (exigence
+  `req~tracabilite-outillee~1`, constaté sur un projet instancié) :
+  OpenFastTrace tient pour définition toute ligne qui commence en colonne 0
+  par un identifiant entre accents graves, même suivi de texte ; une citation
+  mal placée redéfinissait l'item et la trace échouait sans dire où.
+  `tools/oft.sh` (sous-commande `doublons`, jouée en tête de `trace`) nomme
+  chaque identifiant défini plusieurs fois et ses fichiers ;
+  `tools/oft-doublons-test.sh` joue le cas d'échec. La méthode (ch. 4)
+  corrige la règle. Le périmètre de la trace comprend aussi `tests/` (tests
+  d'intégration d'un projet Rust).
+
 - **Tests d'outillage joués en parallèle** (exigence `req~porte-ci~2`,
   constaté sur un projet instancié) : `tools/paralleles.sh` les joue au plus
   `CI_PARALLELE` à la fois (défaut : le nombre de processeurs), chacun
@@ -102,6 +113,15 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
   chemin d'un partage interne avait suivi la documentation d'un code existant.
 
 ### Corrigé
+
+- **Matériel du gabarit pris pour des appels de test Cargo** (exigence
+  `req~hygiene-artefacts-compilation~1`, constaté sur un projet instancié) :
+  dans un projet Rust, la porte d'hygiène de compilation échouait sur son
+  propre test copié (`tools/hygiene-compilation-test.sh`, dont les appels
+  sont des jeux d'essai) et sur le module `50-rust.sh` (noms
+  `cargo-nextest`/`cargo-sweep` écrits sur la ligne d'un `for`). La porte
+  exclut son test ; le module compose les noms. Cas [I] ajouté au test :
+  le matériel du gabarit copié dans un projet passe sans réglage natif.
 
 - **Artefacts générés indépendants de la locale** (exigence
   `req~anti-derive-generes~1`, constaté sur un projet instancié dont la CI

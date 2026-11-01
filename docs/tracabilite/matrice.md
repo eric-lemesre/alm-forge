@@ -337,8 +337,9 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 - Niveau normatif : DOIT
 - Needs: dsn, impl, utest
-- Couvertures réelles (3) :
+- Couvertures réelles (4) :
   - `impl` — tools/matrice.sh:3
+  - `utest` — tools/oft-doublons-test.sh:2
   - `impl` — tools/oft.sh:2
   - `utest` — tools/socle-test.sh:2
 
@@ -462,5 +463,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 12/70 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 12/71 fichier(s) d'outillage sans trace de traçabilité.**
 
