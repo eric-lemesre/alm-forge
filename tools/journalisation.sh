@@ -1,7 +1,8 @@
 #!/bin/sh
 # [impl->req~journalisation-verifiee~1]
+# [impl->req~journal-erreur-sans-debug~1]
 # Porte de journalisation des projets Rust (méthode, ch. 17). Elle constate
-# les quatre règles du journal qu'un outil peut juger sans compiler ; les
+# les cinq règles du journal qu'un outil peut juger sans compiler ; les
 # autres (corrélation, niveaux, journald, absence de contenu métier) relèvent
 # de la revue et des tests du projet.
 #
@@ -17,6 +18,11 @@
 #      un secret, une clé) : le secret vit dans un type qui masque sa valeur.
 #   D. Une bibliothèque n'écrit pas de diagnostic par `println!`,
 #      `eprintln!`, `print!`, `eprint!` ou `dbg!` : elle émet par le journal.
+#   E. Un événement du journal (`trace!` à `error!`) n'enregistre pas une
+#      erreur par son Debug (`?error`, `?err`, `?e`, `?cause`, ou un champ
+#      `error = ?…`) : le Debug d'une erreur de base ou de décodage cite les
+#      valeurs en cause. L'erreur s'enregistre par son affichage (`%error`),
+#      réduit au besoin à ce qui ne porte aucun contenu.
 #
 # Périmètre : les fichiers `src/**/*.rs` de chaque paquet du dépôt (manifeste
 # portant `[package]`). Une « bibliothèque » est un paquet qui a un
@@ -87,7 +93,7 @@ for p in ${paquets}; do
         esac
         constats="$(awk -v estlib="${estlib}" -v mots="${MOTS}" '
             function admis(l, p) { return (l ~ /journal: admis —[[:space:]]*[^[:space:]]/ || p ~ /journal: admis —[[:space:]]*[^[:space:]]/) }
-            BEGIN { abonne = 0; init = 0; enattr = 0; attente = 0; enstruct = 0; prec = "" }
+            BEGIN { abonne = 0; init = 0; enattr = 0; attente = 0; enstruct = 0; enmacro = 0; prec = "" }
             /^[[:space:]]*#\[cfg\(test\)\]/ { exit }
             /^[[:space:]]*\/\// { prec = $0 ; next }
             {
@@ -129,6 +135,18 @@ for p in ${paquets}; do
                         printf "C:%d:%s\n", NR, l
                     if (prof <= 0) enstruct = 0
                 }
+                # E — erreur enregistrée par son Debug dans un événement
+                if (enmacro == 0 && l ~ /(^|[^[:alnum:]_:])(tracing::|log::)?(trace|debug|info|warn|error)!\(/) {
+                    enmacro = 1 ; profm = 0 ; macroadmis = admis(l, prec)
+                }
+                if (enmacro == 1) {
+                    c = l ; ouv = gsub(/\(/, "(", c) ; fer = gsub(/\)/, ")", c) ; profm += ouv - fer
+                    if ((l ~ /(^|[^[:alnum:]_])\?(error|err|e|erreur|cause)([^[:alnum:]_]|$)/ \
+                         || l ~ /(^|[^[:alnum:]_])[[:alnum:]_]*(error|err|erreur|cause)[[:alnum:]_]*[[:space:]]*=[[:space:]]*\?/) \
+                        && !macroadmis && !admis(l, prec))
+                        printf "E:%d:%s\n", NR, l
+                    if (profm <= 0) enmacro = 0
+                }
                 # D — diagnostic hors journal dans une bibliothèque
                 if (estlib == 1 && l ~ /(^|[^[:alnum:]_])(println|eprintln|print|eprint|dbg)!/ && !admis(l, prec))
                     printf "D:%d:%s\n", NR, l
@@ -145,6 +163,7 @@ for p in ${paquets}; do
                 B) motif="#[instrument] sans skip_all (les arguments partiraient au journal)" ;;
                 C) motif="secret en String dans un type qui dérive Debug (le masquer par son type)" ;;
                 D) motif="diagnostic hors journal dans une bibliothèque" ;;
+                E) motif="erreur enregistrée par son Debug (l'enregistrer par son affichage, %error)" ;;
             esac
             echo "ÉCHEC : ${f}:${ligne} — ${motif} :" >&2
             printf '    %s\n' "$(printf '%s' "${texte}" | sed 's/^[[:space:]]*//' | cut -c1-160)" >&2

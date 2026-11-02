@@ -467,6 +467,43 @@ Covers:
 
 Needs: dsn, impl, utest
 
+## Erreur journalisée par son affichage
+
+`req~journal-erreur-sans-debug~1`
+
+**Statut : approuvée**
+
+Là où le projet instancié compile du Rust, un événement du journal (`trace!`
+à `error!`, de `tracing` ou de `log`) NE DOIT PAS enregistrer une erreur par
+son `Debug` — forme courte (`?error`, `?err`, `?e`, `?cause`) ou champ nommé
+d'après l'erreur (`erreur = ?…`) —, et la porte de journalisation DOIT le
+constater, binaires compris. L'erreur s'enregistre par son affichage
+(`%error`), réduit au besoin à ce qui ne porte aucun contenu. Une
+dérogation DOIT porter sa raison, comme pour les autres règles de la porte
+(D-2026-11-04).
+
+Rationale:
+Le `Debug` d'une erreur de base de données porte son détail (« la clé (…)
+existe déjà ») ; celui d'une erreur de décodage, la valeur qu'il n'a pas su
+lire. Constaté à la mise en conformité d'un projet instancié : trois
+`?error` sur des erreurs applicatives qui enveloppaient des erreurs de base
+— aucune règle de la porte ne les voyait.
+
+Critères d'acceptation :
+
+- Étant donné un événement qui enregistre `?error`, `?e`, `cause = ?c` ou
+  `erreur_base = ?err`, sur une ou plusieurs lignes, dans une bibliothèque
+  ou un binaire, quand la porte s'exécute, alors elle échoue en nommant la
+  ligne du champ.
+- Étant donné `error = %error`, le `Debug` d'une valeur qui n'est pas une
+  erreur, l'opérateur `?` hors d'un événement, ou une dérogation motivée,
+  quand la porte s'exécute, alors elle passe.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: impl, utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

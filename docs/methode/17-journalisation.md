@@ -2,7 +2,8 @@
 
 Règles de journalisation des projets Rust instanciés depuis le gabarit.
 Décision : [ADR-0022](../adr/0022-journaliser-selon-des-regles-verifiees.md) ;
-exigence du gabarit : `req~journalisation-verifiee~1` (domaine gouvernance).
+exigences du gabarit (domaine gouvernance) : `req~journalisation-verifiee~1`
+et `req~journal-erreur-sans-debug~1`.
 
 Le journal sert l'exploitation et la sécurité : savoir ce qui s'est passé,
 pour qui, combien de temps, et pourquoi ça a échoué — sans jamais devenir une
@@ -12,7 +13,7 @@ qui le reprend est un adaptateur sans règle propre (ch. 9).
 ## Ce que la porte vérifie
 
 `tools/journalisation.sh` (étape de `tools/ci.sh`) constate, sur les fichiers
-`src/**/*.rs` suivis par git, les quatre règles qu'un outil juge sans
+`src/**/*.rs` suivis par git, les cinq règles qu'un outil juge sans
 compiler :
 
 | Règle | Constat qui fait échouer |
@@ -21,6 +22,7 @@ compiler :
 | B — règle 2 | un `#[instrument]` sans `skip_all` |
 | C — règle 2 | un type qui dérive `Debug` porte un secret en `String` ou `Option<String>` (champ ou nouveau type dont le nom désigne un secret ; liste réglable par `JOURNAL_MOTS_SECRETS`) |
 | D — règle 1 | une bibliothèque écrit par `println!`, `eprintln!`, `print!`, `eprint!` ou `dbg!` |
+| E — règle 3 | un événement (`trace!` à `error!`) enregistre une erreur par son `Debug` : `?error`, `?err`, `?e`, `?cause`, ou `erreur = ?…` (binaires compris ; D-2026-11-04) |
 
 Dérogation : `// journal: admis — <raison>` sur la ligne ou celle qui la
 précède ; sans raison, elle ne compte pas. Limites assumées : lecture
