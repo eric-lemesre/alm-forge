@@ -29,6 +29,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Journalisation vérifiée des projets Rust** (exigence
+  `req~journalisation-verifiee~1`, ADR-0022, D-2026-11-03) : chapitre 17 de
+  la méthode (abonné installé par le seul binaire, secrets écartés par le
+  type, `#[instrument]` avec `skip_all`, aucun contenu métier, span et
+  identifiant de corrélation par requête, réglage par l'environnement et la
+  configuration, journald natif, tests de non-fuite) et porte
+  `tools/journalisation.sh`, qui constate les quatre règles mécanisables sur
+  les fichiers suivis par git, dérogation motivée admise. Test
+  `tools/journalisation-test.sh` sur chaque cas d'échec ; cibles
+  `journalisation` des façades Task et just.
+
 - **Traçabilité limitée aux items approuvés** (exigences
   `req~tracabilite-outillee~2` et `req~statut-trace-concordant~1`,
   ADR-0020 qui remplace l'ADR-0002, D-2026-11-01) : `tools/oft.sh` ne trace

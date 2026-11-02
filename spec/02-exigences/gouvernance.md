@@ -414,6 +414,59 @@ Covers:
 
 Needs: utest
 
+## Journalisation vérifiée des projets Rust
+
+`req~journalisation-verifiee~1`
+
+**Statut : approuvée**
+
+Là où le projet instancié compile du Rust (manifeste Cargo à la racine), le
+code DOIT suivre les règles de journalisation de la méthode (ch. 17), et une
+porte DOIT constater les quatre qu'un outil juge sans compiler, sur les
+seuls fichiers suivis par git : une bibliothèque n'installe jamais l'abonné
+du journal ; tout `#[instrument]` porte `skip_all` ; aucun type qui dérive
+`Debug` ne porte un secret en chaîne nue ; une bibliothèque n'écrit pas de
+diagnostic par `println!`, `eprintln!`, `print!`, `eprint!` ou `dbg!`. Une
+dérogation DOIT porter sa raison sur la ligne ou la ligne précédente ; sans
+manifeste, la porte le dit et passe.
+
+Rationale:
+Un journal fuit par défaut : `#[instrument]` enregistre tous les arguments
+par leur `Debug`, et un `Debug` dérivé sur une structure de réglages écrit
+le jeton qu'elle porte. Ces fuites ne se voient qu'une fois le journal
+expédié, quand il est trop tard. Constat de la mise en place, sur six
+dépôts Rust du poste de référence : 46 secrets (mot de passe, jeton, clé
+d'API) en chaîne nue dans des types qui dérivent `Debug`, un abonné installé
+hors du binaire — aucune fuite effective par ces voies, toutes à un `{:?}`
+près. Le type, pas la vigilance, doit écarter le secret.
+
+Critères d'acceptation :
+
+- Étant donné un dépôt sans manifeste Cargo, quand la porte s'exécute, alors
+  elle passe en disant qu'elle n'a rien à juger.
+- Étant donné un fichier d'une bibliothèque (paquet doté d'un `src/lib.rs`,
+  hors `src/main.rs` et `src/bin/`) qui installe un abonné
+  (`set_global_default`, `.init()` d'un abonné `tracing_subscriber`,
+  `env_logger`), ou qui écrit par `println!`, `eprintln!`, `print!`,
+  `eprint!` ou `dbg!`, quand la porte s'exécute, alors elle échoue en
+  nommant le fichier et la ligne ; dans `src/main.rs`, `src/bin/` ou un
+  paquet sans bibliothèque, elle passe.
+- Étant donné un `#[instrument]` sans `skip_all`, sur une ou plusieurs
+  lignes, quand la porte s'exécute, alors elle échoue en nommant la ligne de
+  l'attribut.
+- Étant donné un type qui dérive `Debug` et porte un champ, ou un nouveau
+  type, dont le nom désigne un secret (liste réglable) en `String` ou
+  `Option<String>`, quand la porte s'exécute, alors elle échoue ; un secret
+  dans un type masquant, ou un type sans `Debug` dérivé, passe.
+- Étant donné un commentaire, le module de tests, un fichier non suivi par
+  git ou une dérogation `journal: admis — <raison>`, quand la porte
+  s'exécute, alors ils ne comptent pas ; une dérogation sans raison compte.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: dsn, impl, utest
+
 ## Versionnement et journal des changements
 
 `req~versionnement-release~1`

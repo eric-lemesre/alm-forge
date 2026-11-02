@@ -144,6 +144,7 @@ etape "anti-dérive"        sh tools/derive.sh
 etape "secrets"            sh tools/secrets.sh scan
 etape "données"            sh tools/donnees.sh
 etape "hygiène de compilation" sh tools/hygiene-compilation.sh
+etape "journalisation"     sh tools/journalisation.sh
 
 # Forme explicite plutôt que « [ … ] && bilan » : sous « set -e », un test
 # faux en tête d'une liste ET est exempté, mais la règle est assez subtile
@@ -174,6 +175,7 @@ test — accueil	sh tools/setup-test.sh
 test — bootstrap	sh tools/bootstrap-test.sh
 test — nettoyage	sh tools/clean-test.sh
 test — hygiène de compilation	sh tools/hygiene-compilation-test.sh
+test — journalisation	sh tools/journalisation-test.sh
 test — kit Rust	sh tools/rust-kit-test.sh
 test — définitions en double	sh tools/oft-doublons-test.sh
 test — traçabilité filtrée	sh tools/oft-test.sh

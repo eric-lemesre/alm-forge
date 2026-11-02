@@ -77,3 +77,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0019](0019-jouer-toutes-les-portes-et-rendre-un-bilan.md) | Jouer toutes les portes et rendre un bilan | Accepté |
 | [0020](0020-tracer-les-seuls-items-approuves.md) | Tracer avec OpenFastTrace les seuls items approuvés, et tolérer l'exigence approuvée à réaliser | Remplacé par 0021 |
 | [0021](0021-tolerer-la-conception-avant-la-realisation.md) | Tolérer la conception avant la réalisation dans la traçabilité des items approuvés | Accepté |
+| [0022](0022-journaliser-selon-des-regles-verifiees.md) | Journaliser selon des règles vérifiées dans les projets Rust | Accepté |
