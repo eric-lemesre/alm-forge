@@ -134,19 +134,35 @@ un préfixe `<N>`, que `tracing-subscriber` n'écrit pas : sans précaution,
 tout arrive au même niveau et `journalctl -p warning` ne filtre plus rien ;
 journald horodate en plus, d'où des dates en double.
 
-- Quand `JOURNAL_STREAM` est défini (et, idéalement, désigne bien la
-  sortie d'erreur : comparer périphérique et inode à `fstat(2)`), utiliser
-  la couche `tracing-journald` : priorité et champs structurés transmis.
+- Utiliser la couche `tracing-journald` (priorité et champs structurés
+  transmis) seulement quand `JOURNAL_STREAM` désigne **la sortie
+  d'erreur elle-même** : comparer son « périphérique:inode » à celui de
+  la sortie d'erreur (`/proc/self/fd/2` sous Linux, `fstat(2)` ailleurs).
+  Sa seule présence ne suffit pas : la variable est héritée par tout
+  processus lancé depuis une session systemd, et un serveur dont la sortie
+  d'erreur est redirigée écrirait alors à journald (constat : des tests
+  d'intégration qui lisaient la sortie d'erreur du serveur restaient
+  bloqués).
 - Sinon, sortie d'erreur en texte ou JSON.
 - Repli : si la couche journald ne s'ouvre pas, revenir à la sortie
   d'erreur et le dire par un `warn!`.
 
 ## Règle 8 — les tests prouvent l'absence de fuite
 
-- Un test capture le journal (abonné local par `tracing::subscriber::with_default`
-  et un `MakeWriter` vers un tampon partagé) d'un parcours sensible
+- Un test capture le journal (un `MakeWriter` vers un tampon partagé) d'un
+  parcours sensible
   (requête refusée, requête réussie avec contenu) et vérifie que ni le
   jeton, ni le contenu, ni l'en-tête `Authorization` n'y figurent.
+- **Capturer de façon déterministe.** Un abonné propre au fil
+  (`set_default`, `with_default`) ou à la future (`with_subscriber`)
+  dépend du cache d'intérêt de `tracing`, partagé entre les fils : quand
+  d'autres tests du même binaire émettent en parallèle, des événements
+  manquent au hasard (constat : test vert seul, rouge sous la couverture).
+  Installer UN abonné global par binaire de test (`set_global_default`
+  dans un `OnceLock`), et distinguer ses événements par une valeur propre
+  au test ; ou, pour un service, lire la sortie d'erreur du processus
+  lancé par le test, ou lancer chaque test dans son propre processus
+  (nextest).
 - Un test vérifie que l'identifiant de corrélation entrant ressort dans la
   réponse et dans le journal.
 - Un test vérifie qu'aucune `Debug` d'un type de réglages ne contient le
