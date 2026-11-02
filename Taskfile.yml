@@ -95,6 +95,11 @@ tasks:
     cmds:
       - sh tools/hygiene-compilation.sh
 
+  journalisation:
+    desc: Journalisation Rust (abonné dans le seul binaire, instrument sans arguments, secrets masqués, aucun println! de bibliothèque)
+    cmds:
+      - sh tools/journalisation.sh
+
   bootstrap:
     desc: "Dépendances, flux consenti : socle + modules projet (tools/bootstrap.d/)"
     cmds:

@@ -240,6 +240,14 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Couvertures réelles (1) :
   - `utest` — tools/rust-kit-test.sh:2
 
+#### `req~journalisation-verifiee~1`
+
+- Niveau normatif : DOIT
+- Needs: dsn, impl, utest
+- Couvertures réelles (2) :
+  - `utest` — tools/journalisation-test.sh:2
+  - `impl` — tools/journalisation.sh:2
+
 #### `req~versionnement-release~1`
 
 - Niveau normatif : DOIT
@@ -437,7 +445,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### Bilan (couvertures réelles)
 
-47/47 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+48/48 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
@@ -474,5 +482,5 @@ Fichiers d'outillage (`tools/`, hooks git, gabarits de forge) qui ne portent AUC
 - `tools/bump.sh`
 - `tools/journaux-revisions-editoriales.txt`
 
-**Total : 13/74 fichier(s) d'outillage sans trace de traçabilité.**
+**Total : 13/76 fichier(s) d'outillage sans trace de traçabilité.**
 
