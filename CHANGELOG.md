@@ -7,6 +7,14 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ### Corrigé
 
+- **Erreur journalisée par son `Debug`** (exigence
+  `req~journal-erreur-sans-debug~1`, D-2026-11-04, constaté à la mise en
+  conformité d'un projet instancié) : la porte `tools/journalisation.sh`
+  constate une règle E — un événement du journal qui enregistre une erreur
+  par son `Debug` (`?error`, `error = ?…`) échoue, binaires compris ; le
+  `Debug` d'une erreur de base ou de décodage cite les valeurs en cause.
+  Chapitre 17 et test de la porte complétés.
+
 - **Conception avant réalisation tolérée par la traçabilité** (exigence
   `req~tracabilite-outillee~3`, ADR-0021 qui remplace l'ADR-0020,
   D-2026-11-02, constaté à l'adoption par un projet instancié) : une

@@ -1,5 +1,6 @@
 #!/bin/sh
 # [utest->req~journalisation-verifiee~1]
+# [utest->req~journal-erreur-sans-debug~1]
 # Test de la porte de journalisation, sur ses cas d'échec (R3) et de
 # passage, règle par règle : dépôt sans Cargo ; abonné installé dans une
 # bibliothèque (chaîne d'appels sur plusieurs lignes, set_global_default,
@@ -8,7 +9,9 @@
 # secret en String dans un type Debug (champ, Option, nouveau type) ou dans
 # un type sans Debug ; println!/dbg! dans une bibliothèque, dans main.rs ;
 # commentaire et module de tests ignorés ; dérogation avec et sans raison ;
-# mots de secret réglables ; message qui nomme le fichier et la ligne.
+# mots de secret réglables ; message qui nomme le fichier et la ligne ;
+# erreur enregistrée par son Debug (forme courte, champ nommé, macro sur
+# plusieurs lignes, binaire compris) ou par son affichage.
 # POSIX sh strict.
 set -eu
 
@@ -115,6 +118,22 @@ done
 echo "journalisation-test — [D2] println! dans main.rs (sortie de commande) : passe"
 prepare ; printf 'fn main() { println!("résultat"); }\n' > "${D}/src/main.rs"
 attend_passage D2
+
+echo "journalisation-test — [E1] erreur enregistrée par son Debug dans un événement : échoue"
+for ev in 'tracing::warn!(?error, "x")' 'error!(?e, "x")' 'tracing::info!(cause = ?c, "x")' 'log::warn!(erreur_base = ?err, "x")'; do
+    prepare ; printf 'pub fn h() { %s; }\n' "${ev}" >> "${D}/src/lib.rs"
+    attend_echec "E1 ${ev}" 'src/lib.rs:3 — erreur enregistrée par son Debug'
+done
+prepare ; printf 'pub fn h() {\n    tracing::warn!(\n        %%id,\n        ?error,\n        "x"\n    );\n}\n' >> "${D}/src/lib.rs"
+attend_echec E1b 'src/lib.rs:6'
+prepare ; printf 'fn main() { tracing::error!(?error, "fin"); }\n' > "${D}/src/main.rs"
+attend_echec E1c 'src/main.rs:1'
+
+echo "journalisation-test — [E2] erreur par son affichage, Debug d'autre chose, hors événement, dérogation : passe"
+prepare ; printf 'pub fn h() { tracing::warn!(error = %%error, ?etat, "x"); }\npub fn g() { let r = f()?; let e = x?; }\n' >> "${D}/src/lib.rs"
+attend_passage E2
+prepare ; printf '// journal: admis — erreur de configuration, sans donnée\npub fn h() { tracing::warn!(?error, "x"); }\n' >> "${D}/src/lib.rs"
+attend_passage E2b
 
 echo "journalisation-test — [E] commentaires et module de tests ignorés"
 prepare ; printf '// println!("x") et #[instrument] en commentaire\n/// ex. : tracing_subscriber::fmt().init();\n#[cfg(test)]\nmod tests {\n    #[test]\n    fn t() { tracing_subscriber::fmt().init(); println!("x"); dbg!(1); }\n}\n' >> "${D}/src/lib.rs"

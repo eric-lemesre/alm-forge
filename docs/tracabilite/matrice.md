@@ -248,6 +248,14 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `utest` — tools/journalisation-test.sh:2
   - `impl` — tools/journalisation.sh:2
 
+#### `req~journal-erreur-sans-debug~1`
+
+- Niveau normatif : DOIT
+- Needs: impl, utest
+- Couvertures réelles (2) :
+  - `utest` — tools/journalisation-test.sh:3
+  - `impl` — tools/journalisation.sh:3
+
 #### `req~versionnement-release~1`
 
 - Niveau normatif : DOIT
@@ -445,7 +453,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### Bilan (couvertures réelles)
 
-48/48 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+49/49 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
