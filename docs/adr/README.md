@@ -78,3 +78,4 @@ Proposé ──▶ Accepté ──▶ Déprécié
 | [0020](0020-tracer-les-seuls-items-approuves.md) | Tracer avec OpenFastTrace les seuls items approuvés, et tolérer l'exigence approuvée à réaliser | Remplacé par 0021 |
 | [0021](0021-tolerer-la-conception-avant-la-realisation.md) | Tolérer la conception avant la réalisation dans la traçabilité des items approuvés | Accepté |
 | [0022](0022-journaliser-selon-des-regles-verifiees.md) | Journaliser selon des règles vérifiées dans les projets Rust | Accepté |
+| [0023](0023-journal-en-fichier-tourne-par-logrotate.md) | Écrire le journal dans un fichier par défaut, tourné par logrotate | Accepté |

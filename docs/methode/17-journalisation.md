@@ -125,11 +125,23 @@ les arguments via `Debug`. Une fonction qui reçoit un jeton le fait fuir.
   lu qu'en repli, s'il est documenté.
 - Format : `texte` (défaut interactif) ou `json` (collecteur), par
   `<PROJET>_JOURNAL_FORMAT` ou le fichier.
-- Sortie : **la sortie d'erreur**. Pas de fichier de journal ni de rotation
-  dans l'application : c'est le rôle de journald, du conteneur ou du
-  collecteur.
+- Sortie (ADR-0023) : **un fichier par défaut**, désigné par
+  `<PROJET>_JOURNAL_FICHIER` ou la configuration, à défaut
+  `/var/log/<projet>/<service>.log` en production et
+  `target/journal/<service>.log` en développement. `<PROJET>_JOURNAL_SORTIE`
+  choisit `fichier` (défaut), `erreur` ou `journald`.
+- **Rotation par logrotate**, jamais par l'application : le service
+  **rouvre** son fichier sur `SIGHUP` ; le projet livre une configuration
+  logrotate (quotidienne, quatorze générations compressées, `create 0640`)
+  dont le `postrotate` envoie `SIGHUP`. Pas de `copytruncate` : il perd les
+  lignes écrites pendant la copie.
+- Repli annoncé : un fichier qui ne s'ouvre pas renvoie le journal à la
+  sortie d'erreur, et le premier événement le dit (`warn!`).
 
-## Règle 7 — journald natif sous systemd
+## Règle 7 — journald natif, sur demande
+
+Quand la sortie `journald` est demandée (règle 6 ; le fichier reste la
+sortie par défaut) :
 
 journald ne connaît la gravité d'une ligne de la sortie d'erreur que par
 un préfixe `<N>`, que `tracing-subscriber` n'écrit pas : sans précaution,

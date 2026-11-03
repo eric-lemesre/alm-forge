@@ -5,6 +5,17 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Modifié
+
+- **Journal en fichier par défaut, tourné par logrotate** (ADR-0023,
+  D-2026-11-05, demande du porteur) : la règle 6 du chapitre 17 envoie
+  désormais le journal d'un projet Rust dans un fichier
+  (`<PROJET>_JOURNAL_FICHIER`, `/var/log/<projet>/` en production), rouvert
+  sur `SIGHUP` ; le projet livre une configuration logrotate qui le fait
+  tourner. Sortie d'erreur et journald deviennent des choix
+  (`<PROJET>_JOURNAL_SORTIE`) ; la règle 7 (journald) ne vaut plus que sur
+  demande.
+
 ### Corrigé
 
 - **Erreur journalisée par son `Debug`** (exigence
