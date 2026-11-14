@@ -161,7 +161,9 @@ COUVERTES="$(printf '%s\n%s\n' "${TAGS_POSES}" "${ITEMS_COUVRANTS}" | grep -E '^
 # seule sur sa ligne — jamais une mention en passant, dans un Rationale par
 # exemple).
 ids_domaine() {
-    grep -E '^`req~[a-z0-9-]+~[0-9]+`[ \t]*$' "$1" 2>/dev/null | tr -d '`[:space:]'
+    # « tr -d '[:space:]' » emportait aussi les fins de ligne : les
+    # identifiants, collés bout à bout, ne se comparaient plus un par un.
+    grep -E '^`req~[a-z0-9-]+~[0-9]+`[ \t]*$' "$1" 2>/dev/null | tr -d '` \t'
 }
 
 domaine_est_cite() {

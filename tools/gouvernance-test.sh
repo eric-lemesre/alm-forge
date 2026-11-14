@@ -368,6 +368,21 @@ if ! grep -q '| planifiée | objet de démonstration |' "${D}/spec/02-exigences/
     fail=1
 fi
 
+echo "gouvernance-test — avancement : domaine de DEUX exigences, la fiche ouverte cite la seconde -> planifiée"
+# Les identifiants d'un domaine se comparent un par un : lus collés bout à
+# bout, seul un domaine d'une exigence pouvait être dit planifié.
+prepare
+sans_couverture
+printf '\n## Une seconde exigence\n\n`req~seconde-exigence~1`\n\n**Statut : approuvée**\n\nLe dépôt DOIT porter une seconde exigence.\n\nCovers:\n- feat~besoin~1\n\nNeeds: impl, utest\n' \
+    >> "${D}/spec/02-exigences/domaine.md"
+printf '# ToDo-0001 — Un chantier\n\n**Statut : 🚧 en cours**\n\nCite req~seconde-exigence~1.\n' \
+    > "${D}/docs/todo/todo-0001-chantier.md"
+(cd "${D}" && sh tools/todo.sh --ecrire >/dev/null && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| planifiée | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — citation d'une exigence d'un domaine qui en compte plusieurs ignorée" >&2
+    fail=1
+fi
+
 echo "gouvernance-test — avancement : couverture par un item de vérification manuelle -> implémentée"
 prepare
 sans_couverture
