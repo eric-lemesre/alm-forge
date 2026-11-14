@@ -50,7 +50,7 @@ case "${PHASE}" in
             if [ -f "${RACINE}/rust-toolchain.toml" ] || [ -f "${RACINE}/rust-toolchain" ]; then
                 echo "ok — chaîne de compilation épinglée"
             else
-                echo "AVERTISSEMENT — rust-toolchain.toml absent : la chaîne n'est pas épinglée"
+                echo "AVERTISSEMENT — rust-toolchain.toml absent : la chaîne n'est pas épinglée (sh tools/rust.sh epingler : stable du jour, version exacte)"
                 AVERTISSEMENTS=$((AVERTISSEMENTS + 1))
             fi
 

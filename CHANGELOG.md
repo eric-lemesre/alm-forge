@@ -5,6 +5,16 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- **Épinglage sur la stable courante** (exigence
+  `req~epinglage-chaine-stable~1`, D-2026-11-06, demande du porteur) : le
+  kit Rust offre `sh tools/rust.sh epingler`, qui lit le manifeste officiel
+  du canal stable et pose `rust-toolchain.toml` sur la version exacte publiée
+  ce jour-là — ou ne réécrit que la ligne `channel` d'un fichier existant.
+  Le README du kit ne donne plus de version en exemple : un projet instancié
+  le 2026-11-14 en avait hérité la 1.95.0, cinq versions derrière la 1.100.0.
+
 ### Modifié
 
 - **Journal en fichier par défaut, tourné par logrotate** (ADR-0023,

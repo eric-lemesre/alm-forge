@@ -12,6 +12,7 @@
 #   sh tools/rust.sh clean [N]    # artefacts inutilisés depuis N jours (défaut 2), par l'âge seulement
 #   sh tools/rust.sh clean --partage [N]   # idem sur un cache PARTAGÉ entre projets (explicite)
 #   sh tools/rust.sh etat         # où vont les artefacts, et leur poids
+#   sh tools/rust.sh epingler     # rust-toolchain.toml sur la DERNIÈRE stable publiée, en version exacte
 #
 # Pourquoi (constats, pas théorie) :
 # - CARGO_INCREMENTAL=0 sur tests et couverture : l'incrémental n'accélère
@@ -34,6 +35,11 @@
 #   compris — build cassé en plein vol (2026-10-25). Et jamais à l'insu de
 #   l'utilisateur sur un cache partagé entre projets : `clean` le refuse
 #   sans `--partage` (anti-patron « recettes clean devenues globales »).
+# - La chaîne s'épingle sur la stable publiée LE JOUR où on l'épingle, lue
+#   dans le manifeste officiel du canal (`epingler`), jamais sur un exemple
+#   recopié : un projet instancié héritait d'une version vieille de plusieurs
+#   mois (1.95.0 posée le 2026-11-14 quand la 1.100.0 était publiée depuis
+#   deux jours). Écrire « stable » n'épingle rien (porte d'hygiène).
 # POSIX sh strict.
 set -eu
 
@@ -176,11 +182,67 @@ etat() {
     fi
 }
 
+# Manifeste officiel du canal stable ; RUST_MANIFESTE le remplace (miroir,
+# fichier local en file://, tests).
+MANIFESTE="${RUST_MANIFESTE:-https://static.rust-lang.org/dist/channel-rust-stable.toml}"
+
+epingler() {
+    if [ -f rust-toolchain ] && [ ! -f rust-toolchain.toml ]; then
+        echo "ERREUR : fichier hérité « rust-toolchain » ; le convertir en rust-toolchain.toml avant d'épingler." >&2
+        exit 1
+    fi
+    _m="$(mktemp)"
+    # Le manifeste est lu en entier avant tout : une lecture coupée ne doit
+    # jamais produire un fichier de chaîne à moitié juste.
+    if ! curl -fsSL -o "${_m}" "${MANIFESTE}"; then
+        rm -f "${_m}"
+        echo "ERREUR : manifeste du canal stable injoignable (${MANIFESTE}) ; rust-toolchain.toml inchangé." >&2
+        exit 1
+    fi
+    _version="$(awk '/^\[pkg\.rust\]/ { dans = 1; next }
+                     /^\[/ { dans = 0 }
+                     dans && /^version[[:space:]]*=/ { sub(/^[^"]*"/, ""); sub(/[ "].*$/, ""); print; exit }' "${_m}")"
+    _date="$(sed -n 's/^date[[:space:]]*=[[:space:]]*"\([0-9-]*\)".*/\1/p' "${_m}" | head -1)"
+    rm -f "${_m}"
+    if ! printf '%s' "${_version}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+        echo "ERREUR : le manifeste ne donne pas de version exacte de rustc (lu : « ${_version} ») ; rust-toolchain.toml inchangé." >&2
+        exit 1
+    fi
+    if [ ! -f rust-toolchain.toml ]; then
+        cat > rust-toolchain.toml <<FIN
+# Chaîne épinglée par « sh tools/rust.sh epingler » : stable ${_version},
+# publiée le ${_date:-?}. Monter de version est un commit à part : relancer la
+# commande, CI verte, commit. Jamais « stable », qui n'épingle rien.
+[toolchain]
+channel = "${_version}"
+components = ["rustfmt", "clippy"]
+FIN
+        echo "chaîne épinglée : ${_version} (stable du ${_date:-?}) — rust-toolchain.toml créé, à versionner."
+        return 0
+    fi
+    _avant="$(sed -n 's/^[[:space:]]*channel[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' rust-toolchain.toml | head -1)"
+    if [ -z "${_avant}" ]; then
+        echo "ERREUR : rust-toolchain.toml sans ligne channel ; rien n'est modifié." >&2
+        exit 1
+    fi
+    if [ "${_avant}" = "${_version}" ]; then
+        echo "chaîne déjà à jour : ${_version} (stable du ${_date:-?})."
+        return 0
+    fi
+    # Seule la ligne channel change : composants, profil et commentaires du
+    # projet sont conservés. Réécriture par cat pour garder les droits.
+    sed 's/^\([[:space:]]*channel[[:space:]]*=[[:space:]]*"\)[^"]*"/\1'"${_version}"'"/' rust-toolchain.toml > rust-toolchain.toml.tmp
+    cat rust-toolchain.toml.tmp > rust-toolchain.toml
+    rm -f rust-toolchain.toml.tmp
+    echo "chaîne épinglée : ${_avant} → ${_version} (stable du ${_date:-?}) — à committer à part, CI verte."
+}
+
 case "${1:-}" in
     garde)      garde ;;
     test)       test_ ;;
     couverture) shift ; couverture "$@" ;;
     clean)      shift ; clean "$@" ;;
     etat)       etat ;;
-    *) echo "Usage : sh tools/rust.sh garde | test | couverture [args] | clean [--partage] [jours] | etat" >&2 ; exit 2 ;;
+    epingler)   epingler ;;
+    *) echo "Usage : sh tools/rust.sh garde | test | couverture [args] | clean [--partage] [jours] | etat | epingler" >&2 ; exit 2 ;;
 esac

@@ -13,8 +13,9 @@ copiés se taguent **vers les exigences du projet instancié** (R2, R7).
 
 ## Kit Rust (hygiène des artefacts de compilation)
 
-Matériel de `req~hygiene-artefacts-compilation~1` et de
-`req~confinement-artefacts-worktree~1` : la porte du gabarit
+Matériel de `req~hygiene-artefacts-compilation~1`, de
+`req~confinement-artefacts-worktree~1` et de
+`req~epinglage-chaine-stable~1` : la porte du gabarit
 (`tools/hygiene-compilation.sh`, câblée dans `tools/ci.sh`) constate que la
 chaîne est épinglée (suivie par git, canal exact) et que tests et couverture
 coupent l'incrémental ; ce kit fournit de quoi s'y conformer et de quoi tenir
@@ -24,15 +25,18 @@ le cache à sa place. Le gabarit l'éprouve par `tools/rust-kit-test.sh`
 | Fichier | Copier vers | Rôle |
 | --- | --- | --- |
 | `50-rust.sh` | `tools/bootstrap.d/` | module bootstrap : cargo (rustup), cargo-nextest, cargo-sweep, chaîne épinglée, emplacement effectif des artefacts |
-| `rust/rust.sh` | `tools/` | `garde` (worktree lié : artefacts dans le worktree ou dans `cargo-target-<nom>` seulement), `test` et `couverture` (`CARGO_INCREMENTAL=0`), `clean [--partage] [jours]` (par l'âge, jamais par la taille ; refus du cache partagé sans `--partage`), `etat` |
+| `rust/rust.sh` | `tools/` | `garde` (worktree lié : artefacts dans le worktree ou dans `cargo-target-<nom>` seulement), `test` et `couverture` (`CARGO_INCREMENTAL=0`), `clean [--partage] [jours]` (par l'âge, jamais par la taille ; refus du cache partagé sans `--partage`), `etat`, `epingler` (chaîne sur la stable du jour, version exacte) |
 
 ## Mise en place (projet Rust instancié)
 
-1. Copier les deux fichiers ; poser `rust-toolchain.toml` à la racine avec
-   une **version exacte** (`[toolchain] channel = "1.95.0"`, ou un canal
-   daté `nightly-AAAA-MM-JJ`) et le versionner : `stable` avance à chaque
-   publication de rustc et n'épingle rien — la porte le refuse. Monter de
-   version est alors un commit, visible et daté.
+1. Copier les deux fichiers, puis `sh tools/rust.sh epingler` : la commande
+   lit le manifeste officiel du canal stable et pose `rust-toolchain.toml`
+   sur la **version exacte** publiée ce jour-là (jamais un exemple recopié,
+   qui naît en retard). Le versionner : `stable` avance à chaque publication
+   de rustc et n'épingle rien — la porte le refuse ; un canal daté
+   `nightly-AAAA-MM-JJ` s'écrit à la main. Monter de version, c'est relancer
+   la même commande (seule la ligne `channel` change), CI verte, dans un
+   commit à part.
 2. Faire passer les recettes de test et de couverture par
    `sh tools/rust.sh test` / `couverture` — ou poser le réglage : préfixe
    `CARGO_INCREMENTAL=0` sur la ligne d'appel, `export` en tête de
