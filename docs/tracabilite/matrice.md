@@ -130,7 +130,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
   - `impl` — tools/badges.sh:2
   - `utest` — tools/gouvernance-test.sh:11
 
-#### `req~avancement-calcule~1`
+#### `req~avancement-calcule~2`
 
 - Niveau normatif : DOIT
 - Needs: impl, utest

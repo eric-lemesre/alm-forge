@@ -5,6 +5,21 @@ versionnement : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Corrigé
+
+- **Avancement d'un domaine approuvé mais non réalisé** (exigence
+  `req~avancement-calcule~2`, D-2026-11-07, constaté sur un projet
+  instancié) : `tools/avancement.sh` affichait « implémentée » un domaine
+  dont les exigences approuvées déclaraient leur `Needs:` sans aucune
+  couverture posée — tolérées « à réaliser » depuis ADR-0021. Une exigence
+  n'est plus tenue que si une couverture est réellement posée (étiquette, ou
+  item de vérification en `Covers:`).
+- **Domaine planifié de plusieurs exigences** (`req~avancement-calcule~2`) :
+  les identifiants d'un domaine étaient lus collés bout à bout (`tr -d
+  '[:space:]'` emportait les fins de ligne), si bien qu'un domaine de plus
+  d'une exigence n'était jamais reconnu « planifiée » par une fiche qui le
+  cite.
+
 ### Ajouté
 
 - **Épinglage sur la stable courante** (exigence

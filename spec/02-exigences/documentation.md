@@ -131,16 +131,17 @@ Needs: impl, utest
 
 ## Avancement des domaines, calculé depuis les exigences et la feuille de route
 
-`req~avancement-calcule~1`
+`req~avancement-calcule~2`
 
 **Statut : approuvée**
 
 L'index `spec/02-exigences/README.md` DOIT porter, pour chaque domaine ACTIVE,
-un état d'avancement calculé depuis deux faits déjà écrits : ses exigences
-dues (DOIT ou DEVRAIT, approuvées) et si elles tiennent leur promesse de
-vérification (`Needs:` déclaré), et les fiches de la feuille de route non
-soldées qui citent des exigences du domaine. Cet état NE DOIT jamais être
-saisi à la main.
+un état d'avancement calculé depuis des faits déjà écrits : ses exigences
+dues (DOIT ou DEVRAIT, approuvées), et parmi elles celles qui sont tenues —
+`Needs:` déclaré et couverture réellement posée (étiquette de couverture, ou
+item de vérification qui la déclare en `Covers:`) —, et les fiches de la
+feuille de route non soldées qui citent des exigences du domaine. Cet état
+NE DOIT jamais être saisi à la main.
 
 Rationale:
 Même défaut que l'index de feuille de route (ch. 12) et les statuts calculés
@@ -149,15 +150,23 @@ remaniement, sans qu'aucune porte ne le remarque, et il inspire d'autant plus
 confiance qu'il affiche un chiffre. Le domaine est la maille qui manquait :
 l'exigence dit si ELLE tient, la feuille de route dit ce qui est planifié,
 mais rien ne réunissait les deux pour dire où en est un DOMAINE entier — la
-question que pose un point d'avancement de projet.
+question que pose un point d'avancement de projet. Révision 2 (2026-11-14,
+D-2026-11-07) : depuis qu'une exigence approuvée peut rester sans couverture
+(ADR-0021), un `Needs:` déclaré n'atteste plus rien ; un projet instancié qui
+approuvait son lot avant de le réaliser voyait ses domaines « implémentée »
+sans une ligne de code.
 
 Critères d'acceptation :
 
 - Étant donné un domaine ACTIVE dont toutes les exigences dues déclarent leur
-  `Needs:`, quand la porte s'exécute, alors il est dit « implémentée ».
-- Étant donné un domaine ACTIVE dont certaines exigences dues déclarent leur
-  `Needs:` et d'autres non, quand la porte s'exécute, alors il est dit
-  « en cours ».
+  `Needs:` et ont une couverture posée, quand la porte s'exécute, alors il
+  est dit « implémentée » ; une couverture par un item de vérification
+  manuelle compte.
+- Étant donné un domaine ACTIVE dont certaines exigences dues sont tenues et
+  d'autres non, quand la porte s'exécute, alors il est dit « en cours ».
+- Étant donné un domaine ACTIVE dont les exigences dues déclarent leur
+  `Needs:` sans qu'aucune couverture ne soit posée (approuvées, à réaliser),
+  quand la porte s'exécute, alors il n'est jamais dit « implémentée ».
 - Étant donné un domaine ACTIVE sans aucune exigence due tenue mais cité par
   une fiche de feuille de route non soldée, quand la porte s'exécute, alors
   il est dit « planifiée ».

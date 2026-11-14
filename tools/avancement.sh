@@ -1,5 +1,5 @@
 #!/bin/sh
-# [impl->req~avancement-calcule~1]
+# [impl->req~avancement-calcule~2]
 # Avancement des domaines d'exigences — CALCULÉ, jamais saisi.
 #
 # Pourquoi cette porte existe. Même défaut que l'index de feuille de route
@@ -12,15 +12,25 @@
 #
 #   (a) dans le fichier du domaine — DUES : ses exigences approuvées de
 #       niveau DOIT ou DEVRAIT (méthode, ch. 2) ; TENUES, parmi elles : celles
-#       qui déclarent un `Needs:` non vide.
+#       qui déclarent un `Needs:` non vide ET dont une couverture est
+#       réellement posée dans le dépôt — étiquette `[impl->…]`, `[utest->…]`…
+#       ou item de vérification (mtest, utest, itest, stest) qui la déclare
+#       en `Covers:`.
 #   (b) dans la feuille de route (docs/todo/todo-*.md) — CITÉE : au moins une
 #       fiche NON SOLDÉE (pastille autre que ✅) mentionne un identifiant
 #       `req~…~n` du domaine.
 #
-# CHOIX DÉLIBÉRÉ (a) — pourquoi « Needs: déclaré » et non un balayage des
-# traces réelles comme le fait `tools/matrice.sh`. La véracité d'un `Needs:`
-# déclaré est déjà GARANTIE ailleurs : OpenFastTrace (`tools/oft.sh trace`)
-# refuse qu'un `Needs:` ne soit pas réellement satisfait par un item aval, et
+# CHOIX DÉLIBÉRÉ (a), révision 2 — la présence d'une couverture, et non le
+# seul `Needs:`. La révision 1 tenait un `Needs:` déclaré pour une couverture
+# réelle, parce qu'OpenFastTrace refusait alors tout `Needs:` insatisfait.
+# Depuis ADR-0021 (conception avant réalisation), la trace TOLÈRE une
+# exigence approuvée sans aucune couverture — « à réaliser » — et ce
+# raccourci affichait « implémentée » un domaine dont aucune ligne n'était
+# écrite (constaté sur un projet instancié qui approuvait son lot avant de le
+# réaliser, 2026-11-14). On constate donc qu'au moins une couverture est
+# posée ; la COMPLÉTUDE de cette couverture, elle, reste garantie ailleurs :
+# dès la première étiquette, OpenFastTrace exige que tout le `Needs:` soit
+# satisfait (ADR-0021), et
 # `just ci`/`task ci` doit être vert avant toute PR (contrat du dépôt). Une
 # fois cette porte-là passée, « Needs: déclaré » atteste donc une couverture
 # réelle sans qu'il faille la reconstater ici — la même vérité, lue à moindre
@@ -51,7 +61,8 @@
 #   sh tools/avancement.sh --ecrire    # la régénère dans spec/02-exigences/README.md
 #
 # LIMITE ASSUMÉE — « implémentée » inclut le vérifié MANUELLEMENT. « Tenue »
-# signifie ici « déclare un Needs: non vide », mtest compris : un domaine dont
+# compte un item mtest qui déclare l'exigence en Covers comme toute autre
+# couverture : un domaine dont
 # toutes les dues ne sont couvertes que par mtest s'affiche « implémentée »
 # alors que la complétude (tools/classification.sh) le signale « à élever ».
 # C'est voulu : R10 autorise la vérification manuelle assumée — « implémentée »
@@ -127,11 +138,32 @@ $(grep -oE 'req~[a-z0-9-]+~[0-9]+' "${f}" 2>/dev/null || true)"
 done
 REQS_OUVERTES="$(printf '%s\n' "${REQS_OUVERTES}" | sed '/^$/d' | sort -u)"
 
+# --- Fait (a') : exigences dont une couverture est RÉELLEMENT posée --------
+# Même lecture que tools/statuts.sh : étiquettes de couverture des fichiers
+# suivis, et items de vérification qui déclarent l'exigence en Covers. Un
+# item de conception (dsn) n'en est pas une : il conçoit, il ne réalise pas
+# (ADR-0021).
+TAGS_POSES="$(git grep -hoE '\[(impl|utest|itest|stest|mtest)->req~[a-z0-9-]+~[0-9]+\]' 2>/dev/null \
+              | sed 's/^\[[a-z]*->//; s/\]$//' || true)"
+# shellcheck disable=SC2046 — découpe sur les fins de ligne (IFS), voulue.
+ITEMS_COUVRANTS="$(awk '
+    /^`[a-z]+~[a-z0-9-]+~[0-9]+`[ \t]*$/ {
+        t = $0; gsub(/`/, "", t); sub(/~.*/, "", t)
+        couvrant = (t ~ /^(mtest|utest|itest|stest)$/); dans = 0; next
+    }
+    /^Covers[ ]?:/ { dans = couvrant; next }
+    dans && /^- / { id = $0; sub(/^- /, "", id); gsub(/[ \t]+$/, "", id); print id; next }
+    dans && NF > 0 { dans = 0 }
+' $(git ls-files 'docs/**/*.md' 'spec/**/*.md' 2>/dev/null) 2>/dev/null || true)"
+COUVERTES="$(printf '%s\n%s\n' "${TAGS_POSES}" "${ITEMS_COUVRANTS}" | grep -E '^req~' | sort -u || true)"
+
 # Identifiants req~…~n DÉFINIS dans un fichier de domaine (ligne d'item
 # seule sur sa ligne — jamais une mention en passant, dans un Rationale par
 # exemple).
 ids_domaine() {
-    grep -E '^`req~[a-z0-9-]+~[0-9]+`[ \t]*$' "$1" 2>/dev/null | tr -d '`[:space:]'
+    # « tr -d '[:space:]' » emportait aussi les fins de ligne : les
+    # identifiants, collés bout à bout, ne se comparaient plus un par un.
+    grep -E '^`req~[a-z0-9-]+~[0-9]+`[ \t]*$' "$1" 2>/dev/null | tr -d '` \t'
 }
 
 domaine_est_cite() {
@@ -150,8 +182,12 @@ domaine_est_cite() {
 # emprunterait le mot.
 calc_dues_tenues() {
     awk -v doit="$(lex NORM_DOIT)" -v devrait="$(lex NORM_DEVRAIT)" \
-        -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" '
-        function solder(   due) {
+        -v approuvee="$(lex_motif EXIGENCE_APPROUVEE)" -v couvertes="${COUVERTES}" '
+        BEGIN {
+            n = split(couvertes, c, "\n")
+            for (i = 1; i <= n; i++) if (c[i] != "") couverte[c[i]] = 1
+        }
+        function solder(   due, idn) {
             if (id == "") return
             if (statut ~ ("^" approuvee "$")) {
                 due = 0
@@ -159,7 +195,8 @@ calc_dues_tenues() {
                 else if (enonce ~ ("(^|[^A-Za-zÀ-ÿ])(" devrait ")([^A-Za-zÀ-ÿ]|$)")) due = 1
                 if (due) {
                     dues++
-                    if (needs ~ /[A-Za-zÀ-ÿ]/) tenues++
+                    idn = id; gsub(/[`[:space:]]/, "", idn)
+                    if (needs ~ /[A-Za-zÀ-ÿ]/ && (idn in couverte)) tenues++
                 }
             }
             id = ""; enonce = ""; needs = ""; statut = ""
