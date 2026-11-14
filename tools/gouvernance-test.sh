@@ -10,7 +10,7 @@
 # [utest->req~journaux-depot-et-logiciel~1]
 # [utest->req~badges-autonomes~1]
 # [utest->req~lexique-outille~1]
-# [utest->req~avancement-calcule~1]
+# [utest->req~avancement-calcule~2]
 # Test des portes de gouvernance documentaire, chacune sur son cas d'échec.
 # Un dépôt de synthèse est reconstruit avant chaque cas : les portes se
 # vérifient sur des données maîtrisées, jamais sur l'état du dépôt réel.
@@ -85,6 +85,13 @@ EOF
 | --- | --- | --- |
 | `req~exigence-de-demonstration~1` | conforme | porte de démonstration |
 EOF
+    # Couverture réellement posée de l'exigence de démonstration : sans
+    # elle, son avancement ne peut pas être « implémentée » (révision 2).
+    mkdir -p "${D}/src" "${D}/tests"
+    # Étiquettes composées (« %s ») : écrites en toutes lettres ici, la trace
+    # du gabarit les prendrait pour des couvertures de son propre dépôt.
+    printf '#!/bin/sh\n# [%s->req~exigence-de-demonstration~1]\n' impl > "${D}/src/demo.sh"
+    printf '#!/bin/sh\n# [%s->req~exigence-de-demonstration~1]\n' utest > "${D}/tests/demo-test.sh"
     printf 'MIT License\n\nCopyright (c) 2026 Test\n' > "${D}/LICENSE"
     printf '1.0.0\n' > "${D}/VERSION"
     printf '# Journal\n\n## [1.0.0] - 2026-01-01\n\n### Ajouté\n\n- Rien.\n' > "${D}/CHANGELOG.md"
@@ -327,10 +334,63 @@ if ! porte revues; then
     fail=1
 fi
 
-echo "gouvernance-test — avancement : due tenue (Needs déclaré) -> implémentée"
+echo "gouvernance-test — avancement : due tenue (Needs déclaré, couverture posée) -> implémentée"
 prepare
 if ! grep -q '| implémentée | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
     echo "ÉCHEC : avancement — domaine entièrement tenu non reconnu implémentée" >&2
+    fail=1
+fi
+
+# Révision 2 : une exigence approuvée « à réaliser » (ADR-0021) déclare son
+# Needs: sans aucune couverture posée. La révision 1 la disait tenue.
+sans_couverture() {
+    (cd "${D}" && git rm -q src/demo.sh tests/demo-test.sh && \
+        git -c user.name=t -c user.email=t@t commit -q -m "chore: à réaliser")
+}
+
+echo "gouvernance-test — avancement : Needs déclaré sans couverture, aucune fiche -> à planifier"
+prepare
+sans_couverture
+(cd "${D}" && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| à planifier | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — exigence sans couverture posée comptée comme tenue" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : Needs déclaré sans couverture, fiche OUVERTE qui cite -> planifiée"
+prepare
+sans_couverture
+printf '# ToDo-0001 — Un chantier\n\n**Statut : 🚧 en cours**\n\nCite req~exigence-de-demonstration~1.\n' \
+    > "${D}/docs/todo/todo-0001-chantier.md"
+(cd "${D}" && sh tools/todo.sh --ecrire >/dev/null && sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| planifiée | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — lot planifié mais non réalisé mal classé" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : couverture par un item de vérification manuelle -> implémentée"
+prepare
+sans_couverture
+mkdir -p "${D}/docs/verification-manuelle"
+printf '# Vérifications\n\n## Démonstration\n\n`mtest~demonstration~1`\n\nProcédure.\n\nCovers:\n\n- req~exigence-de-demonstration~1\n' \
+    > "${D}/docs/verification-manuelle/demo.md"
+(cd "${D}" && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "test: mtest" && \
+    sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| implémentée | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — couverture par un item mtest ignorée" >&2
+    fail=1
+fi
+
+echo "gouvernance-test — avancement : un item de conception (dsn) seul ne réalise pas -> à planifier"
+prepare
+sans_couverture
+mkdir -p "${D}/docs/adr"
+printf '# ADR\n\n`dsn~conception~1`\n\nConçue.\n\nCovers:\n\n- req~exigence-de-demonstration~1\n' \
+    > "${D}/docs/adr/0001-conception.md"
+(cd "${D}" && git add -A && git -c user.name=t -c user.email=t@t commit -q -m "docs: adr" && \
+    sh tools/avancement.sh --ecrire >/dev/null)
+if ! grep -q '| à planifier | objet de démonstration |' "${D}/spec/02-exigences/README.md"; then
+    echo "ÉCHEC : avancement — un item de conception compté comme réalisation" >&2
     fail=1
 fi
 
