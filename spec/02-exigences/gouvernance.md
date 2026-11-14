@@ -414,6 +414,49 @@ Covers:
 
 Needs: utest
 
+## Épinglage sur la stable courante
+
+`req~epinglage-chaine-stable~1`
+
+**Statut : approuvée**
+
+Là où le projet instancié compile du Rust, le kit Rust fourni DOIT offrir une
+commande qui épingle la chaîne sur la dernière version stable publiée au
+moment où elle s'exécute, lue dans le manifeste officiel du canal stable et
+écrite en version exacte. Sur un fichier de chaîne existant, elle NE DOIT
+modifier que la ligne du canal ; si le manifeste est injoignable ou ne donne
+pas de version exacte, elle DOIT échouer sans créer ni modifier le fichier.
+
+Rationale:
+La porte d'hygiène exige une chaîne exacte, mais ne dit pas laquelle : le
+kit donnait en exemple une version recopiée telle quelle, et un projet
+instancié le 2026-11-14 est né épinglé sur la 1.95.0 quand la 1.100.0 était
+publiée depuis deux jours — cinq versions de retard dès le premier commit
+(demande du porteur). La version épinglée doit être la stable du jour de
+l'instanciation, puis monter par un geste délibéré : relancer la même
+commande, CI verte, commit à part. Le manifeste du canal est la source que
+rustup lui-même consulte.
+
+Critères d'acceptation :
+
+- Étant donné un projet sans fichier de chaîne, quand la commande
+  s'exécute, alors elle crée `rust-toolchain.toml` avec la version exacte de
+  rustc donnée par le manifeste, jamais un canal flottant, et la date de
+  publication en commentaire.
+- Étant donné un fichier de chaîne épinglé sur une version plus ancienne,
+  quand la commande s'exécute, alors seule la ligne du canal change, et
+  l'ancienne et la nouvelle version sont nommées.
+- Étant donné un fichier de chaîne déjà à jour, quand la commande
+  s'exécute, alors il n'est pas réécrit et elle le dit.
+- Étant donné un manifeste injoignable ou sans version exacte, quand la
+  commande s'exécute, alors elle échoue et le fichier de chaîne reste tel
+  qu'il était, ou absent.
+
+Covers:
+- feat~gouvernance-agnostique~1
+
+Needs: utest
+
 ## Journalisation vérifiée des projets Rust
 
 `req~journalisation-verifiee~1`

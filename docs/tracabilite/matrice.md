@@ -240,6 +240,13 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 - Couvertures réelles (1) :
   - `utest` — tools/rust-kit-test.sh:2
 
+#### `req~epinglage-chaine-stable~1`
+
+- Niveau normatif : DOIT
+- Needs: utest
+- Couvertures réelles (1) :
+  - `utest` — tools/rust-kit-test.sh:3
+
 #### `req~journalisation-verifiee~1`
 
 - Niveau normatif : DOIT
@@ -453,7 +460,7 @@ Vue de synthèse, informative : elle n'ajoute aucun contrôle à `task trace` (O
 
 ### Bilan (couvertures réelles)
 
-49/49 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
+50/50 exigence(s) testable(s) couverte(s) par au moins une trace réelle (100.0 %).
 
 ## 2. L'inverse — outillage sans exigence
 
